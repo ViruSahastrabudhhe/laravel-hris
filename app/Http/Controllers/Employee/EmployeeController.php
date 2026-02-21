@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\Department;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 
@@ -26,7 +27,9 @@ class EmployeeController extends Controller
     public function create()
     {
         $positions = Position::all();
-        return view('employee.create', ['positions' => $positions]);
+        $departments = Department::all();
+
+        return view('employee.create', ['positions' => $positions, 'departments' => $departments]);
     }
 
     /**
@@ -34,7 +37,11 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        Employee::create($data);
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }
 
     /**
@@ -66,6 +73,8 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+        $employee->delete();
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_deleting'));
     }
 }

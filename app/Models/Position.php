@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\Administration\PositionFactory;
 
+#[UseFactory(PositionFactory::class)]
 class Position extends Model
 {
     /** @use HasFactory<\Database\Factories\PositionFactory> */

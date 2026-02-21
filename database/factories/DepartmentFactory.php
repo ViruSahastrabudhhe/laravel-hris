@@ -3,19 +3,19 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Position;
+use App\Models\Department;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Position>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Department>
  */
-class PositionFactory extends Factory
+class DepartmentFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var class-string<\Illuminate\Database\Eloquent\Model>
      */
-    protected $model = Position::class;
+    protected $model = Department::class;
 
     /**
      * Define the model's default state.
@@ -25,7 +25,7 @@ class PositionFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => 'Administrative Aide I',
+            'name' => 'Human Resources Management',
         ];
     }
 }

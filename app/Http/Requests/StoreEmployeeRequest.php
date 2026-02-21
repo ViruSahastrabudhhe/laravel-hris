@@ -29,11 +29,12 @@ class StoreEmployeeRequest extends FormRequest
             'date_of_birth' => 'required',
             'address' => 'required',
             'phone_number' => 'required',
-            'department' => 'required',
-            'salary_grade' => 'required',
+            'salary' => 'required',
             'employment_type' => 'required',
             'is_active' => 'required',
             'position_id' => 'required',
+            'department_id' => 'required',
+            'user_id' => 'required',
         ];
     }
 }

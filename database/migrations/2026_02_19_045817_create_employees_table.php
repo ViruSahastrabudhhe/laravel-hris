@@ -20,13 +20,26 @@ return new class extends Migration
             $table->dateTime('date_of_birth');
             $table->string('address');
             $table->string('phone_number');
-            $table->string('department');
-            $table->string('salary_grade');
             $table->string('employment_type');
+            $table->double('salary');
             $table->string('is_active');
             $table->integer('position_id');
+            $table->integer('department_id');
             $table->integer('user_id');
             $table->timestamps();
+            $table->foreign('position_id')
+                    ->references('id')->on('positions')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+            $table->foreign('department_id')
+                    ->references('id')->on('departments')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+            $table->foreign('user_id')
+                    ->references('id')->on('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+
         });
     }
 

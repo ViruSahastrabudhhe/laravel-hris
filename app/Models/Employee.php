@@ -22,11 +22,11 @@ class Employee extends Model
         'date_of_birth',
         'address',
         'phone_number',
-        'department',
-        'salary_grade',
         'employment_type',
+        'salary',
         'is_active',
         'position_id',
+        'department_id',
         'user_id',
     ];
 
