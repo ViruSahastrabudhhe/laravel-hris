@@ -30,7 +30,7 @@
                 <td>{{ $employee->department->name }}</td>
                 <td>{{ $employee->salary }}</td>
                 <td>{{ $employee->employment_type }}</td>
-                <td>{{ $employee->is_active }}</td>
+                <td>{{ $employee->is_active ? 'Active' : 'Inactive'}}</td>
                 <td>
                     <a href="{{ route('employees.edit', $employee) }}">
                         <button>Edit</button>

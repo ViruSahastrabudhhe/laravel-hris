@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Deduction;
 
 use App\Models\Deduction;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDeductionRequest;
 use App\Http\Requests\UpdateDeductionRequest;
 
