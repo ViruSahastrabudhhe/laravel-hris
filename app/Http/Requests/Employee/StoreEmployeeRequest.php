@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -29,7 +29,7 @@ class StoreEmployeeRequest extends FormRequest
             'date_of_birth' => 'required',
             'address' => 'required',
             'phone_number' => 'required',
-            'salary' => 'required',
+            'salary' => 'required|numeric',
             'employment_type' => 'required',
             'is_active' => 'required',
             'position_id' => 'required',

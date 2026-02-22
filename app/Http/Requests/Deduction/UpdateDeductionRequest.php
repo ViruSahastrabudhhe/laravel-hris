@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Deduction;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePositionRequest extends FormRequest
+class UpdateDeductionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -22,7 +22,7 @@ class StorePositionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
+            //
         ];
     }
 }

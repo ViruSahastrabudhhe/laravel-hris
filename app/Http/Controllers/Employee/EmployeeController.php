@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Department;
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
+use App\Http\Requests\Employee\StoreEmployeeRequest;
+use App\Http\Requests\Employee\UpdateEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -16,7 +16,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::where('user_id', '=', auth()->user()->id)->get();
+        $employees = Employee::findAllWithUserID()->get();
 
         return view('employee.index', ['employees' => $employees]);
     }   
@@ -26,8 +26,8 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $positions = Position::all();
-        $departments = Department::all();
+        $positions = Position::findAllWithUserID()->get();
+        $departments = Department::findAllWithUserID()->get();
 
         return view('employee.create', ['positions' => $positions, 'departments' => $departments]);
     }
@@ -49,7 +49,7 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        //
+        return view('employee.show', ['employee' => $employee]);
     }
 
     /**

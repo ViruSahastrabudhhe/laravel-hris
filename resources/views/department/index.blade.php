@@ -2,8 +2,8 @@
 
 @section('content')
 <div>
-    <a href="{{ route('positions.create') }}">
-        <button>Create position</button>
+    <a href="{{ route('departments.create') }}">
+        <button>Create department</button>
     </a>
 </div>
 
@@ -11,19 +11,21 @@
     <table>
         <thead>
             <tr>
-                <th>Position title</th>
+                <th>Department name</th>
+                <th>Description</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($positions as $position)
+            @forelse($departments as $department)
             <tr>
-                <td>{{ $position->title }}</td>
+                <td>{{ $department->name }}</td>
+                <td>{{ $department->description }}</td>
                 <td>
-                    <a href="{{ route('positions.edit', $position) }}">
+                    <a href="{{ route('departments.edit', $department) }}">
                         <button>Edit</button>
                     </a>
-                    <form action="{{ route('positions.destroy', $position) }}" method="post">
+                    <form action="{{ route('departments.destroy', $department) }}" method="post">
                         @csrf
                         @method('DELETE')
                         <input type="submit" value="Delete">
@@ -31,7 +33,7 @@
                 </td>
             </tr>
             @empty
-            <p>No positions</p>
+            <p>No departments</p>
             @endforelse
         </tbody>
     </table>

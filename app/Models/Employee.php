@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\EmployeeScope;
 use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 
-#[ScopedBy(EmployeeScope::class)]
 class Employee extends Model
 {
     /** @use HasFactory<\Database\Factories\EmployeeFactory> */
@@ -27,7 +27,7 @@ class Employee extends Model
         'employment_type',
         'salary',
         'is_active',
-        'position_id',
+        'position_id',  
         'department_id',
         'user_id',
     ];
@@ -39,4 +39,9 @@ class Employee extends Model
     public function position() {
         return $this->hasOne(Position::class, 'id', 'position_id');
     }
+
+    #[Scope]
+    protected function findAllWithUserID(Builder $query): void {
+        $query->where('user_id', '=', auth()->user()->id);
+    } 
 }

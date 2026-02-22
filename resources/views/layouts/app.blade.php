@@ -15,6 +15,8 @@
                 <li><a href="{{ route('home') }}">Dashboard</a></li>
                 <li><a href="{{ route('employees.index') }}">Employees</a></li>
                 <li><a href="{{ route('positions.index') }}">Positions</a></li>
+                <li><a href="{{ route('departments.index') }}">Departments</a></li>
+                <li><a href="{{ route('deductions.index') }}">Deductions</a></li>
                 <li><a href="#">Salary Structure</a></li>
                 <li><a href="#">Attendance</a></li>
                 <li><a href="#">Reports</a></li>
@@ -22,10 +24,32 @@
         </nav>
 
         <div>
-            <p>Welcome, {{ auth()->user()->name }}!</p>
+            <a href="{{ route('logout') }}"
+                onclick="event.preventDefault();
+                                document.getElementById('logout-form').submit();">
+                {{ __('Logout') }}
+            </a>
+
+            <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                @csrf
+            </form>
+        </div>
+
+        <div>
+            <h1>Welcome, {{ auth()->user()->name }}!</h1>
         </div>
 
         <main>
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
             @yield('content')
         </main>
     </div>

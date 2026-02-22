@@ -7,6 +7,8 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PositionSeeder;
 use Database\Seeders\DepartmentSeeder;
+use Database\Seeders\DeductionSeeder;
+use Database\Seeders\EmployeeSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +29,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PositionSeeder::class,
             DepartmentSeeder::class,
+            EmployeeSeeder::class,
+            DeductionSeeder::class,
         ]);
     }
 }

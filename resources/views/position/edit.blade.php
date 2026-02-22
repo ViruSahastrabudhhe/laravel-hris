@@ -8,11 +8,12 @@
 </div>
 
 <div>
-    <form action="{{ route('positions.store') }}" method="post">
+    <form action="{{ route('positions.update', $position) }}" method="post">
         @csrf
-        Title: <input type="text" name="title" required> <br>
+        @method('put')
+        Title: <input type="text" name="title" value="{{ $position->title }}" required> <br>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}" required> <br>
-        <input type="submit" value="Create Position">
+        <input type="submit" value="Edit Position">
     </form>
 </div>
 @endsection

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Deduction;
 
 use App\Models\Deduction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreDeductionRequest;
-use App\Http\Requests\UpdateDeductionRequest;
+use App\Http\Requests\Deduction\StoreDeductionRequest;
+use App\Http\Requests\Deduction\UpdateDeductionRequest;
 
 class DeductionController extends Controller
 {
@@ -14,7 +14,9 @@ class DeductionController extends Controller
      */
     public function index()
     {
-        //
+        $deductions = Deduction::findAllWithUserID()->get();
+
+        return view('deduction.index', ['deductions' => $deductions]);
     }
 
     /**

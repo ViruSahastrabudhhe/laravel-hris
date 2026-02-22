@@ -26,6 +26,7 @@ class DepartmentFactory extends Factory
     {
         return [
             'name' => 'Human Resources Management',
+            'user_id' => 1,
         ];
     }
 }

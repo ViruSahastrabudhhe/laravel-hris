@@ -15,8 +15,8 @@
                 <th>Name</th>
                 <th>Position</th>
                 <th>Department</th>
-                <th>Salary Grade</th>
-                <th>Type</th>
+                <th>Salary</th>
+                <th>Employment Type</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -32,6 +32,9 @@
                 <td>{{ $employee->employment_type }}</td>
                 <td>{{ $employee->is_active ? 'Active' : 'Inactive'}}</td>
                 <td>
+                    <a href="{{ route('employees.show', $employee) }}">
+                        <button>Show</button>
+                    </a>
                     <a href="{{ route('employees.edit', $employee) }}">
                         <button>Edit</button>
                     </a>

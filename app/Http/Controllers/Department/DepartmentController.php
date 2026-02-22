@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Department;
 
 use App\Models\Department;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreDepartmentRequest;
-use App\Http\Requests\UpdateDepartmentRequest;
+use App\Http\Requests\Department\StoreDepartmentRequest;
+use App\Http\Requests\Department\UpdateDepartmentRequest;
 
 class DepartmentController extends Controller
 {
@@ -14,7 +14,9 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        //
+        $departments = Department::findAllWithUserID()->get();
+
+        return view('department.index', ['departments' => $departments]);
     }
 
     /**
@@ -22,7 +24,7 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        //
+        return view('department.create');
     }
 
     /**
@@ -30,7 +32,11 @@ class DepartmentController extends Controller
      */
     public function store(StoreDepartmentRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        Department::create($data);
+
+        return redirect()->route('departments.index')->with('success', __('department.success_creating'));
     }
 
     /**
@@ -46,7 +52,7 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        //
+        return view('department.edit', ['department' => $department]);
     }
 
     /**
@@ -54,7 +60,11 @@ class DepartmentController extends Controller
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
-        //
+        $data = $request->validated();
+
+        $department->update($data);
+
+        return redirect()->route('departments.index')->with('success', __('department.success_updating'));
     }
 
     /**
@@ -62,6 +72,8 @@ class DepartmentController extends Controller
      */
     public function destroy(Department $department)
     {
-        //
+        $department->delete();
+
+        return redirect()->route('departments.index')->with('success', __('department.success_deleting'));
     }
 }

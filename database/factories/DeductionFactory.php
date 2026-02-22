@@ -17,7 +17,9 @@ class DeductionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'deduction' => 'GSIS Contribution',
+            'description' => '',
+            'user_id' => 1,
         ];
     }
 }
