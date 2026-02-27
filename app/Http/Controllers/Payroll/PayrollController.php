@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Models\Payroll;
+use App\Models\Deduction;
+use App\Models\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payroll\StorePayrollRequest;
 use App\Http\Requests\Payroll\UpdatePayrollRequest;
@@ -14,7 +16,10 @@ class PayrollController extends Controller
      */
     public function index()
     {
-        return view('payroll.index');
+        $deductions = Deduction::findAllWithUserID()->get();
+        $payrolls = [];
+        $employees = Employee::findAllWithUserID()->get();
+        return view('payroll.index', ['deductions' => $deductions, 'payrolls' => $payrolls, 'employees' => $employees]);
     }
 
     /**

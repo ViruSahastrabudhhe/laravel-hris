@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Position;
+namespace App\Http\Requests\Leave;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePositionRequest extends FormRequest
+class StoreLeaveRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,7 @@ class UpdatePositionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
-            'salary_grade' => 'required|numeric',
-            'salary_amount' => 'required|numeric',
-            'user_id' => 'required',
+            //
         ];
     }
 }

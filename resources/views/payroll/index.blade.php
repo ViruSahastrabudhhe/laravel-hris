@@ -11,19 +11,37 @@
             <tr>
                 <th>Employee ID</th>
                 <th>Employee Name</th>
+                <th>Hours Worked This Month</th>
                 <th>Gross Pay</th>
                 <th>GSIS Contribution</th>
-                <th>PhilHealth</th>
-                <th>Pag-Ibig</th>
-                <th>Tax</th>
+                <th>PhilHealth Contribution</th>
+                <th>Pag-Ibig Contribution</th>
+                <th>Withholding Tax</th>
                 <th>Cash Advance</th>
                 <th>Adjustment</th>
-                <th>Total Deduction</th>
+                <th>Total Deductions</th>
                 <th>Net Pay</th>
             </tr>
         </thead>
         <tbody>
-        
+            @forelse($employees as $employee)
+            <tr>
+                <td>{{ $employee->id }}</td>
+                <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
+                <td>{{ $employee->hoursWorked($employee->id) + $employee->overtimeWorked($employee->id) }}</td>
+                <td>P{{ round($employee->grossPay($employee->id), 2) }}</td>
+                <td>P{{ round($employee->gsisContribution(), 2) }}</td>
+                <td>P{{ round($employee->philHealthContribution(), 2) }}</td>
+                <td>P{{ $employee->pagIbigContribution() }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>P{{ round($employee->totalDeductions(), 2) }}</td>
+                <td>P{{ round($employee->netPay($employee->id), 2) }}</td>
+            </tr>
+            @empty
+            <p>No employees on payroll</p>
+            @endforelse
         </tbody>
     </table>
 </div>

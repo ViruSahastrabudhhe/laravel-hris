@@ -12,7 +12,9 @@
         @csrf
         @method('put')
         Title: <input type="text" name="title" value="{{ $position->title }}" required> <br>
-        Salary range: <input type="text" name="salary_grade" value="{{ $position->salary_range }}" required> <br>
+        Salary range: <input type="text" name="salary_grade" value="{{ $position->salary_grade }}" required> <br>
+        Salary amount: <input type="text" name="salary_amount" value="{{ $position->salary_amount }}" required> <br>
+        Description: <input type="text" name="description" value="{{ $position->description }}" required> <br>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}" required> <br>
         <input type="submit" value="Edit Position">
     </form>

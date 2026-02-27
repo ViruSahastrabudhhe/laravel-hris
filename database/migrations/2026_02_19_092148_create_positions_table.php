@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->integer('salary_grade');
+            $table->string('salary_grade');
+            $table->float('salary_amount');
             $table->integer('user_id');
             $table->timestamps();
             $table->foreign('user_id')

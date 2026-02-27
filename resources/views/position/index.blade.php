@@ -13,6 +13,7 @@
             <tr>
                 <th>Position title</th>
                 <th>Salary grade</th>
+                <th>Salary amount</th>
                 <th>Description</th>
                 <th>Action</th>
             </tr>
@@ -22,6 +23,7 @@
             <tr>
                 <td>{{ $position->title }}</td>
                 <td>SG{{ $position->salary_grade }}</td>
+                <td>P{{ $position->salary_amount }}</td>
                 <td>{{ $position->description }}</td>
                 <td>
                     <a href="{{ route('positions.edit', $position) }}">

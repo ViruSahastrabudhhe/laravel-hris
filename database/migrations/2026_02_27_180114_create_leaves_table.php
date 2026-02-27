@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('salaries', function (Blueprint $table) {
+        Schema::create('leaves', function (Blueprint $table) {
             $table->id();
-            $table->float('amount');
-            $table->float('annual');
-            $table->integer('position_id');
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('salaries');
+        Schema::dropIfExists('leaves');
     }
 };

@@ -13,7 +13,28 @@ return new class extends Migration
     {
         Schema::create('payrolls', function (Blueprint $table) {
             $table->id();
+            $table->integer('employee_id');
+            $table->integer('deductions_id');
+            $table->float('gross_pay');
+            $table->float('tax_deduction');
+            $table->float('cash_advance');
+            $table->float('adjustment');
+            $table->float('total_deductions');
+            $table->float('net_pay');
+            $table->integer('user_id');
             $table->timestamps();
+            $table->foreign('employee_id')
+                    ->references('id')->on('employees')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+            $table->foreign('deductions_id')
+                    ->references('id')->on('deductions')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
+            $table->foreign('user_id')
+                    ->references('id')->on('users')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
         });
     }
 
