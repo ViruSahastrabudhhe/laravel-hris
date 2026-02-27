@@ -24,7 +24,7 @@ class DeductionController extends Controller
      */
     public function create()
     {
-        //
+        return view('deduction.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class DeductionController extends Controller
      */
     public function edit(Deduction $deduction)
     {
-        //
+        return view('deduction.edit', ['deduction' => $deduction]);
     }
 
     /**

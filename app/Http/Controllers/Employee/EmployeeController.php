@@ -59,8 +59,8 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        $positions = Position::all();
-        $departments = Department::all();
+        $positions = Position::findAllWithUserID()->get();
+        $departments = Department::findAllWithUserID()->get();
         $employmentTypes = EmploymentType::cases();
 
         return view('employee.edit', 

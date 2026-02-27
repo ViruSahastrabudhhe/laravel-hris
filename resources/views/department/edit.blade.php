@@ -12,7 +12,7 @@
         @csrf
         @method('put')
         Name: <input type="text" name="name" value="{{ $department->name }}" required> <br>
-        Description: <input type="text" name="description" value="{{ $department->description }}" required> <br>
+        Description: <textarea name="description" id="description">{{ $department->description }}</textarea>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}" required> <br>
         <input type="submit" value="Edit Department">
     </form>

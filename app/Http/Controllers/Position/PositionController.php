@@ -14,7 +14,7 @@ class PositionController extends Controller
      */
     public function index()
     {
-        $positions = Position::all();
+        $positions = Position::findAllWithUserID()->get();
         return view('position.index', ["positions" => $positions]);
     }
 

@@ -16,6 +16,10 @@
 
                     {{ __('You are logged in!') }}
                 </div>
+
+                <div>
+                    <h4>Employee count: {{ $employee_count }}</h4>
+                </div>
             </div>
         </div>
     </div>

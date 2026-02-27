@@ -16,10 +16,8 @@ class PayrollController extends Controller
      */
     public function index()
     {
-        $deductions = Deduction::findAllWithUserID()->get();
-        $payrolls = [];
         $employees = Employee::findAllWithUserID()->get();
-        return view('payroll.index', ['deductions' => $deductions, 'payrolls' => $payrolls, 'employees' => $employees]);
+        return view('payroll.index', ['employees' => $employees]);
     }
 
     /**
