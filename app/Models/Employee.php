@@ -96,6 +96,10 @@ class Employee extends Model
 
         $calc = $this->position->salary_amount * $philhealth[0];
 
+        if ($calc >= 2500) {
+            $calc = 2500;
+        }
+
         return $calc;
     }
 
@@ -114,11 +118,50 @@ class Employee extends Model
         return $calc;
     }
 
-    public function totalDeductions() {
+    public function netTaxableIncome(int $employee_id) {
+        $grossPay = $this->grossPay($employee_id);
+        $contributions = $this->gsisContribution() + $this->philHealthContribution() + $this->pagIbigContribution();
+
+        return $grossPay - $contributions;
+    }
+
+    public function withholdingTax(int $employee_id) {
+        $netTaxableIncome = $this->netTaxableIncome($employee_id);
+        $calc = 0;
+
+        if ($netTaxableIncome < 20833) {
+            return 0;
+        } elseif ($netTaxableIncome >= 20833 && $netTaxableIncome <= 33332) {
+            $calc = $netTaxableIncome - 20833;
+            return $calc * 0.15;
+        } elseif ($netTaxableIncome >= 33333 && $netTaxableIncome <= 66666) {
+            $calc = $netTaxableIncome - 33333;
+            $calc *= 0.20;
+            $calc += 1875;
+            return $calc;
+        } elseif ($netTaxableIncome >= 66667 && $netTaxableIncome <= 166666) {
+            $calc = $netTaxableIncome - 66667;
+            $calc *= 0.25;
+            $calc += 8541.80;
+            return $calc;
+        } elseif ($netTaxableIncome >= 166667 && $netTaxableIncome <= 666666) {
+            $calc = $netTaxableIncome - 166667;
+            $calc *= 0.30;
+            $calc += 33541.80;
+            return $calc;
+        } elseif ($netTaxableIncome >= 666667) {
+            $calc = $netTaxableIncome - 666667;
+            $calc *= 0.35;
+            $calc += 183541.80;
+            return $calc;
+        }
+    }
+
+    public function totalDeductions(int $employee_id) {
         $gsis = $this->gsisContribution();
         $philHealth = $this->philHealthContribution();
         $pagibig = $this->pagIbigContribution();
-        $withholdingTax = 0;
+        $withholdingTax = $this->withholdingTax($employee_id);
 
         $total = $gsis + $philHealth + $pagibig + $withholdingTax;
 
@@ -127,11 +170,11 @@ class Employee extends Model
 
     public function netPay(int $employee_id) {
         $grossPay = $this->grossPay($employee_id);
-        $totalDeductions = $this->totalDeductions();
+        $totalDeductions = $this->totalDeductions($employee_id);
 
         $sum = $grossPay - $totalDeductions;
 
-        return $sum; 
+        return $sum;
     }
 
     #[Scope]
