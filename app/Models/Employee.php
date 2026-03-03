@@ -129,9 +129,9 @@ class Employee extends Model
         $netTaxableIncome = $this->netTaxableIncome($employee_id);
         $calc = 0;
 
-        if ($netTaxableIncome < 20833) {
+        if ($netTaxableIncome <= 20833) {
             return 0;
-        } elseif ($netTaxableIncome >= 20833 && $netTaxableIncome <= 33332) {
+        } elseif ($netTaxableIncome > 20833 && $netTaxableIncome <= 33332) {
             $calc = $netTaxableIncome - 20833;
             return $calc * 0.15;
         } elseif ($netTaxableIncome >= 33333 && $netTaxableIncome <= 66666) {

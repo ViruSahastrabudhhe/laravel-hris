@@ -15,9 +15,6 @@
         <input type="submit" value="Submit">
     </form>
     <br>
-    or
-    <br>
-    Manual Input: <br>
     <form action="#">
 
     </form>

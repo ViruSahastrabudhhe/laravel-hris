@@ -29,7 +29,7 @@
             <tr>
                 <td>{{ $employee->id }}</td>
                 <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
-                <td>{{ $employee->hoursWorked($employee->id) + $employee->overtimeWorked($employee->id) }}</td>
+                <td>{{ $employee->hoursWorked($employee->id) }}</td>
                 <td>P{{ round($employee->grossPay($employee->id), 2) }}</td>
                 <td>P{{ round($employee->netTaxableIncome($employee->id), 2) }}</td>
                 <td>P{{ round($employee->gsisContribution(), 2) }}</td>
