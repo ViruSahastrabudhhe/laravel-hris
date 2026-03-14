@@ -20,7 +20,7 @@
         <tbody>
             @forelse($deductions as $deduction)
                 <tr>
-                    <td>{{ $deduction->deduction }}</td>
+                    <td>{{ $deduction->name }}</td>
                     <td>{{ $deduction->rate * 100 }}%</td>
                     <td>{{ $deduction->description }}</td>
                     <td>

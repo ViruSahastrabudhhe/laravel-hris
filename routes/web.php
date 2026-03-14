@@ -9,6 +9,7 @@ use App\Http\Controllers\Department\DepartmentController;
 use App\Http\Controllers\Deduction\DeductionController;
 use App\Http\Controllers\Attendance\AttendanceController;
 use App\Http\Controllers\Payroll\PayrollController;
+use App\Http\Controllers\Employee\EmployeeDeductionController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -40,4 +41,5 @@ Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'csvStore'])->name('attendances.csvStore');
     Route::resource('attendances', AttendanceController::class);
     Route::resource('payroll', PayrollController::class);
+    Route::resource('employee_deductions', EmployeeDeductionController::class);
 });

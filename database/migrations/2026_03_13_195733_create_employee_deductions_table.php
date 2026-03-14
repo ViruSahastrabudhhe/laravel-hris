@@ -11,13 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deductions', function (Blueprint $table) {
+        Schema::create('employee_deductions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->double('rate')->nullable();
-            $table->text('description')->nullable();
+            $table->unsignedBigInteger('employee_id');
+            $table->unsignedBigInteger('deduction_id');
             $table->unsignedBigInteger('user_id');
+            $table->float('amount');
             $table->timestamps();
+            $table->foreign('employee_id')
+                ->references('id')->on('employees')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreign('deduction_id')
+                ->references('id')->on('deductions')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onUpdate('cascade')
@@ -30,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deductions');
+        Schema::dropIfExists('employee_deductions');
     }
 };

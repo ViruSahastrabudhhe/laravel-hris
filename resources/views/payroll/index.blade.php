@@ -6,9 +6,28 @@
 </div>
 
 <div class="container">
+    <h3>Month of {{ $calendar->format('F') }}, {{ $calendar->format('Y') }}</h3>
     <table>
         <thead>
             <tr>
+                <th>First day</th>
+                <th>Last day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ $calendar->startOfMonth()->toDateString() }}</td>
+                <td>{{ $calendar->endOfMonth()->toDateString() }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
                 <th>Employee ID</th>
                 <th>Employee Name</th>
                 <th>Hours Worked This Month</th>
@@ -17,6 +36,7 @@
                 <th>GSIS Contribution</th>
                 <th>PhilHealth Contribution</th>
                 <th>Pag-Ibig Contribution</th>
+                <th>Other Deductions</th>
                 <th>Withholding Tax</th>
                 <th>Cash Advance</th>
                 <th>Adjustment</th>
@@ -27,6 +47,7 @@
         <tbody>
             @forelse($employees as $employee)
             <tr>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $employee->id }}</td>
                 <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td>{{ $employee->hoursWorked($employee->id) }}</td>
@@ -52,6 +73,11 @@
                     @else
                     -
                     @endif
+                </td>
+                <td>
+                    P{{ $employee->deductions->sum('amount') }}
+                    <br>
+                    <a href="{{ route('employee_deductions.index') }}">View deductions</a>
                 </td>
                 <td>P{{ round($employee->withholdingTax($employee->id), 2) }}</td>
                 <td>-</td>

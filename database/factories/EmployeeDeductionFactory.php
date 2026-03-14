@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Deduction>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EmployeeDeduction>
  */
-class DeductionFactory extends Factory
+class EmployeeDeductionFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,9 +17,9 @@ class DeductionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'GSIS Contribution',
-            'description' => '',
-            'user_id' => 1,
+            // 'deduction_id' => 15,
+            // 'amount' => 100,
+            // 'user_id' => 1,
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -34,5 +35,11 @@ class Attendance extends Model
     #[Scope]
     protected function findAllWithUserID(Builder $query): void {
         $query->where('user_id', '=', auth()->user()->id);
+    }
+
+    #[Scope]
+    protected function currentMonth(Builder $query): void {
+        $query->whereYear('created_at', '=', Carbon::now()->year)
+              ->whereMonth('created_at', '=', Carbon::now()->month);
     }
 }

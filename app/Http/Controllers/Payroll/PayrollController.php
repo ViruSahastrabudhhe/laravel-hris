@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Payroll;
 use App\Models\Payroll;
 use App\Models\Deduction;
 use App\Models\Employee;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payroll\StorePayrollRequest;
 use App\Http\Requests\Payroll\UpdatePayrollRequest;
@@ -17,7 +18,9 @@ class PayrollController extends Controller
     public function index()
     {
         $employees = Employee::findAllWithUserID()->get();
-        return view('payroll.index', ['employees' => $employees]);
+        $currentMonth = Carbon::now();
+        
+        return view('payroll.index', ['employees' => $employees, 'calendar' => $currentMonth]);
     }
 
     /**

@@ -16,7 +16,7 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::findAllWithUserID()->get();
+        $attendances = Attendance::findAllWithUserID()->currentMonth()->get();
 
         return view('attendance.index', ['attendances' => $attendances]);
     }

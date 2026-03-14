@@ -13,7 +13,13 @@
         <nav>
             <ul>
                 <li><a href="{{ route('home') }}">Dashboard</a></li>
-                <li><a href="{{ route('employees.index') }}">Employees</a></li>
+                <li>
+                    <a href="{{ route('employees.index') }}">Employees</a>
+                    <ul>
+                        <li><a href="{{ route('employee_deductions.index') }}">Employee deductions</a></li>
+                        <li><a href="#">Employee leaves</a></li>
+                    </ul>
+                </li>
                 <li><a href="{{ route('positions.index') }}">Positions</a></li>
                 <li><a href="{{ route('departments.index') }}">Departments</a></li>
                 <li><a href="{{ route('attendances.index') }}">Attendance</a></li>

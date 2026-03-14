@@ -12,6 +12,7 @@
     <table>
         <thead>
             <tr>
+                <th>#</th>
                 <th>Employee ID</th>
                 <th>Employee Name</th>
                 <th>Date</th>
@@ -27,6 +28,7 @@
         <tbody>
             @forelse($attendances as $attendance)
             <tr>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $attendance->employee->id }}</td>
                 <td>{{ $attendance->employee->first_name }} {{ $attendance->employee->last_name }}</td>
                 <td>{{ $attendance->date }}</td>

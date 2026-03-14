@@ -15,7 +15,7 @@ class Deduction extends Model
     protected $table = "deductions";
 
     protected $fillable = [
-        'deduction',
+        'name',
         'rate',
         'description',
         'user_id',
@@ -24,5 +24,10 @@ class Deduction extends Model
     #[Scope]
     protected function findAllWithUserID(Builder $query): void {
         $query->where('user_id', '=', auth()->user()->id);
+    }
+
+    #[Scope]
+    protected function otherDeductions(Builder $query): void {
+        $query->where('id', '>', 3);
     }
 }
