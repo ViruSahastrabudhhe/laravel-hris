@@ -14,7 +14,11 @@
         Gender: <input type="text" name="gender" required value="{{ $employee->gender }}"> <br>
         Email: <input type="email" name="email" required value="{{ $employee->email }}"> <br>
         Birth date: <input type="date" name="date_of_birth" required value="{{ $employee->date_of_birth }}"> <br>
-        Address: <input type="text" name="address" required value="{{ $employee->address }}"> <br>
+        Country: <input type="text" name="address[country]" required value="{{ $employee->address->country }}"> <br>
+        Zip code: <input type="number" name="address[zip_code]" required value="{{ $employee->address->zip_code }}"> <br>
+        Address: <input type="text" name="address[address]" required value="{{ $employee->address->address }}"> <br>
+        City: <input type="text" name="address[city]" required value="{{ $employee->address->city }}"> <br>
+        Province: <input type="text" name="address[province]" required value="{{ $employee->address->province }}"> <br>
         Contact number: <input type="text" name="phone_number" required value="{{ $employee->phone_number }}"> <br>
         Position: <select name="position_id" id="position" required value="{{ $employee->position_id }}">
                 <option value="">Select position</option>

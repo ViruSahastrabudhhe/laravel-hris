@@ -21,7 +21,13 @@
             @forelse($deductions as $deduction)
                 <tr>
                     <td>{{ $deduction->name }}</td>
-                    <td>{{ $deduction->rate * 100 }}%</td>
+                    <td>
+                        @if ($deduction->rate == 0)
+                        -
+                        @else
+                        {{ $deduction->rate * 100 }}%
+                        @endif
+                    </td>
                     <td>{{ $deduction->description }}</td>
                     <td>
                         <a href="{{ route('deductions.edit', $deduction) }}">

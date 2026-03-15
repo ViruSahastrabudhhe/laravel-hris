@@ -9,6 +9,8 @@ use Database\Seeders\PositionSeeder;
 use Database\Seeders\DepartmentSeeder;
 use Database\Seeders\DeductionSeeder;
 use Database\Seeders\EmployeeSeeder;
+use Database\Seeders\AddressSeeder;
+use Database\Seeders\LeaveTypeSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +29,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            AddressSeeder::class,
+            LeaveTypeSeeder::class,
             PositionSeeder::class,
             DepartmentSeeder::class,
             EmployeeSeeder::class,

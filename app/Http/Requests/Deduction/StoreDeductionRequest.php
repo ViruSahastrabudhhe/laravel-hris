@@ -22,8 +22,8 @@ class StoreDeductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deduction' => 'required',
-            'rate' => 'required|numeric',
+            'name' => 'required',
+            'rate' => 'nullable|numeric',
             'description' => 'nullable',
             'user_id' => 'required',
         ];

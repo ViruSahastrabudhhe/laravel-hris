@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\EmployeeDeduction;
+use App\Models\EmployeeLeave;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Models\Scopes\EmployeeScope;
@@ -29,10 +30,10 @@ class Employee extends Model
         'gender',
         'email',
         'date_of_birth',
-        'address',
         'phone_number',
         'employment_type',
         'is_active',
+        'address_id',
         'position_id',  
         'department_id',
         'user_id',
@@ -50,22 +51,30 @@ class Employee extends Model
         return $this->hasMany(EmployeeDeduction::class);
     }
 
+    public function address() {
+        return $this->hasOne(Address::class, 'id', 'address_id');
+    }
+
+    public function leaves() {
+        return $this->hasMany(EmployeeLeave::class);
+    }
+
     public function isRegular() {
         return $this->employment_type == EmploymentType::Regular->name;
     }
      
-    public function hoursWorked(int $employee_id): float {
+    public function hoursWorked(): float {
         $totalHours = DB::table('attendances')
             ->join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
-            ->where('attendances.employee_id', '=', $employee_id)
+            ->where('attendances.employee_id', '=', $this->id)
             ->select(DB::raw('SUM(TIMESTAMPDIFF(SECOND, time_in, time_out)) / 3600 as total_hours'))
             ->first();
 
         $entries = DB::table('attendances')
             ->join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
-            ->where('attendances.employee_id', '=', $employee_id)
+            ->where('attendances.employee_id', '=', $this->id)
             ->select(DB::raw('SUM(TIMESTAMPDIFF(SECOND, time_in, time_out)) / 3600 as total_hours'))
             ->count();
 
@@ -76,23 +85,23 @@ class Employee extends Model
         return $totalHours->total_hours - $entries;
     }
 
-    public function overtimeWorked(int $employee_id) {
+    public function overtimeWorked() {
         $overtimeWorked = DB::table('attendances')
             ->where('user_id', '=', auth()->user()->id)
-            ->where('employee_id', '=', $employee_id)
+            ->where('employee_id', '=', $this->id)
             ->sum('overtime_in');
 
         return $overtimeWorked;
     }
 
-    public function hourlyRate(int $employee_id) {
+    public function hourlyRate() {
         $hourlyRate = ($this->position->salary_amount * 12) / (261 * 8);
         return $hourlyRate;
     }
 
-    public function grossPay(int $employee_id) {
-        $overtime = $this->overtimePay($employee_id);
-        $monthlySalary = $this->hoursWorked($employee_id) * $this->hourlyRate($employee_id);
+    public function grossPay() {
+        $overtime = $this->overtimePay();
+        $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
 
         if (!$this->isRegular()) {
             return $monthlySalary + $overtime;
@@ -101,9 +110,9 @@ class Employee extends Model
         return $this->position->salary_amount + $overtime;
     }
 
-    public function overtimePay(int $employee_id) {
-        $overtimeHours = $this->overtimeWorked($employee_id);
-        $hourlyRate = $this->hourlyRate($employee_id);
+    public function overtimePay() {
+        $overtimeHours = $this->overtimeWorked();
+        $hourlyRate = $this->hourlyRate();
 
         $overtimeHourlyRate = $hourlyRate * 1.25;
         $overtimePay = $overtimeHourlyRate * $overtimeHours;
@@ -172,15 +181,15 @@ class Employee extends Model
         return $otherDeductions;
     }
 
-    public function netTaxableIncome(int $employee_id) {
-        $grossPay = $this->grossPay($employee_id);
+    public function netTaxableIncome() {
+        $grossPay = $this->grossPay();
         $contributions = $this->gsisContribution() + $this->philHealthContribution() + $this->pagIbigContribution();
 
         return $grossPay - $contributions;
     }
 
-    public function withholdingTax(int $employee_id) {
-        $netTaxableIncome = $this->netTaxableIncome($employee_id);
+    public function withholdingTax() {
+        $netTaxableIncome = $this->netTaxableIncome();
         $calc = 0;
 
         if ($netTaxableIncome < 20833) {
@@ -211,11 +220,11 @@ class Employee extends Model
         }
     }
 
-    public function totalDeductions(int $employee_id) {
+    public function totalDeductions() {
         $gsis = $this->gsisContribution();
         $philHealth = $this->philHealthContribution();
         $pagibig = $this->pagIbigContribution();
-        $withholdingTax = $this->withholdingTax($employee_id);
+        $withholdingTax = $this->withholdingTax();
         $otherDeductions = $this->otherDeductions();
 
         $total = $gsis + $philHealth + $pagibig + $withholdingTax + $otherDeductions;
@@ -223,9 +232,9 @@ class Employee extends Model
         return $total;
     }
 
-    public function netPay(int $employee_id) {
-        $grossPay = $this->grossPay($employee_id);
-        $totalDeductions = $this->totalDeductions($employee_id);
+    public function netPay() {
+        $grossPay = $this->grossPay();
+        $totalDeductions = $this->totalDeductions();
 
         $sum = $grossPay - $totalDeductions;
 

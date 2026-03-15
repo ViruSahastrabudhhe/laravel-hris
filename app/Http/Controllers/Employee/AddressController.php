@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Leave;
+namespace App\Http\Controllers\Employee;
 
-use App\Models\Leave;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Leave\StoreLeaveRequest;
-use App\Http\Requests\Leave\UpdateLeaveRequest;
+use App\Models\Address;
+use App\Http\Requests\Employee\StoreAddressRequest;
+use App\Http\Requests\Employee\UpdateAddressRequest;
 
-class LeaveController extends Controller
+class AddressController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,7 +27,7 @@ class LeaveController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLeaveRequest $request)
+    public function store(StoreAddressRequest $request)
     {
         //
     }
@@ -36,7 +35,7 @@ class LeaveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Leave $leave)
+    public function show(Address $address)
     {
         //
     }
@@ -44,7 +43,7 @@ class LeaveController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Leave $leave)
+    public function edit(Address $address)
     {
         //
     }
@@ -52,7 +51,7 @@ class LeaveController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLeaveRequest $request, Leave $leave)
+    public function update(UpdateAddressRequest $request, Address $address)
     {
         //
     }
@@ -60,7 +59,7 @@ class LeaveController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Leave $leave)
+    public function destroy(Address $address)
     {
         //
     }

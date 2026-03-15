@@ -50,9 +50,9 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $employee->id }}</td>
                 <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
-                <td>{{ $employee->hoursWorked($employee->id) }}</td>
-                <td>P{{ round($employee->grossPay($employee->id), 2) }}</td>
-                <td>P{{ round($employee->netTaxableIncome($employee->id), 2) }}</td>
+                <td>{{ $employee->hoursWorked() }}</td>
+                <td>P{{ round($employee->grossPay(), 2) }}</td>
+                <td>P{{ round($employee->netTaxableIncome(), 2) }}</td>
                 <td>
                     @if ($employee->isRegular())
                     P{{ round($employee->gsisContribution(), 2) }}
@@ -79,11 +79,11 @@
                     <br>
                     <a href="{{ route('employee_deductions.index') }}">View deductions</a>
                 </td>
-                <td>P{{ round($employee->withholdingTax($employee->id), 2) }}</td>
+                <td>P{{ round($employee->withholdingTax(), 2) }}</td>
                 <td>-</td>
                 <td>-</td>
-                <td>P{{ round($employee->totalDeductions($employee->id), 2) }}</td>
-                <td>P{{ round($employee->netPay($employee->id), 2) }}</td>
+                <td>P{{ round($employee->totalDeductions(), 2) }}</td>
+                <td>P{{ round($employee->netPay(), 2) }}</td>
             </tr>
             @empty
             <p>No employees on payroll</p>

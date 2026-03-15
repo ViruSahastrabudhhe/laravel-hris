@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Deduction;
+namespace App\Http\Requests\Leave;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateDeductionRequest extends FormRequest
+class UpdateLeaveTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,9 @@ class UpdateDeductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'rate' => 'nullable|numeric',
-            'description' => 'nullable',
+            'leave_type' => 'required|string',
+            'days_of_leave' => 'required|integer',
+            'is_active' => 'required|boolean',
             'user_id' => 'required',
         ];
     }

@@ -4,22 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
-use Database\Factories\Administration\PositionFactory;
+use Illuminate\Database\Eloquent\Builder;
 
-#[UseFactory(PositionFactory::class)]
-class Position extends Model
+class LeaveType extends Model
 {
-    /** @use HasFactory<\Database\Factories\PositionFactory> */
+    /** @use HasFactory<\Database\Factories\LeaveTypesFactory> */
     use HasFactory;
 
-    protected $table = 'positions';
-
+    protected $table = 'leave_types';
+    
     protected $fillable = [
-        'title',
-        'salary_grade',
-        'description',
+        'leave_type',
+        'days_of_leave',
+        'is_active',
         'user_id',
     ];
 

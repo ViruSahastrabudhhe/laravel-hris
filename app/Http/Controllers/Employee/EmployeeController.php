@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\Address;
 use App\Models\Department;
 use App\Enums\EmploymentType;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
@@ -41,7 +42,9 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-        Employee::create($data);
+        $employee = Employee::create($data);
+
+        $employee->address()->create($data['address']);
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }
@@ -81,6 +84,8 @@ class EmployeeController extends Controller
         $data = $request->validated();
 
         $employee->update($data);
+
+        $employee->address()->update($data['address']);
 
         return redirect()->route('employees.index')->with('success', __('employee.success_editing'));
     }

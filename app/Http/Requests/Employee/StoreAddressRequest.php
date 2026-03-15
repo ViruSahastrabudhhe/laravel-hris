@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Requests\Deduction;
+namespace App\Http\Requests\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateDeductionRequest extends FormRequest
+class StoreAddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -22,10 +22,7 @@ class UpdateDeductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'rate' => 'nullable|numeric',
-            'description' => 'nullable',
-            'user_id' => 'required',
+            //
         ];
     }
 }

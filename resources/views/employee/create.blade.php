@@ -13,7 +13,11 @@
         Gender: <input type="text" name="gender" required> <br>
         Email: <input type="email" name="email" required> <br>
         Birth date: <input type="date" name="date_of_birth" required> <br>
-        Address: <input type="text" name="address" required> <br>
+        Country: <input type="text" name="address[country]" required> <br>
+        Zip code: <input type="number" name="address[zip_code]" required> <br>
+        Address: <input type="text" name="address[address]" required> <br>
+        City: <input type="text" name="address[city]" required> <br>
+        Province: <input type="text" name="address[province]" required> <br>
         Contact number: <input type="text" name="phone_number" required> <br>
         Position: <select name="position_id" id="position" required>
                 <option value="">Select position</option>

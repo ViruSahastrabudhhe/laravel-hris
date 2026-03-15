@@ -32,7 +32,11 @@ class DeductionController extends Controller
      */
     public function store(StoreDeductionRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        Deduction::create($data);
+
+        return redirect()->route('deductions.index')->with('success'. __('deduction.success_creating'));
     }
 
     /**
@@ -56,7 +60,11 @@ class DeductionController extends Controller
      */
     public function update(UpdateDeductionRequest $request, Deduction $deduction)
     {
-        //
+        $data = $request->validated();
+
+        $deduction->update($data);
+
+        return redirect()->route('deductions.index')->with('success', __('deduction.success_editing'));
     }
 
     /**

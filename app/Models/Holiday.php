@@ -4,22 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
-use Database\Factories\Administration\PositionFactory;
+use Illuminate\Database\Eloquent\Builder;
 
-#[UseFactory(PositionFactory::class)]
-class Position extends Model
+class Holiday extends Model
 {
-    /** @use HasFactory<\Database\Factories\PositionFactory> */
+    /** @use HasFactory<\Database\Factories\HolidayFactory> */
     use HasFactory;
 
-    protected $table = 'positions';
+    protected $table = 'holidays';
 
     protected $fillable = [
-        'title',
-        'salary_grade',
-        'description',
+        'name',
+        'start_date',
+        'end_date',
+        'holiday_duration',
         'user_id',
     ];
 

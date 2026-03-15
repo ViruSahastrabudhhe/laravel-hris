@@ -18,15 +18,19 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('gender');
             $table->string('email');
-            $table->dateTime('date_of_birth');
-            $table->string('address');
+            $table->date('date_of_birth');
             $table->string('phone_number');
             $table->enum('employment_type', EmploymentType::cases());
             $table->string('is_active');
+            $table->unsignedBigInteger('address_id');
             $table->unsignedBigInteger('position_id');
             $table->unsignedBigInteger('department_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
+            $table->foreign('address_id')
+                    ->references('id')->on('addresses')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
             $table->foreign('position_id')
                     ->references('id')->on('positions')
                     ->onUpdate('cascade')
