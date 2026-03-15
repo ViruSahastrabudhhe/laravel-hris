@@ -48,6 +48,7 @@
             <option value="0">Inactive</option>
         </select> <br>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+        <input type="hidden" name="address[user_id]" value="{{ auth()->user()->id }}">
         <input type="submit" value="Edit Employee">
     </form>
 </div>

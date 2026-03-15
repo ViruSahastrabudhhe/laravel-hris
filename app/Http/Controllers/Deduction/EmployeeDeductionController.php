@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Employee;
+namespace App\Http\Controllers\Deduction;
 
 use App\Models\EmployeeDeduction;
 use App\Models\Employee;
 use App\Models\Deduction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Employee\StoreEmployeeDeductionRequest;
-use App\Http\Requests\Employee\UpdateEmployeeDeductionRequest;
+use App\Http\Requests\Deduction\StoreEmployeeDeductionRequest;
+use App\Http\Requests\Deduction\UpdateEmployeeDeductionRequest;
 
 class EmployeeDeductionController extends Controller
 {

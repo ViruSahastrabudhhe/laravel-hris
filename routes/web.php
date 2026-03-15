@@ -10,8 +10,9 @@ use App\Http\Controllers\Department\DepartmentController;
 use App\Http\Controllers\Deduction\DeductionController;
 use App\Http\Controllers\Attendance\AttendanceController;
 use App\Http\Controllers\Payroll\PayrollController;
-use App\Http\Controllers\Employee\EmployeeDeductionController;
+use App\Http\Controllers\Deduction\EmployeeDeductionController;
 use App\Http\Controllers\Leave\EmployeeLeaveController;
+use App\Http\Controllers\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Leave\HolidayController;
 use App\Http\Controllers\Leave\LeaveTypeController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -49,4 +50,5 @@ Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
     Route::resource('leave_types', LeaveTypeController::class);
     Route::resource('holidays', HolidayController::class);
     Route::resource('employee_leaves', EmployeeLeaveController::class);
+    Route::resource('leave_balances', EmployeeLeaveBalanceController::class);
 });

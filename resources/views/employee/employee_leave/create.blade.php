@@ -29,7 +29,7 @@
             @forelse($leaveTypes as $leaveType)
             <option value="{{ $leaveType->id }}">{{ $leaveType->leave_type }}</option>
             @empty
-            <p>A</p>
+            <p>No leave type!</p>
             @endforelse
         </select> <br>
         @endif
@@ -49,6 +49,15 @@
         <input type="hidden" value="{{ auth()->user()->id }}" name="user_id">
         <input type="submit" value="Create Leave">
     </form>
+
+    <div>
+        Employee leave balance
+        <ul>
+            @foreach ($employees as $employee)
+            <li>{{ $employee->first_name }} {{ $employee->last_name }} : {{ $employee->leaveBalance->leave_balance }}</li>
+            @endforeach
+        </ul>
+    </div>
 </div>
 
 <script>

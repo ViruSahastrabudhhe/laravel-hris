@@ -13,8 +13,7 @@ return new class extends Migration
     {
         // Schema::create('payrolls', function (Blueprint $table) {
         //     $table->id();
-        //     $table->integer('employee_id');
-        //     $table->integer('deductions_id');
+        //     $table->unsignedBigInteger('employee_id');
         //     $table->float('gross_pay');
         //     $table->float('tax_deduction');
         //     $table->float('cash_advance');

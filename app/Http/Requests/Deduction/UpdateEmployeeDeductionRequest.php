@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Employee;
+namespace App\Http\Requests\Deduction;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreEmployeeDeductionRequest extends FormRequest
+class UpdateEmployeeDeductionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,7 @@ class StoreEmployeeDeductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'required',
-            'deduction_id' => 'required',
-            'amount' => 'required|numeric',
-            'user_id' => 'required',
+            //
         ];
     }
 }

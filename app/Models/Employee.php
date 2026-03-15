@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeLeave;
+use App\Models\EmployeeLeaveBalance;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Models\Scopes\EmployeeScope;
@@ -59,6 +60,10 @@ class Employee extends Model
         return $this->hasMany(EmployeeLeave::class);
     }
 
+    public function leaveBalance() {
+        return $this->hasOne(EmployeeLeaveBalance::class);
+    }
+
     public function isRegular() {
         return $this->employment_type == EmploymentType::Regular->name;
     }
@@ -68,6 +73,7 @@ class Employee extends Model
             ->join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
+            ->whereBetween('date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
             ->select(DB::raw('SUM(TIMESTAMPDIFF(SECOND, time_in, time_out)) / 3600 as total_hours'))
             ->first();
 
@@ -75,6 +81,7 @@ class Employee extends Model
             ->join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
+            ->whereBetween('date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
             ->select(DB::raw('SUM(TIMESTAMPDIFF(SECOND, time_in, time_out)) / 3600 as total_hours'))
             ->count();
 
@@ -83,6 +90,22 @@ class Employee extends Model
         }
 
         return $totalHours->total_hours - $entries;
+    }
+
+    public function daysWorked() {
+        $entries = DB::table('attendances')
+            ->join('employees', 'attendances.employee_id', '=', 'employees.id')
+            ->where('attendances.user_id', '=', auth()->user()->id)
+            ->where('attendances.employee_id', '=', $this->id)
+            ->whereBetween('date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+            ->select(DB::raw('SUM(TIMESTAMPDIFF(SECOND, time_in, time_out)) / 3600 as total_hours'))
+            ->count();
+
+        if ($totalHours->total_hours===NULL) {
+            return 0;
+        }
+
+        return $entries;
     }
 
     public function overtimeWorked() {

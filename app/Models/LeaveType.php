@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -20,6 +21,10 @@ class LeaveType extends Model
         'is_active',
         'user_id',
     ];
+
+    public function employee() {
+        return $this->belongsTo(Employee::class);
+    }
 
     #[Scope]
     protected function findAllWithUserID(Builder $query): void {

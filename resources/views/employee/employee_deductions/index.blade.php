@@ -27,7 +27,7 @@
                                 <a
                                     onclick="event.preventDefault(); document.getElementById('delete-form-{{ $deduction->id }}').submit();">
                                     <button>Delete</button>
-                                </a>
+                                </a> 
 
                                 <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post">
                                     @csrf

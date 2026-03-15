@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Models\Attendance;
+use App\Models\Employee;
+use App\Models\EmployeeLeaveBalance;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;

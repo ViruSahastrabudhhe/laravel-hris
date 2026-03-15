@@ -26,7 +26,13 @@
                     <td>{{ $holiday->name }}</td>
                     <td>{{ $holiday->start_date }}</td>
                     <td>{{ $holiday->end_date }}</td>
-                    <td>{{ $holiday->holiday_duration }} days</td>
+                    <td>
+                        @if ($holiday->holiday_duration <= 1) 
+                        {{ $holiday->holiday_duration }} day
+                        @else
+                        {{ $holiday->holiday_duration }} days
+                        @endif
+                    </td>
                     <td>
                         <a href="{{ route('holidays.edit', $holiday) }}">
                             <button>Edit</button>

@@ -29,6 +29,7 @@
                     <ul>
                         <li><a href="{{ route('attendances.index') }}">Attendance List</a></li>
                         <li><a href="{{ route('attendances.create') }}">Create Attendance</a></li>
+                        <li><a href="{{ route('leave_balances.index') }}">Employee Leave Balance</a></li>
                     </ul>
                 </li>
                 <li>Leave
@@ -49,7 +50,7 @@
                 <li>Payroll
                     <ul>
                         <li><a href="{{ route('payroll.index') }}">Payroll List</a></li>
-                        <li><a href="#">Generate Payroll</a></li>
+                        <li><a href="#">Generate Payslip</a></li>
                         <li><a href="#">Reports</a></li>
                     </ul>
                 </li>

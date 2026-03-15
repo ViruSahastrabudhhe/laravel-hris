@@ -10,7 +10,13 @@
         @csrf
         First name: <input type="text" name="first_name" required> <br>
         Last name: <input type="text" name="last_name" required> <br>
-        Gender: <input type="text" name="gender" required> <br>
+        Gender: <select name="gender" id="gender" required>
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+        </select> <br>
         Email: <input type="email" name="email" required> <br>
         Birth date: <input type="date" name="date_of_birth" required> <br>
         Country: <input type="text" name="address[country]" required> <br>
@@ -42,6 +48,7 @@
             <option value="0">Inactive</option>
         </select> <br>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+        <input type="hidden" name="address[user_id]" value="{{ auth()->user()->id }}">
         <input type="submit" value="Create Employee">
     </form>
 </div>

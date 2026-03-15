@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Address;
 use App\Models\Department;
+use App\Models\EmployeeLeaveBalance;
 use App\Enums\EmploymentType;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
@@ -42,9 +43,29 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-        $employee = Employee::create($data);
+        // creates address, employee, and employee leave balance at once
+        $address = Address::create($data['address']);
 
-        $employee->address()->create($data['address']);
+        $employee = Employee::create([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'gender' => $data['gender'],
+            'email' => $data['email'],
+            'date_of_birth' => $data['date_of_birth'],
+            'address_id' => $address->id,
+            'phone_number' => $data['phone_number'],
+            'employment_type' => $data['employment_type'],
+            'is_active' => $data['is_active'],
+            'position_id' => $data['position_id'],
+            'department_id' => $data['department_id'],
+            'user_id' => $data['user_id'],
+        ]);
+
+        $employeeLeaveBalance = new EmployeeLeaveBalance;
+        $employeeLeaveBalance->leave_balance = 15;
+        $employeeLeaveBalance->employee_id = $employee->id;
+        $employeeLeaveBalance->user_id = auth()->user()->id;
+        $employeeLeaveBalance->save();
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }

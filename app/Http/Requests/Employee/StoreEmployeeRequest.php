@@ -32,7 +32,7 @@ class StoreEmployeeRequest extends FormRequest
             'address.city' => 'required',
             'address.address' => 'required',
             'address.province' => 'required',
-            'address_id' => 'required',
+            'address.user_id' => 'required',
             'phone_number' => 'required',
             'employment_type' => 'required',
             'is_active' => 'required',
