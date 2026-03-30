@@ -11,7 +11,7 @@
     <table>
         <thead>
             <tr>
-                <th>Position title</th>
+                <th>Designation title</th>
                 <th>Salary grade</th>
                 <th>Salary amount</th>
                 <th>Description</th>

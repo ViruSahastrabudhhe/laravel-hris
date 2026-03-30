@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'title' => 'Leaves',
+    'title' => 'Leave Types',
 
-    'sidebar' => 'Leaves List',
+    'sidebar' => 'Leave Types List',
 
     'create' => 'Create Leave Type',
     'back' => 'Back to Leave Types List',

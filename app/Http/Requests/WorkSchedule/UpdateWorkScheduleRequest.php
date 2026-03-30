@@ -22,7 +22,15 @@ class UpdateWorkScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'pm_start_time' => 'required',
+            'break_minutes' => 'required',
+            'work_days' => 'nullable|array',
+            'work_days.*' => 'string',
+            'grace_period_minutes' => 'required',
+            'user_id' => 'required',
         ];
     }
 }

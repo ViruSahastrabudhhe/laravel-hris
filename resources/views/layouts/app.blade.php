@@ -27,20 +27,15 @@
                 </li>
                 <li>{{ __('common.app_schedule') }}
                     <ul>
-                        <li><a href="#">{{ __('schedule.sidebar') }}</a></li>
-                        <li><a href="#">{{ __('schedule.create') }}</a></li>
+                        <li><a href="{{ route('work_schedules.index') }}">{{ __('schedule.sidebar') }}</a></li>
                         <li><a href="{{ route('attendances.index') }}">{{ __('attendance.sidebar') }}</a></li>
-                        <li><a href="{{ route('attendances.create') }}">{{ __('attendance.create') }}</a></li>
                         <li><a href="#">{{ __('employee_attendance.sidebar') }}</a></li>
-                        <li><a href="{{ route('leave_balances.index') }}">Employee Leave Balance</a></li>
                     </ul>
                 </li>
                 <li>{{ __('common.app_leave') }}
                     <ul>
-                        <li><a href="{{ route('leave_types.index') }}">{{ __('leave_type.sidebar') }}</a></li>
-                        <li><a href="{{ route('leave_types.create') }}">{{ __('leave_type.create') }}</a></li>
                         <li><a href="{{ route('employee_leaves.index') }}">{{ __('employee_leave.sidebar') }}</a></li>
-                        <li><a href="{{ route('employee_leaves.create') }}">{{ __('employee_leave.create') }}</a></li>
+                        <li><a href="{{ route('leave_types.index') }}">{{ __('leave_type.sidebar') }}</a></li>
                         <li><a href="{{ route('holidays.index') }}">Holidays</a></li>
                     </ul>
                 </li>

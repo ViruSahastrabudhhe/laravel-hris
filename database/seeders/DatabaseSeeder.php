@@ -12,6 +12,7 @@ use Database\Seeders\EmployeeSeeder;
 use Database\Seeders\AddressSeeder;
 use Database\Seeders\LeaveTypeSeeder;
 use Database\Seeders\EmployeeLeaveBalanceSeeder;
+use Database\Seeders\WorkScheduleSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -37,6 +38,7 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             EmployeeLeaveBalanceSeeder::class,
             DeductionSeeder::class,
+            WorkScheduleSeeder::class,
         ]);
     }
 }

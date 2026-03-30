@@ -15,7 +15,7 @@
         Salary amount: <input type="number" name="salary_amount" required> <br>
         Description: <textarea name="description" id="description"></textarea>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}" required> <br>
-        <input type="submit" value="Create Position">
+        <input type="submit" value="{{ __('position.create') }}">
     </form>
 </div>
 @endsection

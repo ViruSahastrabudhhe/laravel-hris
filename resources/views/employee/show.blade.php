@@ -30,6 +30,8 @@
         </ul>
     </ul>
 
+    <p>Leave Balance: {{ $employee->leaveBalance->leave_balance }}</p>
+
     <h3>Deductions</h3>
     <table>
         <thead>

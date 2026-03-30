@@ -8,6 +8,7 @@ use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Position\PositionController;
 use App\Http\Controllers\Department\DepartmentController;
 use App\Http\Controllers\Deduction\DeductionController;
+use App\Http\Controllers\WorkSchedule\WorkScheduleController;
 use App\Http\Controllers\Attendance\AttendanceController;
 use App\Http\Controllers\Payroll\PayrollController;
 use App\Http\Controllers\Deduction\EmployeeDeductionController;
@@ -15,7 +16,6 @@ use App\Http\Controllers\Leave\EmployeeLeaveController;
 use App\Http\Controllers\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Leave\HolidayController;
 use App\Http\Controllers\Leave\LeaveTypeController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Auth::routes(['verify' => true]);
 
@@ -34,6 +34,7 @@ Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'csvStore'])->name('attendances.csvStore');
     Route::get('attendances/archives', [AttendanceController::class, 'archive'])->name('attendances.archive');
     Route::put('attendances/{attendanceId}/restore', [AttendanceController::class, 'restore'])->name('attendances.restore');
+    Route::resource('work_schedules', WorkScheduleController::class);
     Route::resource('attendances', AttendanceController::class);
     Route::resource('payroll', PayrollController::class);
     Route::resource('deductions', DeductionController::class);

@@ -14,7 +14,9 @@ class WorkScheduleController extends Controller
      */
     public function index()
     {
-        //
+        $schedules = WorkSchedule::findAllWithUserID()->get();
+
+        return view('work_schedule.index', compact('schedules'));
     }
 
     /**
@@ -22,7 +24,7 @@ class WorkScheduleController extends Controller
      */
     public function create()
     {
-        //
+        return view('work_schedule.create');
     }
 
     /**
@@ -30,7 +32,11 @@ class WorkScheduleController extends Controller
      */
     public function store(StoreWorkScheduleRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        WorkSchedule::create($data);
+
+        return redirect()->route('work_schedules.index')->with('success', __('schedule.success_creating'));
     }
 
     /**
@@ -46,7 +52,7 @@ class WorkScheduleController extends Controller
      */
     public function edit(WorkSchedule $workSchedule)
     {
-        //
+        return view('work_schedule.edit', ['work_schedule' => $workSchedule]);
     }
 
     /**
@@ -54,7 +60,11 @@ class WorkScheduleController extends Controller
      */
     public function update(UpdateWorkScheduleRequest $request, WorkSchedule $workSchedule)
     {
-        //
+        $data = $request->validated();
+
+        $workSchedule->update($data);
+
+        return redirect()->route('work_schedules.index')->with('success', __('schedule.success_editing'));
     }
 
     /**
