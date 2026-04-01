@@ -27,6 +27,9 @@ class Attendance extends Model
         'break_end',
         'overtime_in',
         'overtime_out',
+        'attendance_status',
+        'total_minutes',
+        'overtime_minutes',
         'employee_id',
         'user_id',
     ];

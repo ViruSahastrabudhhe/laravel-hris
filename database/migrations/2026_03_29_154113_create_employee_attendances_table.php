@@ -18,13 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('attendance_id');
             $table->unsignedBigInteger('work_schedule_id');
             $table->date('date');
-            $table->time('scheduled_start')->nullable();
-            $table->time('scheduled_end')->nullable();
-            $table->integer('scheduled_minutes')->nullable();
-            $table->time('actual_time_in')->nullable();
-            $table->time('actual_time_out')->nullable();
-            $table->integer('actual_minutes')->nullable();
-            $table->enum('status', ['Absent', 'Late', 'On-Time'])->default('Absent');
             $table->integer('late_minutes')->nullable(); 
             $table->integer('undertime_minutes')->nullable(); 
             $table->integer('overtime_minutes')->nullable();

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\AttendanceStatus;
 
 return new class extends Migration
 {
@@ -20,7 +21,9 @@ return new class extends Migration
             $table->time('overtime_in');
             $table->time('overtime_out');
             $table->date('date');
+            $table->enum('attendance_status', AttendanceStatus::cases());
             $table->integer('total_minutes')->default(0);
+            $table->integer('overtime_minutes')->default(0);
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamps();

@@ -25,6 +25,8 @@
                 <th>OT In</th>
                 <th>OT Out</th>
                 <th>Total Minutes</th>
+                <th>Total Overtime Minutes</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -42,6 +44,8 @@
                 <td>{{ $attendance->overtime_in }}</td>
                 <td>{{ $attendance->overtime_out }}</td>
                 <td>{{ $attendance->total_minutes }}</td>
+                <td>{{ $attendance->overtime_minutes }}</td>
+                <td>{{ $attendance->attendance_status }}</td>
                 <td>
                     <form action="{{ route('attendances.destroy', $attendance) }}" method="post">
                         @csrf

@@ -46,7 +46,7 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $employee->id }}</td>
                 <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
-                <td>{{ $employee->hoursWorked() }}</td>
+                <td>{{ $employee->totalHoursWorked() }}</td>
                 <td>P{{ round($employee->grossPay(), 2) }}</td>
                 <td>P{{ round($employee->netTaxableIncome(), 2) }}</td>
                 <td>
