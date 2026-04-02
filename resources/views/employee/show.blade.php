@@ -46,17 +46,21 @@
                 <td>
                     <ul>
                         @forelse($employee->employeeDeduction as $deduction)
-                            <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }} 
+                         @if ($deduction->deduction->type=='Optional')
+                            <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }}
                                 <a
                                     onclick="event.preventDefault(); document.getElementById('delete-form-{{ $deduction->id }}').submit();">
                                     <button>Delete</button>
-                                </a>
+                                </a> 
 
                                 <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post">
                                     @csrf
                                     @method('DELETE')
                                 </form>
                             </li>
+                        @else
+                            <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }}</li>
+                        @endif    
                         @empty
                         <li>No deductions!</li>
                         @endforelse

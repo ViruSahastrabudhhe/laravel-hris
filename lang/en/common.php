@@ -9,6 +9,12 @@ return [
     'app_deduction' => 'Deduction',
     'app_payroll' => 'Payroll',
 
+    'create' => 'Create',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'archive' => 'Archive',
+    'restore' => 'Restore',
+
     'department' => 'Department',
     'designation' => 'Designation',
 ]; 

@@ -50,7 +50,7 @@
                     <form action="{{ route('attendances.destroy', $attendance) }}" method="post">
                         @csrf
                         @method('DELETE')
-                        <input type="submit" value="Archive">
+                        <input type="submit" value="{{ __('common.archive') }}">
                     </form>
                 </td>
             </tr>

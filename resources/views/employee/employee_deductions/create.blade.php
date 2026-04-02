@@ -3,7 +3,7 @@
 @section('content')
 <div>
     <a href="{{ route('employee_deductions.index') }}">
-        <button>Back to employee deductions</button>
+        <button>{{ __('employee_deduction.back') }}</button>
     </a>
 </div>
 
@@ -24,7 +24,7 @@
         </select> <br>
         Amount: P<input type="number" step="any" name="amount" required> <br>
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}" required> <br>
-        <input type="submit" value="Create Deduction">
+        <input type="submit" value="{{ __('employee_deduction.create') }}">
     </form>
 </div>
 @endsection

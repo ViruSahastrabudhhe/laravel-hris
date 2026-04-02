@@ -28,10 +28,10 @@
                 <th>Employee Name</th>
                 <th>Hours Worked This Month</th>
                 <th>Gross Pay</th>
-                <th>Net Taxable Income</th>
                 <th>GSIS Contribution</th>
                 <th>PhilHealth Contribution</th>
                 <th>Pag-Ibig Contribution</th>
+                <th>Net Taxable Income</th>
                 <th>Optional Deductions</th>
                 <th>Withholding Tax</th>
                 <th>Cash Advance</th>
@@ -48,10 +48,10 @@
                 <td>{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td>{{ $employee->totalHoursWorked() }}</td>
                 <td>P{{ $employee->grossPay() }}</td>
-                <td>P{{ $employee->netTaxableIncome() }}</td>
                 <td>P{{ $employee->gsisContribution()}}</td>
                 <td>P{{ $employee->philHealthContribution() }}</td>
                 <td>P{{ $employee->pagIbigContribution() }}</td>
+                <td>P{{ $employee->netTaxableIncome() }}</td>
                 <td>
                     P{{ $employee->optionalDeductions() }}
                     <br>

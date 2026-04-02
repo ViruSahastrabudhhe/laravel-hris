@@ -41,7 +41,7 @@
                     <form action="{{ route('attendances.restore', $attendance->id) }}" method="post">
                         @csrf
                         @method('PUT')
-                        <input type="submit" value="Restore">
+                        <input type="submit" value="{{ __('common.restore') }}">
                     </form>
                 </td>
             </tr>

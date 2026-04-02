@@ -28,7 +28,28 @@ class AppServiceProvider extends ServiceProvider
         
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();
+            $header = match(true) {
+                str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
+                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'employee_leaves') => __('employee_leave.title'),
+                str_contains($route, 'department') => __('department.title'),
+                str_contains($route, 'position') => __('position.title'),
+                str_contains($route, 'employee') => __('employee.title'),
+                str_contains($route, 'schedule') => __('schedule.title'),
+                str_contains($route, 'attendance') => __('attendance.title'),
+                str_contains($route, 'leave') => __('leave_type.title'),
+                str_contains($route, 'deduction') => __('deduction.title'),
+                str_contains($route, 'payroll') => __('payroll.title'),
+                str_contains($route, 'holiday') => __('holiday.title'),
+                default => null
+            };
+            $view->with('pageHeader', $header);
+        });
+
+        View::composer('layouts.app', function ($view) {
+            $route = Route::currentRouteName();
             $title = match(true) {
+                str_contains($route, 'home') => __('common.app_dashboard'),
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
                 str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
                 str_contains($route, 'employee_leaves') => __('employee_leave.title'),

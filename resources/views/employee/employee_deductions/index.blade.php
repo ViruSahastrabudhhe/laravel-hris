@@ -3,7 +3,7 @@
 @section('content')
 <div>
     <a href="{{ route('employee_deductions.create') }}">
-        <button>Add employee deduction</button>
+        <button>{{ __('employee_deduction.create') }}</button>
     </a>
 </div>
 
@@ -12,8 +12,9 @@
         <thead>
             <tr>
                 <th>Employee</th>
-                <th>Deductions</th>
-                <th>Total Deductions</th>
+                <th>Mandatory Deductions</th>
+                <th>Optional Deductions</th>
+                <th>Total Sum of Deductions</th>
             </tr>
         </thead>
         <tbody>
@@ -23,17 +24,30 @@
                 <td>
                     <ul>
                         @forelse($employee->employeeDeduction as $deduction)
-                            <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }} 
-                                <a
-                                    onclick="event.preventDefault(); document.getElementById('delete-form-{{ $deduction->id }}').submit();">
-                                    <button>Delete</button>
-                                </a> 
-
-                                <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            </li>
+                            @if ($deduction->deduction->type=='Mandatory')
+                                <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }}</li>
+                            @endif
+                        @empty
+                        <li>No deductions!</li>
+                        @endforelse
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        @forelse($employee->employeeDeduction as $deduction)
+                            @if ($deduction->deduction->type=='Optional')
+                                <li>{{ $deduction->deduction->name }}: P{{ $deduction->amount }}
+                                    <a
+                                        onclick="event.preventDefault(); document.getElementById('delete-form-{{ $deduction->id }}').submit();">
+                                        <button>Delete</button>
+                                    </a> 
+    
+                                    <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                </li>
+                            @endif
                         @empty
                         <li>No deductions!</li>
                         @endforelse

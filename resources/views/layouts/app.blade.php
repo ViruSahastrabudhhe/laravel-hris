@@ -6,11 +6,12 @@
 
     <meta name='csrf-token' content='{{ csrf_token() }}'>
 
-    <title>{{ config('app.name', 'Pagsanjan') }}</title>
+    <title>{{ config('app.name', 'Pagsanjan PRIME-HRIS') }} | @if (isset($pageTitle)) {{ $pageTitle }} @endif</title>
 </head>
 <body>
     <div id='app'>
         <nav>
+            <a href="{{ url('/') }}">{{ config('app.name', 'Pagsanjan') }}</a>
             <ul>
                 <li><a href="{{ route('home') }}">{{ __('common.app_dashboard') }}</a></li>
                 <li>{{ __('common.app_organization') }}
@@ -79,8 +80,8 @@
             </div>
             @endif
             
-            @if(isset($pageTitle))
-                <h1>{{ $pageTitle }}</h1>
+            @if(isset($pageHeader))
+                <h1>{{ $pageHeader }}</h1>
             @endif
 
             @yield('content')
