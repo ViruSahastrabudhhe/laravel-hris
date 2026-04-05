@@ -1,6 +1,6 @@
 ## Installation
 
-1. cd clone https://github.com/ViruSahastrabudhhe/laravel-hris
+1. git clone https://github.com/ViruSahastrabudhhe/laravel-hris
 2. cp .env.example .env
 3. composer install
 4. npm install
