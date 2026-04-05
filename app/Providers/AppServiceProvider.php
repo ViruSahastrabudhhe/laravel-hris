@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use App\Models\Attendance;
 use App\Observers\AttendanceObserver;
+use App\Models\Employee;
+use App\Observers\EmployeeObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Attendance::observe(AttendanceObserver::class);
+        Employee::observe(EmployeeObserver::class);
         
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();
@@ -50,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
             $route = Route::currentRouteName();
             $title = match(true) {
                 str_contains($route, 'home') => __('common.app_dashboard'),
+                str_contains($route, 'login') => __('common.app_login'),
+                str_contains($route, 'register') => __('common.app_register'),
+                str_contains($route, 'password') => __('common.app_password'),
+                str_contains($route, 'verify') => __('common.app_verify'),
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
                 str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
                 str_contains($route, 'employee_leaves') => __('employee_leave.title'),

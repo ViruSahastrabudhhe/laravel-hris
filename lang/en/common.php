@@ -8,6 +8,10 @@ return [
     'app_leave' => 'Leaves & Benefits',
     'app_deduction' => 'Deduction',
     'app_payroll' => 'Payroll',
+    'app_login' => 'Login',
+    'app_register' => 'Sign Up',
+    'app_password' => 'Password',
+    'app_verify' => 'Verify Account',
 
     'create' => 'Create',
     'edit' => 'Edit',

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 #[ScopedBy([EmployeeScope::class])]
 class Employee extends Model
@@ -166,9 +167,11 @@ class Employee extends Model
             ->where('deductions.id', '=', 1)
             ->first();
 
-        $calc = $this->position->salary_amount * $gsis->rate;
+        if (!$gsis) {
+            return 0;
+        }
 
-        return round($calc, 2);
+        return round($gsis->amount, 2);
     }
 
     public function philHealthContribution(): float {
@@ -183,13 +186,11 @@ class Employee extends Model
             ->where('deductions.id', '=', 2)
             ->first();
 
-        $calc = $this->position->salary_amount * $philHealth->rate;
-
-        if ($calc >= 2500) {
-            $calc = 2500;
+        if (!$philHealth) {
+            return 0;
         }
 
-        return round($calc, 2);
+        return round($philHealth->amount, 2);
     }
 
     public function pagIbigContribution(): float {
@@ -197,11 +198,18 @@ class Employee extends Model
             return 0;
         }
 
-        if ($this->position->salary_amount > 1500) {
-            return 200;
-        } else {
-            return 100;
+        $pagibig = DB::table('employee_deductions')
+            ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
+            ->where('employee_deductions.user_id', '=', auth()->user()->id)
+            ->where('employee_deductions.employee_id', '=', $this->id)
+            ->where('deductions.id', '=', 3)
+            ->first();
+
+        if (!$pagibig) {
+            return 0;
         }
+
+        return $pagibig->amount;
         }
 
     public function optionalDeductions(): float {

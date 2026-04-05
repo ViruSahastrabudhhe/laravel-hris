@@ -8,7 +8,9 @@ use App\Models\Position;
 use App\Models\Address;
 use App\Models\Department;
 use App\Models\WorkSchedule;
+use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
+use App\Models\EmployeeDeduction;
 use App\Enums\EmploymentType;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
@@ -63,15 +65,11 @@ class EmployeeController extends Controller
             'user_id' => $data['user_id'],
         ]);
 
-        $employeeLeaveBalance = new EmployeeLeaveBalance;
-        $employeeLeaveBalance->leave_balance = 15;
-        $employeeLeaveBalance->employee_id = $employee->id;
-        $employeeLeaveBalance->user_id = auth()->user()->id;
-        $employeeLeaveBalance->save();
-
         $employeeWorkSchedule = new EmployeeWorkSchedule;
         $employeeWorkSchedule->employee_id = $employee->id;
         $employeeWorkSchedule->work_schedule_id = $data['work_schedule_id'];
+        $employeeWorkSchedule->user_id = auth()->user()->id;
+        $employeeWorkSchedule->save();
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }

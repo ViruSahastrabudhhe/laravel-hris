@@ -23,6 +23,7 @@ Route::get('/', function () {
     return redirect()->route('home');
 });
 
+Route::view('/landing', 'landing')->name('landing');
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
 
 Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {

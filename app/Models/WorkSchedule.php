@@ -31,7 +31,7 @@ class WorkSchedule extends Model
     ];
 
     public function workSchedule() {
-        return $this->hasOne(EmployeeWorkSchedule::class);
+        return $this->hasMany(EmployeeWorkSchedule::class);
     }
 
     public function employeeAttendance() {
