@@ -25,7 +25,7 @@
 ## Installation
 
 Clone the repo and follow the steps below.
-1. cp .env.example .env
+1. copy .env.example .env
 2. composer install
 3. npm install
 4. set db credentials in .env
