@@ -1,9 +1,10 @@
 ## Installation
 
-1. git clone https://github.com/ViruSahastrabudhhe/laravel-hris
-2. cp .env.example .env
-3. composer install
-4. npm install
+Clone the repo and follow the steps below.
+1. cp .env.example .env
+2. composer install
+3. npm install
+4. set db credentials in .env
 5. php artisan key:generate
 6. php artisan migrate --seed
 7. create a terminal and enter 'npm run dev'
