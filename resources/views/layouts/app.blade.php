@@ -6,7 +6,7 @@
 
     <meta name='csrf-token' content='{{ csrf_token() }}'>
 
-    <title>{{ config('app.name', 'Pagsanjan PRIME-HRIS') }} | @if (isset($pageTitle)) {{ $pageTitle }} @endif</title>
+    <title>@if (isset($pageTitle)) {{ $pageTitle }} @endif | {{ config('app.name', 'Pagsanjan PRIME-HRIS') }}</title>
 </head>
 <body>
     <div id='app'>
