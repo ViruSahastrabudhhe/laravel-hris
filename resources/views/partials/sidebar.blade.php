@@ -4,7 +4,7 @@ $navItems = [
     ['id' => 'departments', 'label' => 'Departments',     'route' => 'departments.index',     'icon' => 'departments', 'section' => 'ORGANIZATION'],
     ['id' => 'positions',   'label' => 'Positions',       'route' => 'positions.index',       'icon' => 'settings', 'section' => null],
     ['id' => 'employees',   'label' => 'Employees',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
-    ['id' => 'attendances', 'label' => 'Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'TIME & LEAVE'],
+    ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'SCHEDULING & ATTENDANCE'],
     ['id' => 'schedules',   'label' => 'Work Schedules',  'route' => 'work_schedules.index',  'icon' => 'attendance', 'section' => null],
     ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
     ['id' => 'leave_types', 'label' => 'Leave Types',     'route' => 'leave_types.index',     'icon' => 'leave', 'section' => null],
