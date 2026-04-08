@@ -13,6 +13,8 @@ use Database\Seeders\AddressSeeder;
 use Database\Seeders\LeaveTypeSeeder;
 use Database\Seeders\EmployeeLeaveBalanceSeeder;
 use Database\Seeders\WorkScheduleSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\UserRoleSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,6 +33,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            RoleSeeder::class,
+            UserRoleSeeder::class,
             AddressSeeder::class,
             LeaveTypeSeeder::class,
             PositionSeeder::class,
