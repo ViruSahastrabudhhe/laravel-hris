@@ -1,21 +1,32 @@
 @php
-$navItems = [
-    ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
-    ['id' => 'departments', 'label' => 'Departments',     'route' => 'departments.index',     'icon' => 'departments', 'section' => 'ORGANIZATION'],
-    ['id' => 'positions',   'label' => 'Positions',       'route' => 'positions.index',       'icon' => 'settings', 'section' => null],
-    ['id' => 'employees',   'label' => 'Employees',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
-    ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'SCHEDULING & ATTENDANCE'],
-    ['id' => 'schedules',   'label' => 'Work Schedules',  'route' => 'work_schedules.index',  'icon' => 'attendance', 'section' => null],
-    ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
-    ['id' => 'leave_types', 'label' => 'Leave Types',     'route' => 'leave_types.index',     'icon' => 'leave', 'section' => null],
-    ['id' => 'holidays',    'label' => 'Holidays',        'route' => 'holidays.index',        'icon' => 'attendance', 'section' => null],
-    ['id' => 'employee_deductions',    'label' => 'Deduction Management',        'route' => 'employee_deductions.index',        'icon' => 'personnel', 'section' => 'DEDUCTIONS'],
-    ['id' => 'deductions',  'label' => 'Deduction Types',      'route' => 'deductions.index',      'icon' => 'payroll', 'section' => null],
-    ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => 'PAYROLL'],
-];
+
+if (auth()->user()->hasRole('admin')) {
+    $navItems = [
+        ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
+        ['id' => 'departments', 'label' => 'Departments',     'route' => 'departments.index',     'icon' => 'departments', 'section' => 'ORGANIZATION'],
+        ['id' => 'positions',   'label' => 'Positions',       'route' => 'positions.index',       'icon' => 'settings', 'section' => null],
+        ['id' => 'employees',   'label' => 'Employees',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
+        ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'SCHEDULING & ATTENDANCE'],
+        ['id' => 'schedules',   'label' => 'Work Schedules',  'route' => 'work_schedules.index',  'icon' => 'attendance', 'section' => null],
+        ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
+        ['id' => 'leave_types', 'label' => 'Leave Types',     'route' => 'leave_types.index',     'icon' => 'leave', 'section' => null],
+        ['id' => 'holidays',    'label' => 'Holidays',        'route' => 'holidays.index',        'icon' => 'attendance', 'section' => null],
+        ['id' => 'employee_deductions',    'label' => 'Deduction Management',        'route' => 'employee_deductions.index',        'icon' => 'personnel', 'section' => 'DEDUCTIONS'],
+        ['id' => 'deductions',  'label' => 'Deduction Types',      'route' => 'deductions.index',      'icon' => 'payroll', 'section' => null],
+        ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => 'PAYROLL'],
+    ];
+} else {
+    $navItems = [
+        ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
+        ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
+        ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => 'PAYROLL'],
+    ];
+}
+
 $currentRoute = Route::currentRouteName();
 $userName = auth()->check() ? auth()->user()->name : 'User';
 $userInitials = auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'U';
+$userRole = auth()->check() ? ucfirst(auth()->user()->getRoleNames()[0]) : 'Guest';
 @endphp
 
 <aside class="sidebar" id="sidebar">
@@ -80,7 +91,7 @@ $userInitials = auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2))
         </div>
         <div class="user-info" id="user-info">
             <p class="user-name">{{ $userName }}</p>
-            <p class="user-role">HR Staff</p>
+            <p class="user-role">{{ $userRole }}</p>
         </div>
         <form method="POST" action="{{ route('logout') }}" id="logout-form" style="margin: 0;">
             @csrf

@@ -26,7 +26,7 @@ Route::get('/', function () {
 Route::view('/landing', 'landing')->name('landing');
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
 
-Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
     Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::resource('employees', EmployeeController::class);
@@ -43,5 +43,4 @@ Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
     Route::resource('leave_types', LeaveTypeController::class);
     Route::resource('holidays', HolidayController::class);
     Route::resource('employee_leaves', EmployeeLeaveController::class);
-    Route::resource('leave_balances', EmployeeLeaveBalanceController::class);
 });

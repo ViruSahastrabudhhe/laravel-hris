@@ -82,8 +82,8 @@ class Employee extends Model
         return $this->hasOne(EmployeeWorkSchedule::class, 'employee_id', 'id');
     }
 
-    public function isRegular() {
-        return $this->employment_type == EmploymentType::Regular->name;
+    public function isJobOrder() {
+        return $this->employment_type == EmploymentType::JobOrder->value;
     }
 
     public function hoursWorked() {
@@ -138,7 +138,7 @@ class Employee extends Model
         $overtime = $this->overtimePay();
         $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
 
-        if (!$this->isRegular()) {
+        if ($this->isJobOrder()) {
             return $monthlySalary + $overtime;
         }
         
@@ -156,7 +156,7 @@ class Employee extends Model
     }
 
     public function gsisContribution(): float {
-        if (!$this->isRegular()) {
+        if ($this->isJobOrder()) {
             return 0;
         }
 
@@ -175,7 +175,7 @@ class Employee extends Model
     }
 
     public function philHealthContribution(): float {
-        if (!$this->isRegular()) {
+        if ($this->isJobOrder()) {
             return 0;
         }
         
@@ -194,7 +194,7 @@ class Employee extends Model
     }
 
     public function pagIbigContribution(): float {
-        if (!$this->isRegular()) {
+        if ($this->isJobOrder()) {
             return 0;
         }
 
@@ -213,7 +213,7 @@ class Employee extends Model
         }
 
     public function optionalDeductions(): float {
-        if (!$this->isRegular()) {
+        if ($this->isJobOrder()) {
             return 0;
         }
 

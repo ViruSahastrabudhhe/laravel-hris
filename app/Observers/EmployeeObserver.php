@@ -7,6 +7,7 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
 use Illuminate\Support\Facades\DB;
+use App\Enums\EmploymentType;
 
 class EmployeeObserver
 {
@@ -16,7 +17,9 @@ class EmployeeObserver
     public function created(Employee $employee): void
     {
         $this->createEmployeeLeaveBalance($employee);
-        $this->createEmployeeDeduction($employee);
+        if ($employee->employment_type == EmploymentType::Regular->value) {
+            $this->createEmployeeMandatoryDeductions($employee);
+        }
     }
 
     /**
@@ -59,7 +62,7 @@ class EmployeeObserver
         $employeeLeaveBalance->save();
     }
 
-    private function createEmployeeDeduction(Employee $employee) {
+    private function createEmployeeMandatoryDeductions(Employee $employee) {
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 

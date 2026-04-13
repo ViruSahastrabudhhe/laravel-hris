@@ -17,7 +17,7 @@
             Back to Home
         </a>
     </nav>
-
+    
     <div class="auth-body">
         <div class="auth-page-head">
             <span class="pub-eyebrow">EMAIL VERIFICATION</span>

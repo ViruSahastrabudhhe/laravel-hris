@@ -70,6 +70,8 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
+        $user->assignRole('employee');
+
         event(new Registered($user));
 
         return $user;
