@@ -1,7 +1,10 @@
 @extends('layouts.admin')
 
-@section('page-content')
+@php
+$totalWorkingDays = 261;
+@endphp
 
+@section('page-content')
 <div class="welcome-banner">
     <div class="banner-left">
         <div class="banner-icon">
@@ -62,6 +65,20 @@
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
             <p class="stat-sub">Available positions</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <p class="stat-label">Total Working Days This Year</p>
+            <div class="stat-icon-wrap" style="background:#fdf0ef">
+                <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"></svg>
+            </div>
+        </div>
+        <p class="stat-value" style="font-size:20px">{{ $totalWorkingDays }}</p>
+        <div class="stat-footer">
+            <span class="stat-dot" style="background:#188e3b"></span>
+            <p class="stat-sub">Number of days</p>
         </div>
     </div>
 

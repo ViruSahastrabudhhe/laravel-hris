@@ -16,8 +16,8 @@ class EmployeeObserver
      */
     public function created(Employee $employee): void
     {
+        $this->createEmployeeLeaveBalance($employee);
         if ($employee->employment_type == EmploymentType::Regular->value) {
-            $this->createEmployeeLeaveBalance($employee);
             $this->createEmployeeMandatoryDeductions($employee);
         }
     }
@@ -55,6 +55,15 @@ class EmployeeObserver
     }
 
     private function createEmployeeLeaveBalance(Employee $employee) {
+        if ($employee->employment_type == EmploymentType::JobOrder->value) {
+            $employeeLeaveBalance = new EmployeeLeaveBalance;
+            $employeeLeaveBalance->leave_balance = 0;
+            $employeeLeaveBalance->employee_id = $employee->id;
+            $employeeLeaveBalance->user_id = auth()->user()->id;
+            $employeeLeaveBalance->save();
+            return;
+        }
+
         $employeeLeaveBalance = new EmployeeLeaveBalance;
         $employeeLeaveBalance->leave_balance = 15;
         $employeeLeaveBalance->employee_id = $employee->id;
@@ -97,6 +106,10 @@ class EmployeeObserver
     }
 
     private function updateEmployeeDeduction(Employee $employee) {
+        if ($employee->employment_type == EmploymentType::JobOrder->value) {
+            return;
+        }
+        
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 

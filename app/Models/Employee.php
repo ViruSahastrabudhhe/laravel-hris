@@ -13,6 +13,7 @@ use App\Models\EmployeeWorkSchedule;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Enums\DeductionType;
+use App\Enums\AttendanceStatus;
 use App\Models\Scopes\EmployeeScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -134,6 +135,11 @@ class Employee extends Model
         return $hourlyRate;
     }
 
+    public function dailyRate() {
+        $dailyRate = ($this->position->salary_amount * 12) / 261;
+        return $dailyRate;
+    }
+
     public function grossPay() {
         $overtime = $this->overtimePay();
         $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
@@ -153,6 +159,38 @@ class Employee extends Model
         $overtimePay = $overtimeHourlyRate * $overtimeHours;
 
         return $overtimePay;
+    }
+
+    public function absentDeductions(): float {
+        $leaveBalance = $this->leaveBalance;
+
+        // Job Order: always deduct for absences/lates (on top of hourly pay already being reduced)
+        // Regular: only deduct when leave balance is fully depleted
+        if (!$this->isJobOrder()) {
+            if (!$leaveBalance || $leaveBalance->leave_balance > 0) {
+                return 0;
+            }
+        }
+
+        $absences = DB::table('attendances')
+            ->where('user_id', auth()->user()->id)
+            ->where('employee_id', $this->id)
+            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->whereNull('deleted_at')
+            ->where('attendance_status', AttendanceStatus::Absent->value)
+            ->count();
+
+        $lates = DB::table('attendances')
+            ->where('user_id', auth()->user()->id)
+            ->where('employee_id', $this->id)
+            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->whereNull('deleted_at')
+            ->where('attendance_status', AttendanceStatus::Late->value)
+            ->count();
+
+        return round(($absences * $this->dailyRate()) + ($lates * ($this->dailyRate() * 0.5)), 2);
     }
 
     public function gsisContribution(): float {
@@ -213,10 +251,6 @@ class Employee extends Model
         }
 
     public function optionalDeductions(): float {
-        if ($this->isJobOrder()) {
-            return 0;
-        }
-
         $optionalDeductions = DB::table('employee_deductions')
             ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
             ->where('employee_deductions.user_id', '=', auth()->user()->id)
@@ -272,8 +306,9 @@ class Employee extends Model
         $pagibig = $this->pagIbigContribution();
         $withholdingTax = $this->withholdingTax();
         $otherDeductions = $this->optionalDeductions();
+        $absentDeductions = $this->absentDeductions();
 
-        $total = $gsis + $philHealth + $pagibig + $withholdingTax + $otherDeductions;
+        $total = $gsis + $philHealth + $pagibig + $withholdingTax + $otherDeductions + $absentDeductions;
 
         return round($total, 2);
     }
