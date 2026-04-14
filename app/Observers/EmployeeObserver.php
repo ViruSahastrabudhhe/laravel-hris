@@ -93,7 +93,7 @@ class EmployeeObserver
         $employeePagibig = new EmployeeDeduction;
         $employeePagibig->employee_id = $employee->id;
         $employeePagibig->deduction_id = 3;
-        if ($employee->salary_amount > 1500) {
+        if ($employee->position->salary_amount > 1500) {
             $employeePagibig->amount = 200;
         } else {
             $employeePagibig->amount = 100;
@@ -109,7 +109,7 @@ class EmployeeObserver
         if ($employee->employment_type == EmploymentType::JobOrder->value) {
             return;
         }
-        
+
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 
