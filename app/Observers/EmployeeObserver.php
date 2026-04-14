@@ -16,8 +16,8 @@ class EmployeeObserver
      */
     public function created(Employee $employee): void
     {
-        $this->createEmployeeLeaveBalance($employee);
         if ($employee->employment_type == EmploymentType::Regular->value) {
+            $this->createEmployeeLeaveBalance($employee);
             $this->createEmployeeMandatoryDeductions($employee);
         }
     }

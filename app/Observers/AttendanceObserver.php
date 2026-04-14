@@ -123,5 +123,10 @@ class AttendanceObserver
             $leaveBalance->leave_balance -= 1;
             $leaveBalance->save();
         }
+
+        if ($leaveBalance->leave_balance <= 0) {
+            $leaveBalance->leave_balance = 0;
+            $leaveBalance->save();
+        }
     }
 }
