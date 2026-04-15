@@ -42,9 +42,10 @@ class PayrollController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Payroll $payroll)
+    public function show(int $employeeID)
     {
-        //
+        $employee = Employee::findAllWithUserID()->findOrFail($employeeID);
+        return view('payroll.payslip', ['employee' => $employee]);
     }
 
     /**
