@@ -109,14 +109,14 @@ $totalOT = round($totalOT / 60, 2);
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 View Archive
             </a>
-            <a href="{{ route('attendances.create') }}" class="modal-btn-primary">
+            <button class="modal-btn-primary" id="add-attendance-btn">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Attendance
-            </a>
+            </button>
         </div>
     </div>
 
-    <div class="table-wrapper" style="padding: 20px 20px 16px">
+    <div class="table-wrapper">
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
@@ -181,10 +181,53 @@ $totalOT = round($totalOT / 60, 2);
     </div>
 </div>
 
+{{-- Attendance Modal --}}
+<div class="modal-overlay" id="attendance-modal" style="display:none;">
+    <div class="modal-box" style="max-width:460px;">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">IMPORT ATTENDANCE</span>
+                <h3 class="modal-title">Upload CSV File</h3>
+            </div>
+            <button class="modal-close" onclick="document.getElementById('attendance-modal').style.display='none'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <form action="{{ route('attendances.csvStore') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body pmodal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>CSV File <span style="color:#dc2626">*</span></label>
+                    <input type="file" name="csv_file" accept=".csv" required>
+                </div>
+                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
+                    <strong style="color:#0b044d;display:block;margin-bottom:4px;">CSV Format</strong>
+                    date, time_in, time_out, break_start, break_end, overtime_in, overtime_out, employee_id, user_id
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="document.getElementById('attendance-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Import CSV
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+$('#add-attendance-btn').on('click', function () {
+    document.getElementById('attendance-modal').style.display = 'flex';
+});
+
+$(document).on('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('attendance-modal').style.display = 'none';
+});
+
 $(function () {
     $('#attendance-table').DataTable({
         columnDefs: [{ orderable: false, targets: [0, 10] }],

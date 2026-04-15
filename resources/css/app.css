@@ -747,6 +747,20 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 }
 .btn-export:hover { border-color: #0b044d; background: #f4f3ff; }
 
+.btn-deactivate {
+    padding: 5px 14px; border: 1.5px solid #f5d0ce; border-radius: 7px;
+    background: #fff; font-size: 12px; font-weight: 600;
+    font-family: 'Poppins', sans-serif; color: #8e1e18; cursor: pointer; transition: all 0.2s;
+}
+.btn-deactivate:hover { background: #8e1e18; border-color: #8e1e18; color: #fff; }
+
+.btn-activate {
+    padding: 5px 14px; border: 1.5px solid #bbf7d0; border-radius: 7px;
+    background: #fff; font-size: 12px; font-weight: 600;
+    font-family: 'Poppins', sans-serif; color: #15803d; cursor: pointer; transition: all 0.2s;
+}
+.btn-activate:hover { background: #15803d; border-color: #15803d; color: #fff; }
+
 .modal-btn-primary {
   display: flex; align-items: center; gap: 6px;
   height: 34px; padding: 0 16px; border: none; border-radius: 8px;
@@ -757,7 +771,7 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 .modal-btn-primary:hover { background: #8e1e18; }
 
 /* Payroll Table */
-.table-wrapper { overflow-x: auto; }
+.table-wrapper { overflow-x: auto; padding: 20px 20px 16px; }
 .payroll-table { width: 100%; border-collapse: collapse; }
 .payroll-table thead tr { background: #f7f6ff; }
 .payroll-table th {
@@ -809,6 +823,7 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
   font-family: 'Poppins', sans-serif; color: #0b044d; cursor: pointer; transition: all 0.2s;
 }
 .btn-view:hover { border-color: #0b044d; background: #f4f3ff; }
+.row-actions { display: flex; align-items: center; gap: 6px; }
 
 /* Table Footer */
 .table-footer {

@@ -48,18 +48,24 @@
         </div>
 
         <div class="auth-field">
-            <label>Duration (days) <span style="color:#dc2626">*</span></label>
-            <input type="number" name="leave_duration" value="{{ old('leave_duration', $employeeLeave->leave_duration) }}" min="1" required>
-        </div>
-
-        <div class="auth-field">
             <label>Reason <span style="color:#dc2626">*</span></label>
             <textarea name="leave_reason" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" required>{{ old('leave_reason', $employeeLeave->leave_reason) }}</textarea>
         </div>
 
+        @php
+        $disabled = '';
+        $background = '';
+
+        if ($employeeLeave->leave_status !== \App\Enums\LeaveStatus::Pending->value) {
+            $disabled = 'disabled';
+            $background = 'background:#f0effe;color:#5a5888';
+        }
+
+        @endphp
+
         <div class="auth-field">
             <label>Status <span style="color:#dc2626">*</span></label>
-            <select name="leave_status" id="leave_status" required>
+            <select name="leave_status" id="leave_status" required {{ $disabled }} style="{{ $background }}">
                 <option value="">Select status</option>
                 @foreach($leaveStatuses as $leaveStatus)
                 <option value="{{ $leaveStatus->name }}" {{ old('leave_status', $employeeLeave->leave_status) == $leaveStatus->name ? 'selected' : '' }}>{{ $leaveStatus->name }}</option>

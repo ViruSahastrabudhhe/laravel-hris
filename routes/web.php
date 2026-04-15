@@ -29,6 +29,8 @@ Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'veri
 Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
     Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+    Route::put('employees/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
+    Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
     Route::resource('employees', EmployeeController::class);
     Route::resource('positions', PositionController::class);
     Route::resource('departments', DepartmentController::class);
@@ -44,5 +46,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('employee_deductions', EmployeeDeductionController::class);
     Route::resource('leave_types', LeaveTypeController::class);
     Route::resource('holidays', HolidayController::class);
+    Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
+    Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);
 });

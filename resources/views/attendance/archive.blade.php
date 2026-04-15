@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <div class="table-wrapper" style="padding: 20px 20px 16px">
+    <div class="table-wrapper">
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>

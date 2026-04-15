@@ -8,7 +8,7 @@ if (auth()->user()->hasRole('admin')) {
         ['id' => 'employees',   'label' => 'Employees',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
         ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'SCHEDULING & ATTENDANCE'],
         ['id' => 'schedules',   'label' => 'Work Schedules',  'route' => 'work_schedules.index',  'icon' => 'attendance', 'section' => null],
-        ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
+        ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
         ['id' => 'leave_types', 'label' => 'Leave Types',     'route' => 'leave_types.index',     'icon' => 'leave', 'section' => null],
         ['id' => 'holidays',    'label' => 'Holidays',        'route' => 'holidays.index',        'icon' => 'attendance', 'section' => null],
         ['id' => 'employee_deductions',    'label' => 'Deduction Management',        'route' => 'employee_deductions.index',        'icon' => 'personnel', 'section' => 'DEDUCTIONS'],

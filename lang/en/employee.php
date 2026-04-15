@@ -14,9 +14,13 @@ return [
     'success_deleting' => 'Successfully archived employee!',
     'success_editing' => 'Successfully edited employee!',
     'success_restoring' => 'Successfully restored employee!',
+    'success_activating' => 'Successfully activated employee!',
+    'success_deactivating' => 'Successfully deactivated employee!',
     
     'error_creating' => 'Error creating new employee!',
-    'error_deleting' => 'Error archiving new employee!',
-    'error_editing' => 'Error editing new employee!',
-    'error_restoring' => 'Error restoring new employee!',
+    'error_deleting' => 'Error archiving employee!',
+    'error_editing' => 'Error editing employee!',
+    'error_restoring' => 'Error restoring employee!',
+    'error_activating' => 'Error activating employee!',
+    'error_deactivating' => 'Error deactivating employee!',
 ];

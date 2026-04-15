@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 
 @section('page-content')
-
 <div class="welcome-banner">
     <div class="banner-left">
         <div class="banner-icon">
@@ -38,7 +37,7 @@
                     <th>#</th>
                     <th>Department Name</th>
                     <th>Description</th>
-                    <!-- <th>Employees</th> -->
+                    <th>Employees</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -55,11 +54,14 @@
                         </div>
                     </td>
                     <td><span style="font-size:12.5px;color:#5a5888">{{ $department->description ?? 'No description' }}</span></td>
-                    <!-- <td>
+                    @php
+                        $employeeCount = $employees->where('department_id', $department->id)->count();
+                    @endphp
+                    <td>
                         <span class="dept-tag" style="background:#f0effe;color:#0b044d">
-                             employees
+                            {{ $employeeCount }} employees
                         </span>
-                    </td> -->
+                    </td>
                     <td>
                         <div class="row-actions">
                             <a href="{{ route('departments.edit', $department) }}" class="btn-edit">

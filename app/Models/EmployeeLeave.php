@@ -21,7 +21,6 @@ class EmployeeLeave extends Model
         'leave_type_id',
         'start_date',
         'end_date',
-        'leave_duration',
         'leave_reason',
         'leave_status',
         'decline_reason',

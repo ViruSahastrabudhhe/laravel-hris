@@ -148,6 +148,22 @@ class EmployeeController extends Controller
         
     }
 
+    public function activate($employeeId) {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->is_active = true;
+        $employee->save();
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_activating'));
+    }
+
+    public function deactivate($employeeId) {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->is_active = false;
+        $employee->save();
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_deactivating'));
+    }
+
     public function archive() {
         $employees = Employee::findAllWithUserID()->onlyTrashed()->get();
 

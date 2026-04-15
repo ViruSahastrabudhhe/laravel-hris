@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('leave_type_id');
             $table->date('start_date');
             $table->date('end_date');
-            $table->integer('leave_duration');
+            $table->integer('leave_duration')->nullable();
             $table->text('leave_reason');
             $table->enum('leave_status', LeaveStatus::cases());
             $table->text('decline_reason')->nullable();

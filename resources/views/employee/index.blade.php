@@ -1,7 +1,27 @@
 @extends('layouts.admin')
 
-@section('page-content')
+@php
+$totalEmployees = 0;
+$activeEmployees = 0;
+$inactiveEmployees = 0;
+$regularEmployees = 0;
 
+foreach ($employees as $employee) {
+    if ($employee->is_active) {
+        $activeEmployees++;
+    } else {
+        $inactiveEmployees++;
+    }
+    if ($employee->employment_type === \App\Enums\EmploymentType::Regular->value) {
+        $regularEmployees++;
+    }
+
+    $totalEmployees++;
+}
+
+@endphp
+
+@section('page-content')
 <div class="welcome-banner">
     <div class="banner-left">
         <div class="banner-icon">
@@ -15,6 +35,66 @@
     <div class="banner-right">
         <span class="banner-badge outline">{{ $employees->count() }} Employees</span>
     </div>
+</div>
+
+<div class="stats-grid stats-grid-4">
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <p class="stat-label">Total Employees</p>
+            <div class="stat-icon-wrap" style="background:#f0effe">
+                <svg width="18" height="18" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+        </div>
+        <p class="stat-value">{{ $totalEmployees }}</p>
+        <div class="stat-footer">
+            <span class="stat-dot" style="background:#22c55e"></span>
+            <p class="stat-sub">Active employees</p>
+        </div>
+    </div>
+    
+    <div class="stat-card" style="--accent-color: #15803d">
+        <div class="stat-top">
+            <p class="stat-label">Active</p>
+            <div class="stat-icon-wrap" style="background: rgba(21, 128, 61, 0.1)">
+                <svg width="18" height="18" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+        </div>
+        <h2 class="stat-value">{{ $activeEmployees }}</h2>
+        <div class="stat-footer">
+            <span class="stat-dot" style="background:#15803d"></span>
+            <p class="stat-sub">Currently active</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="--accent-color: #8e1e18">
+        <div class="stat-top">
+            <p class="stat-label">Inactive</p>
+            <div class="stat-icon-wrap" style="background: rgba(142, 30, 24, 0.1)">
+                <svg width="18" height="18" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+        </div>
+        <h2 class="stat-value">{{ $inactiveEmployees }}</h2>
+        <div class="stat-footer">
+            <span class="stat-dot" style="background:#8e1e18"></span>
+            <p class="stat-sub">Deactivated accounts</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="--accent-color: #d9bb00">
+        <div class="stat-top">
+            <p class="stat-label">Regular</p>
+            <div class="stat-icon-wrap" style="background: rgba(217, 187, 0, 0.1)">
+                <svg width="18" height="18" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+        </div>
+        <h2 class="stat-value">{{ $regularEmployees }}</h2>
+        <div class="stat-footer">
+            <span class="stat-dot" style="background:#d9bb00"></span>
+            <p class="stat-sub">Regular employees</p>
+        </div>
+    </div>
+
 </div>
 
 <div class="table-section">
@@ -36,15 +116,15 @@
     </div>
 
     <div class="table-wrapper">
-        <table class="payroll-table">
+        <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Name</th>
                     <th>Position</th>
                     <th>Department</th>
-                    <th>Salary Grade</th>
                     <th>Employment Type</th>
+                    <th>Date Hired</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -66,12 +146,12 @@
                     </td>
                     <td><span class="position-cell">{{ $employee->position->title }}</span></td>
                     <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
-                    <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">SG{{ $employee->position->salary_grade }}</span></td>
                     <td>
                         <span class="dept-tag" style="background:{{ $employee->employment_type === 'Permanent' ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === 'Permanent' ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === 'Permanent' ? '#bbf7d0' : '#fde68a' }}">
                             {{ $employee->employment_type }}
                         </span>
                     </td>
+                    <td>{{ \Carbon\Carbon::parse($employee->created_at)->format('M d, Y') }}</td>
                     <td>
                         @if($employee->is_active)
                             <span class="badge-status processed">Active</span>
@@ -97,16 +177,29 @@
                                     Archive
                                 </button>
                             </form>
+                            @if ($employee->is_active)
+                            <form action="{{ route('employees.deactivate', $employee->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Deactivate this employee?')">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn-deactivate" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                    Deactivate
+                                </button>
+                            </form>
+                            @else
+                            <form action="{{ route('employees.activate', $employee->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Activate this employee?')">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn-activate" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>    
+                                    Activate
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
             @empty
-                <tr>
-                    <td colspan="8" class="empty-state">
-                        <svg width="48" height="48" fill="none" stroke="#d9d9ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <p style="font-size:14px;color:#9999bb;margin-top:12px">No employees found</p>
-                    </td>
-                </tr>
             @endforelse
             </tbody>
         </table>
@@ -135,5 +228,40 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+$(function () {
+    $('#attendance-table').DataTable({
+        columnDefs: [{ orderable: false, targets: [0, 7] }],
+        pageLength: 25,
+        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found', },
+    });
+
+    $('#select-all').on('change', function () {
+        $('.row-check').prop('checked', this.checked);
+        updateBulkBar();
+    });
+
+    $(document).on('change', '.row-check', function () {
+        if (!this.checked) $('#select-all').prop('checked', false);
+        updateBulkBar();
+    });
+
+    function updateBulkBar() {
+        const checked = $('.row-check:checked');
+        if (checked.length) {
+            $('#bulk-btn').show();
+            $('#bulk-count').text(checked.length);
+            $('#bulk-ids').html(checked.map((_, el) =>
+                `<input type="hidden" name="ids[]" value="${el.value}">`
+            ).get().join(''));
+        } else {
+            $('#bulk-btn').hide();
+        }
+    }
+});
+</script>
+@endpush
 
 @endsection

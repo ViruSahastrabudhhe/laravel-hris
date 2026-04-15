@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Department;
 
 use App\Models\Department;
+use App\Models\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Department\StoreDepartmentRequest;
 use App\Http\Requests\Department\UpdateDepartmentRequest;
@@ -15,8 +16,12 @@ class DepartmentController extends Controller
     public function index()
     {
         $departments = Department::findAllWithUserID()->get();
+        $employees = Employee::findAllWithUserID()->get();
 
-        return view('department.index', ['departments' => $departments]);
+        return view('department.index', [
+            'departments' => $departments,
+            'employees' => $employees,
+        ]); 
     }
 
     /**
