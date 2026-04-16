@@ -231,7 +231,6 @@ $presentToday = $employees->filter(function($employee) {
                         <th>Leave Type</th>
                         <th>Duration</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,18 +258,6 @@ $presentToday = $employees->filter(function($employee) {
                         @else
                             <span class="badge-status on-hold">{{ $leave->leave_status }}</span>
                         @endif
-                    </td>
-                    <td>
-                        <div class="row-actions">
-                            <form action="{{ route('employee_leaves.destroy', $leave) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this leave record?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
                     </td>
                 </tr>
             @empty

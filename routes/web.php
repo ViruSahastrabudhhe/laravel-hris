@@ -20,7 +20,11 @@ use App\Http\Controllers\Leave\LeaveTypeController;
 Auth::routes(['verify' => true]);
 
 Route::get('/', function () {
-    return redirect()->route('home');
+    if (auth()->check()) {
+        return redirect()->route('home');
+    } else {
+        return redirect()->route('landing');
+    }
 });
 
 Route::view('/landing', 'landing')->name('landing');
