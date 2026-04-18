@@ -20,28 +20,37 @@ use App\Http\Controllers\Leave\LeaveTypeController;
 Auth::routes(['verify' => true]);
 
 Route::get('/', function () {
-    return redirect()->route('home');
+    if (auth()->check()) {
+        return redirect()->route('home');
+    } else {
+        return redirect()->route('landing');
+    }
 });
 
 Route::view('/landing', 'landing')->name('landing');
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
 
-Route::prefix('manager')->middleware(['auth', 'verified'])->group(function() {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
     Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+    Route::put('employees/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
+    Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
     Route::resource('employees', EmployeeController::class);
     Route::resource('positions', PositionController::class);
     Route::resource('departments', DepartmentController::class);
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'csvStore'])->name('attendances.csvStore');
+    Route::delete('attendances/bulk-destroy', [AttendanceController::class, 'bulkDestroy'])->name('attendances.bulkDestroy');
+    Route::put('attendances/bulk-restore', [AttendanceController::class, 'bulkRestore'])->name('attendances.bulkRestore');
     Route::get('attendances/archives', [AttendanceController::class, 'archive'])->name('attendances.archive');
     Route::put('attendances/{attendanceId}/restore', [AttendanceController::class, 'restore'])->name('attendances.restore');
-    Route::resource('work_schedules', WorkScheduleController::class);
     Route::resource('attendances', AttendanceController::class);
+    Route::resource('work_schedules', WorkScheduleController::class);
     Route::resource('payroll', PayrollController::class);
     Route::resource('deductions', DeductionController::class);
     Route::resource('employee_deductions', EmployeeDeductionController::class);
     Route::resource('leave_types', LeaveTypeController::class);
     Route::resource('holidays', HolidayController::class);
+    Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
+    Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);
-    Route::resource('leave_balances', EmployeeLeaveBalanceController::class);
 });

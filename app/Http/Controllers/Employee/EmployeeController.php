@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Address;
@@ -12,6 +13,8 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
 use App\Enums\EmploymentType;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 
@@ -70,6 +73,16 @@ class EmployeeController extends Controller
         $employeeWorkSchedule->work_schedule_id = $data['work_schedule_id'];
         $employeeWorkSchedule->user_id = auth()->user()->id;
         $employeeWorkSchedule->save();
+
+        $employeeAccount = new User;
+        $employeeAccount->name = $employee->first_name . ' ' . $employee->last_name;
+        $employeeAccount->email = $employee->email;
+        $employeeAccount->password = Hash::make($data['password']);
+        $employeeAccount->save();
+
+        $employeeAccount->assignRole('employee');
+
+        event(new Registered($employeeAccount));
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }
@@ -133,6 +146,22 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.archive')->with('success', __('employee.success_restoring'));
         
+    }
+
+    public function activate($employeeId) {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->is_active = true;
+        $employee->save();
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_activating'));
+    }
+
+    public function deactivate($employeeId) {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->is_active = false;
+        $employee->save();
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_deactivating'));
     }
 
     public function archive() {

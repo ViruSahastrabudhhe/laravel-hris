@@ -108,13 +108,26 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendances.index')->with('message', __('attendance.success_deleting'));
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        Attendance::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('attendances.index')->with('message', __('attendance.success_deleting'));
+    }
         
     public function restore($attendanceId)
     {
         Attendance::onlyTrashed()->find($attendanceId)->restore();
 
-        return redirect()->route('attendances.archive')->with('success', __('attendance.success_deleting'));
-        
+        return redirect()->route('attendances.archive')->with('success', __('attendance.success_restoring'));   
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        Attendance::onlyTrashed()->whereIn('id', $request->ids)->restore();
+
+        return redirect()->route('attendances.index')->with('message', __('attendance.success_restoring'));
     }
 
     public function archive() 

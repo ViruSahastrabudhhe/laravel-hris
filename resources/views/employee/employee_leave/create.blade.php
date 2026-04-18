@@ -57,11 +57,6 @@
         </div>
 
         <div class="auth-field">
-            <label>Duration (days) <span style="color:#dc2626">*</span></label>
-            <input type="number" name="leave_duration" value="{{ old('leave_duration') }}" min="1" required>
-        </div>
-
-        <div class="auth-field">
             <label>Reason <span style="color:#dc2626">*</span></label>
             <textarea name="leave_reason" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Reason for leave" required>{{ old('leave_reason') }}</textarea>
         </div>

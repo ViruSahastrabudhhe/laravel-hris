@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\EmployeeLeave;
+use App\Enums\LeaveStatus;
 
 class HomeController extends Controller
 {
@@ -24,10 +26,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::with(['department', 'position'])->get();
+        $employees = Employee::findAllWithUserID()->with(['department', 'position'])->get();
+        $employeeLeaves = EmployeeLeave::findAllWithUserID()->with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
 
         return view('home', [
-            'employee_count' => $employees->count(),
+            'employees' => $employees,
+            'employeeLeaves' => $employeeLeaves,
         ]);
     }
 }

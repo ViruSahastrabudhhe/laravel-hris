@@ -1,0 +1,27 @@
+#attendance-table_wrapper { font-family: 'Poppins', sans-serif; }
+#attendance-table_wrapper .dataTables_length,
+#attendance-table_wrapper .dataTables_filter { margin-bottom: 16px; }
+#attendance-table_wrapper .dataTables_length label,
+#attendance-table_wrapper .dataTables_filter label { font-size: 12.5px; color: #6b6a8a; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+#attendance-table_wrapper .dataTables_filter input,
+#attendance-table_wrapper .dataTables_length select {
+    border: 1.5px solid #e4e3f0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    background: #fafafe;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#attendance-table_wrapper .dataTables_filter input:focus,
+#attendance-table_wrapper .dataTables_length select:focus { border-color: #0b044d; }
+#attendance-table_wrapper .dataTables_info { font-size: 12px; color: #9999bb; margin-top: 14px; }
+#attendance-table_wrapper .dataTables_paginate { margin-top: 14px; }
+#attendance-table_wrapper .paginate_button { padding: 4px 10px !important; border-radius: 7px !important; font-size: 12px !important; font-family: 'Poppins', sans-serif !important; border: 1.5px solid transparent !important; color: #6b6a8a !important; }
+#attendance-table_wrapper .paginate_button:hover { background: #f0effe !important; border-color: #e4e3f0 !important; color: #0b044d !important; }
+#attendance-table_wrapper .paginate_button.current,
+#attendance-table_wrapper .paginate_button.current:hover { background: #0b044d !important; color: #fff !important; border-color: #0b044d !important; }
+#attendance-table_wrapper .paginate_button.disabled,
+#attendance-table_wrapper .paginate_button.disabled:hover { color: #c9c8e0 !important; background: none !important; }

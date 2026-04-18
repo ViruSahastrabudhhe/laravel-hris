@@ -39,6 +39,7 @@ class StoreEmployeeRequest extends FormRequest
             'position_id' => 'required',
             'department_id' => 'required',
             'work_schedule_id' => 'required',
+            'password' => 'required|min:8|confirmed|string',
             'user_id' => 'required',
         ];
     }

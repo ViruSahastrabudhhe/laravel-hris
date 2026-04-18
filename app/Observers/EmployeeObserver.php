@@ -7,6 +7,7 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
 use Illuminate\Support\Facades\DB;
+use App\Enums\EmploymentType;
 
 class EmployeeObserver
 {
@@ -16,7 +17,9 @@ class EmployeeObserver
     public function created(Employee $employee): void
     {
         $this->createEmployeeLeaveBalance($employee);
-        $this->createEmployeeDeduction($employee);
+        if ($employee->employment_type == EmploymentType::Regular->value) {
+            $this->createEmployeeMandatoryDeductions($employee);
+        }
     }
 
     /**
@@ -52,6 +55,15 @@ class EmployeeObserver
     }
 
     private function createEmployeeLeaveBalance(Employee $employee) {
+        if ($employee->employment_type == EmploymentType::JobOrder->value) {
+            $employeeLeaveBalance = new EmployeeLeaveBalance;
+            $employeeLeaveBalance->leave_balance = 0;
+            $employeeLeaveBalance->employee_id = $employee->id;
+            $employeeLeaveBalance->user_id = auth()->user()->id;
+            $employeeLeaveBalance->save();
+            return;
+        }
+
         $employeeLeaveBalance = new EmployeeLeaveBalance;
         $employeeLeaveBalance->leave_balance = 15;
         $employeeLeaveBalance->employee_id = $employee->id;
@@ -59,7 +71,7 @@ class EmployeeObserver
         $employeeLeaveBalance->save();
     }
 
-    private function createEmployeeDeduction(Employee $employee) {
+    private function createEmployeeMandatoryDeductions(Employee $employee) {
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 
@@ -81,7 +93,7 @@ class EmployeeObserver
         $employeePagibig = new EmployeeDeduction;
         $employeePagibig->employee_id = $employee->id;
         $employeePagibig->deduction_id = 3;
-        if ($employee->salary_amount > 1500) {
+        if ($employee->position->salary_amount > 1500) {
             $employeePagibig->amount = 200;
         } else {
             $employeePagibig->amount = 100;
@@ -94,6 +106,10 @@ class EmployeeObserver
     }
 
     private function updateEmployeeDeduction(Employee $employee) {
+        if ($employee->employment_type == EmploymentType::JobOrder->value) {
+            return;
+        }
+
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 

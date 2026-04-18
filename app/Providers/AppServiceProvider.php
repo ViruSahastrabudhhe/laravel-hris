@@ -7,9 +7,12 @@ use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use App\Models\Attendance;
-use App\Observers\AttendanceObserver;
 use App\Models\Employee;
+use App\Models\EmployeeLeave;
+use App\Observers\AttendanceObserver;
 use App\Observers\EmployeeObserver;
+use App\Observers\EmployeeLeaveObserver;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Attendance::observe(AttendanceObserver::class);
         Employee::observe(EmployeeObserver::class);
+        EmployeeLeave::observe(EmployeeLeaveObserver::class);
         
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();
@@ -53,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
             $route = Route::currentRouteName();
             $title = match(true) {
                 str_contains($route, 'home') => __('common.app_dashboard'),
+                str_contains($route, 'verification') => __('common.app_verify'),
                 str_contains($route, 'login') => __('common.app_login'),
                 str_contains($route, 'register') => __('common.app_register'),
                 str_contains($route, 'password') => __('common.app_password'),
@@ -72,6 +77,12 @@ class AppServiceProvider extends ServiceProvider
                 default => null
             };
             $view->with('pageTitle', $title);
+        });
+
+        Gate::before(function ($user, $ability) {
+            if ($user->hasRole('Super-Admin')) {
+                return true;
+            }
         });
     }
 }

@@ -9,6 +9,7 @@ use App\Enums\LeaveStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
 use App\Http\Requests\Leave\UpdateEmployeeLeaveRequest;
+use App\Http\Requests\Leave\DenyEmployeeLeaveRequest;
 
 class EmployeeLeaveController extends Controller
 {
@@ -43,7 +44,7 @@ class EmployeeLeaveController extends Controller
 
         EmployeeLeave::create($data);
 
-        return redirect()->route('employee_leaves.index')->with('success', __('employee.employee_leave.success_creating'));
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.success_creating'));
     }
 
     /**
@@ -51,7 +52,7 @@ class EmployeeLeaveController extends Controller
      */
     public function show(EmployeeLeave $employee_leafe)
     {
-        return redirect()->route('employee_leaves.index')->with('success', __('employee.employee_leave.show_not_found'));
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.show_not_found'));
     }
 
     /**
@@ -74,7 +75,7 @@ class EmployeeLeaveController extends Controller
 
         $employee_leafe->update($data);
 
-        return redirect()->route('employee_leaves.index')->with('success', __('employee.employee_leave.success_updating'));
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.success_updating'));
     }
 
     /**
@@ -84,6 +85,23 @@ class EmployeeLeaveController extends Controller
     {
         $employee_leafe->delete();
 
-        return redirect()->route('employee_leaves.index')->with('success', __('employee.employee_leave.success_deleting'));
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.success_deleting'));
+    }
+
+    public function approve(EmployeeLeave $employee_leafe) {
+        $employee_leafe->update(['leave_status' => LeaveStatus::Approved->value]);
+
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.success_approving'));
+    }
+
+    public function deny(EmployeeLeave $employee_leafe, DenyEmployeeLeaveRequest $request) {
+        $data = $request->validated();
+
+        $employee_leafe->update([
+            'leave_status' => LeaveStatus::Declined->value,
+            'decline_reason' => $data['decline_reason'],
+        ]);
+
+        return redirect()->route('employee_leaves.index')->with('success', __('employee_leave.success_denying'));
     }
 }

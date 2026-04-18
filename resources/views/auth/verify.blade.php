@@ -7,17 +7,19 @@
             <div class="pub-logo-seal sm">
                 <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
-            <div>
-                <span class="pub-logo-name">PRIME HRIS</span>
-                <span class="pub-logo-sub">Pagsanjan, Laguna</span>
-            </div>
+            <a href="{{ route('landing') }}">
+                <div>
+                    <span class="pub-logo-name">{{ config('app.name', 'PRIME-HRIS') }}</span>
+                    <span class="pub-logo-sub">Pagsanjan, Laguna</span>
+                </div>
+            </a>
         </div>
         <a href="{{ route('landing') }}" class="auth-nav-back">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Back to Home
         </a>
     </nav>
-
+    
     <div class="auth-body">
         <div class="auth-page-head">
             <span class="pub-eyebrow">EMAIL VERIFICATION</span>

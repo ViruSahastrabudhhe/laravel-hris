@@ -25,7 +25,6 @@ class UpdateEmployeeLeaveRequest extends FormRequest
             'leave_type_id' => 'required|integer',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'leave_duration' => 'required|integer',
             'leave_reason' => 'required|string',
             'leave_status' => 'required|string',
             'decline_reason' => 'nullable|string',

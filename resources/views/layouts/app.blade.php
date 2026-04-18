@@ -9,14 +9,19 @@
         @else @if (isset($pageTitle)) {{ $pageTitle }} @endif | {{ config('app.name', 'Pagsanjan PRIME-HRIS') }}
         @endif
     </title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('images\municipal-of-pagsanjan-logo.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/js/app.js'])
+
+    @vite('resources/js/app.js')
     @stack('styles')
 </head>
 <body>
     @yield('content')
     @yield('modals')
+
+    <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('/js/jquery.dataTables.min.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

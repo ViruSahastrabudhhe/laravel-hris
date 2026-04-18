@@ -13,6 +13,8 @@ use Database\Seeders\AddressSeeder;
 use Database\Seeders\LeaveTypeSeeder;
 use Database\Seeders\EmployeeLeaveBalanceSeeder;
 use Database\Seeders\WorkScheduleSeeder;
+use Database\Seeders\PermissionSeeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,7 +27,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
@@ -39,6 +41,11 @@ class DatabaseSeeder extends Seeder
             WorkScheduleSeeder::class,
             EmployeeSeeder::class,
             EmployeeLeaveBalanceSeeder::class,
+            PermissionSeeder::class,
         ]);
+
+        $admin = Role::findByName('admin');
+        $user->assignRole($admin);
     }
+
 }
