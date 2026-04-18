@@ -9,7 +9,7 @@
         </div>
         <div>
             <h2>Welcome back, {{ auth()->user()->name }}!</h2>
-            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; PRIME HRIS Dashboard</p>
+            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; {{ config('app.name') }} Dashboard</p>
         </div>
     </div>
     <div class="banner-right">
