@@ -5,6 +5,7 @@ if (auth()->user()->hasRole('admin')) {
         ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
         ['id' => 'departments', 'label' => 'Departments',     'route' => 'departments.index',     'icon' => 'departments', 'section' => 'ORGANIZATION'],
         ['id' => 'positions',   'label' => 'Positions',       'route' => 'positions.index',       'icon' => 'settings', 'section' => null],
+        ['id' => 'salaries',    'label' => 'Salaries',        'route' => 'salaries.index',        'icon' => 'payroll', 'section' => null],
         ['id' => 'employees',   'label' => 'Employees',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
         ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => 'SCHEDULING & ATTENDANCE'],
         ['id' => 'schedules',   'label' => 'Work Schedules',  'route' => 'work_schedules.index',  'icon' => 'attendance', 'section' => null],

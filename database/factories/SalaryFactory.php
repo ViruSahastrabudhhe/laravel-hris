@@ -17,7 +17,12 @@ class SalaryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'amount' => $this->faker->numberBetween(15000, 50000),
+            'salary_grade' => $this->faker->numberBetween(1, 33),
+            'step' => $this->faker->numberBetween(1, 8),
+            'salary_type' => 'monthly',
+            'employee_id' => \App\Models\Employee::factory(),
+            'user_id' => 1,
         ];
     }
 }

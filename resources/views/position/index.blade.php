@@ -36,8 +36,6 @@
             <thead>
                 <tr>
                     <th>Position Title</th>
-                    <th>Salary Grade</th>
-                    <th>Monthly Salary</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -52,8 +50,6 @@
                             <span style="font-size:13px;font-weight:600;color:#0b044d">{{ $position->title }}</span>
                         </div>
                     </td>
-                    <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">SG {{ $position->salary_grade }}</span></td>
-                    <td><span class="pay-cell">₱{{ number_format($position->salary_amount, 2) }}</span></td>
                     <td>
                         <div class="row-actions">
                             <a href="{{ route('positions.edit', $position) }}" class="btn-edit">

@@ -24,6 +24,7 @@
     @stack('styles')
 </head>
 <body>
+    {{-- dd(Route::currentRouteName()) --}}
     @yield('content')
     @yield('modals')
 

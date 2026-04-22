@@ -132,7 +132,7 @@
 
             <div class="payslip-block">
                 <p class="payslip-block-label">EARNINGS</p>
-                <div class="payslip-detail-row"><span>Basic Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->position->salary_amount, 2) }}</strong></div>
+                <div class="payslip-detail-row"><span>Basic Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
                 <div class="payslip-detail-row"><span>Overtime Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
                 <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Gross Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
 
@@ -179,7 +179,7 @@
                 </div>
             </div>
             <div class="modal-section-label">EARNINGS</div>
-            <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->position->salary_amount, 2) }}</strong></div>
+            <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
             <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
             <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
             <div class="modal-section-label" style="margin-top:16px">DEDUCTIONS</div>

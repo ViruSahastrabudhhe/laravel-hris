@@ -24,21 +24,6 @@
             <input type="text" name="title" value="{{ old('title', $position->title) }}" placeholder="e.g. Administrative Officer" required>
         </div>
 
-        <div class="auth-row-2">
-            <div class="auth-field">
-                <label>Salary Grade <span style="color:#dc2626">*</span></label>
-                <input type="text" name="salary_grade" value="{{ old('salary_grade', $position->salary_grade) }}" placeholder="e.g. 11" required>
-            </div>
-            <div class="auth-field">
-                <label>Step <span style="color:#dc2626">*</span></label>
-                <input type="number" name="step" value="{{ old('step', $position->step) }}" placeholder="e.g. 1" min="1" required>
-            </div>
-        </div>
-
-        <div class="auth-field">
-            <label>Monthly Salary <span style="color:#dc2626">*</span></label>
-            <input type="number" name="monthly_salary" value="{{ old('monthly_salary', $position->monthly_salary) }}" placeholder="e.g. 25000" step="0.01" required>
-        </div>
 
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
 

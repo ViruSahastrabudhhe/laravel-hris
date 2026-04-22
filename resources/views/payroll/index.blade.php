@@ -9,6 +9,7 @@ foreach ($employees as $employee) {
     $totalNetPay += $employee->netPay();
     $totalDeductions += $employee->totalDeductions();
 }
+$departments = \App\Models\Department::findAllWithUserID()->get();
 @endphp
 
 @section('page-content')
@@ -87,8 +88,57 @@ foreach ($employees as $employee) {
 
 </div>
 
+@push('styles')
+<style>
+.search-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-input-wrap svg {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+}
+.search-input {
+    padding: 8px 12px 8px 38px;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    background: #fafafe;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #0b044d; }
+
+.filter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 0 4px;
+}
+.filter-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+</style>
+@endpush
+
 <div class="table-section">
-    <div class="table-header">
+    <div class="table-header" style="margin-bottom: 20px;">
         <div>
             <p class="table-title">Payroll Summary</p>
             <p class="table-sub">Monthly payroll breakdown for all employees</p>
@@ -98,6 +148,23 @@ foreach ($employees as $employee) {
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export Payroll
             </button>
+        </div>
+    </div>
+
+    <div class="filter-row">
+        <div class="filter-group">
+            <div class="search-input-wrap">
+                <svg width="16" height="16" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="payroll-search" placeholder="Search payroll..." class="search-input">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <select class="filter-select" id="dept-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
+                <option value="">All Departments</option>
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
 
@@ -164,11 +231,21 @@ function viewPayslip(employeeId) {
 }
 
 $(function () {
-    $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 9] }],
+    const table = $('#attendance-table').DataTable({
+        columnDefs: [{ orderable: false, targets: [9] }],
         pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll recordsfound', },
+        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll records found', },
+        dom: 'rtip',
     });
+
+    $('#payroll-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    $('#dept-filter').on('change', function() {
+        table.column(1).search(this.value).draw();
+    });
+});
 
     $('#select-all').on('change', function () {
         $('.row-check').prop('checked', this.checked);

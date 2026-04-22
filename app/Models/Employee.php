@@ -55,6 +55,10 @@ class Employee extends Model
         return $this->hasOne(Position::class, 'id', 'position_id');
     }
 
+    public function salary() {
+        return $this->hasOne(Salary::class);
+    }
+
     public function attendance() {
         return $this->hasMany(Attendance::class);
     }
@@ -125,24 +129,27 @@ class Employee extends Model
     }
 
     public function hourlyRate() {
-        $hourlyRate = ($this->position->salary_amount * 12) / (261 * 8);
+        $amount = $this->salary->amount ?? 0;
+        $hourlyRate = ($amount * 12) / (261 * 8);
         return $hourlyRate;
     }
 
     public function dailyRate() {
-        $dailyRate = ($this->position->salary_amount * 12) / 261;
+        $amount = $this->salary->amount ?? 0;
+        $dailyRate = ($amount * 12) / 261;
         return $dailyRate;
     }
 
     public function grossPay() {
         $overtime = $this->overtimePay();
         $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
+        $amount = $this->salary->amount ?? 0;
 
         if ($this->isJobOrder()) {
             return $monthlySalary + $overtime;
         }
         
-        return round(($this->position->salary_amount + $overtime), 2);
+        return round(($amount + $overtime), 2);
     }
 
     public function overtimePay() {

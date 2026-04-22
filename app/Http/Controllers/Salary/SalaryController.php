@@ -14,7 +14,8 @@ class SalaryController extends Controller
      */
     public function index()
     {
-        //
+        $salaries = Salary::with('employee')->paginate(10);
+        return view('salary.index', compact('salaries'));
     }
 
     /**
@@ -22,7 +23,8 @@ class SalaryController extends Controller
      */
     public function create()
     {
-        //
+        $employees = \App\Models\Employee::all();
+        return view('salary.create', compact('employees'));
     }
 
     /**
@@ -30,15 +32,12 @@ class SalaryController extends Controller
      */
     public function store(StoreSalaryRequest $request)
     {
-        //
-    }
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Salary $salary)
-    {
-        //
+        Salary::create($data);
+
+        return redirect()->route('salaries.index')->with('success', 'Salary created successfully.');
     }
 
     /**
@@ -46,7 +45,8 @@ class SalaryController extends Controller
      */
     public function edit(Salary $salary)
     {
-        //
+        $employees = \App\Models\Employee::all();
+        return view('salary.edit', compact('salary', 'employees'));
     }
 
     /**
@@ -54,7 +54,10 @@ class SalaryController extends Controller
      */
     public function update(UpdateSalaryRequest $request, Salary $salary)
     {
-        //
+        $data = $request->validated();
+        $salary->update($data);
+
+        return redirect()->route('salaries.index')->with('success', 'Salary updated successfully.');
     }
 
     /**
@@ -62,6 +65,8 @@ class SalaryController extends Controller
      */
     public function destroy(Salary $salary)
     {
-        //
+        $salary->delete();
+
+        return redirect()->route('salaries.index')->with('success', 'Salary deleted successfully.');
     }
 }

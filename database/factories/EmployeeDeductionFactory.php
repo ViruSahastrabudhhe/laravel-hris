@@ -28,7 +28,7 @@ class EmployeeDeductionFactory extends Factory
     public function configure(): static {
         return $this->afterCreating(function ($employeeDeduction) {
             $deduction = Deduction::find($employeeDeduction->deduction_id);
-            $salary = $employeeDeduction->employee->position->salary_amount;
+            $salary = $employeeDeduction->employee->salary->amount ?? 0;
 
             $employeeDeduction->update([
                 'amount' => $salary * ($deduction->rate ?? 0),

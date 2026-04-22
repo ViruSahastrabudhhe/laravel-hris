@@ -11,6 +11,7 @@ foreach ($attendances as $attendance) {
 }
 
 $totalOT = round($totalOT / 60, 2);
+$departments = \App\Models\Department::findAllWithUserID()->get();
 @endphp
 
 @section('page-content')
@@ -89,8 +90,57 @@ $totalOT = round($totalOT / 60, 2);
 
 </div>
 
+@push('styles')
+<style>
+.search-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-input-wrap svg {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+}
+.search-input {
+    padding: 8px 12px 8px 38px;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    background: #fafafe;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #0b044d; }
+
+.filter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 0 4px;
+}
+.filter-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+</style>
+@endpush
+
 <div class="table-section">
-    <div class="table-header">
+    <div class="table-header" style="margin-bottom: 20px;">
         <div>
             <p class="table-title">Attendance Records</p>
             <p class="table-sub">Track employee time and attendance</p>
@@ -109,9 +159,39 @@ $totalOT = round($totalOT / 60, 2);
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 View Archive
             </a>
+            <button class="btn-export" id="scan-qr-btn">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
+                Scan QR Code
+            </button>
             <button class="modal-btn-primary" id="add-attendance-btn">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Attendance
+            </button>
+        </div>
+    </div>
+
+    <div class="filter-row">
+        <div class="filter-group">
+            <div class="search-input-wrap">
+                <svg width="16" height="16" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="attendance-search" placeholder="Search records..." class="search-input">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <select class="filter-select" id="dept-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
+                <option value="">All Departments</option>
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                @endforeach
+            </select>
+            <select class="filter-select" id="status-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
+                <option value="">All Status</option>
+                <option value="Present">Present</option>
+                <option value="Late">Late</option>
+            </select>
+            <button class="btn-export">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
             </button>
         </div>
     </div>
@@ -211,23 +291,181 @@ $totalOT = round($totalOT / 60, 2);
         </form>
     </div>
 </div>
+
+{{-- QR Scanner Modal --}}
+<div class="modal-overlay" id="qr-modal" style="display:none;">
+    <div class="modal-box" style="max-width:500px;">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">ATTENDANCE SCANNER</span>
+                <h3 class="modal-title">Scan QR Code</h3>
+            </div>
+            <button class="modal-close" onclick="stopQRScanner()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="qr-reader-wrap" style="background:#f7f6ff;border-radius:12px;padding:10px;overflow:hidden">
+                <div id="qr-reader" style="width:100%"></div>
+            </div>
+            <div id="scan-status" style="margin-top:16px;text-align:center">
+                <p style="color:#9999bb;font-size:13px" id="status-text">Position QR code within the frame</p>
+            </div>
+            <div id="scan-success-card" style="display:none;margin-top:16px;background:#f0fdf4;border:1px solid #22c55e;border-radius:12px;padding:16px">
+                <div style="display:flex;align-items:center;gap:10px;color:#15803d;font-weight:700;margin-bottom:8px">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    Scan Successful
+                </div>
+                <div id="scan-details" style="font-size:13px;color:#15803d;line-height:1.6"></div>
+            </div>
+            <div id="scan-error-card" style="display:none;margin-top:16px;background:#fef2f2;border:1px solid #ef4444;border-radius:12px;padding:16px">
+                <p id="scan-error-text" style="color:#dc2626;font-size:13px;margin:0"></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn-ghost" style="width:100%" onclick="stopQRScanner()">Close Scanner</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
+let html5QrCode;
+
+function startQRScanner() {
+    document.getElementById('qr-modal').style.display = 'flex';
+    document.getElementById('scan-success-card').style.display = 'none';
+    document.getElementById('scan-error-card').style.display = 'none';
+    document.getElementById('status-text').textContent = 'Position QR code within the frame';
+    
+    html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        onScanError
+    ).catch(err => {
+        console.error("Camera error:", err);
+        document.getElementById('status-text').innerHTML = '<span style="color:#dc2626">Camera error. Please check permissions.</span>';
+    });
+}
+
+function stopQRScanner() {
+    document.getElementById('qr-modal').style.display = 'none';
+    
+    if (html5QrCode) {
+        try {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+            }).catch(err => {
+                // If it wasn't running, stop() might fail, which is fine
+                console.warn("Scanner stop handled:", err);
+                html5QrCode.clear();
+            });
+        } catch (e) {
+            console.error("Scanner exception:", e);
+        }
+    }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    if (html5QrCode) {
+        html5QrCode.pause(true);
+    }
+    
+    document.getElementById('status-text').textContent = 'Processing...';
+    
+    fetch('/api/qr-scanner/scan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ qr_data: decodedText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showScanSuccess(data);
+        } else {
+            showScanError(data.message);
+            if (html5QrCode) html5QrCode.resume();
+        }
+    })
+    .catch(error => {
+        showScanError('Network error: ' + error.message);
+        if (html5QrCode) html5QrCode.resume();
+    });
+}
+
+function onScanError(errorMessage) {
+    // Standard scanning errors can be ignored
+}
+
+function showScanSuccess(data) {
+    document.getElementById('scan-error-card').style.display = 'none';
+    const card = document.getElementById('scan-success-card');
+    card.style.display = 'block';
+    
+    document.getElementById('scan-details').innerHTML = `
+        <strong>Employee:</strong> ${data.data.employee_name}<br>
+        <strong>Time In:</strong> ${data.data.time_in || 'N/A'}<br>
+        <strong>Time Out:</strong> ${data.data.time_out || 'N/A'}<br>
+        <strong>Status:</strong> Attendance recorded.
+    `;
+    
+    document.getElementById('status-text').innerHTML = '<span style="color:#15803d;font-weight:700">✓ RECORDED</span>';
+    
+    setTimeout(() => {
+        location.reload();
+    }, 2500);
+}
+
+function showScanError(message) {
+    document.getElementById('scan-success-card').style.display = 'none';
+    const card = document.getElementById('scan-error-card');
+    card.style.display = 'block';
+    document.getElementById('scan-error-text').textContent = message;
+    document.getElementById('status-text').textContent = 'Try again';
+}
+
 $('#add-attendance-btn').on('click', function () {
     document.getElementById('attendance-modal').style.display = 'flex';
 });
 
+$('#scan-qr-btn').on('click', function () {
+    startQRScanner();
+});
+
 $(document).on('keydown', function (e) {
-    if (e.key === 'Escape') document.getElementById('attendance-modal').style.display = 'none';
+    if (e.key === 'Escape') {
+        document.getElementById('attendance-modal').style.display = 'none';
+        if (document.getElementById('qr-modal').style.display === 'flex') {
+            stopQRScanner();
+        }
+    }
 });
 
 $(function () {
-    $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 8] }],
+    const table = $('#attendance-table').DataTable({
+        columnDefs: [{ orderable: false, targets: [0, 9] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
+        dom: 'rtip',
+    });
+
+    $('#attendance-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    $('#dept-filter').on('change', function() {
+        table.column(1).search(this.value).draw();
+    });
+
+    $('#status-filter').on('change', function() {
+        table.column(8).search(this.value).draw();
     });
 
     $('#select-all').on('change', function () {

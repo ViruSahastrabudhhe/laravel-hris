@@ -123,7 +123,7 @@
             <p style="font-size:10px;font-weight:700;color:#9999bb;letter-spacing:1.5px;margin:0 0 14px">EMPLOYMENT INFORMATION</p>
             @foreach([
                 ['Position', $employee->position->title],
-                ['Salary Grade', 'SG ' . $employee->position->salary_grade],
+                ['Salary Grade', 'SG ' . ($employee->salary->salary_grade ?? 'N/A')],
                 ['Department', $employee->department->name],
                 ['Employment Type', $employee->employment_type],
                 ['Work Schedule', $employee->employeeWorkSchedule->workSchedule->name],
@@ -142,7 +142,7 @@
             @foreach([
                 ['Hourly Rate', '₱ ' . round($employee->hourlyRate(), 2)],
                 ['Daily Rate', '₱ ' . round($employee->dailyRate(), 2)],
-                ['Monthly Salary', '₱' . number_format($employee->position->monthly_salary ?? $employee->position->salary_amount, 2)],
+                ['Monthly Salary', '₱' . number_format($employee->salary->amount ?? 0, 2)],
             ] as [$label, $value])
             <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f7f6ff;font-size:13px">
                 <span style="color:#9999bb">{{ $label }}</span>

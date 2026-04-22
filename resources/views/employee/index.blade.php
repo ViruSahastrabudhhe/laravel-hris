@@ -1,5 +1,34 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+.search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-wrap svg {
+    position: absolute;
+    left: 10px;
+    pointer-events: none;
+}
+.search-input {
+    height: 34px;
+    padding: 0 10px 0 30px;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    background: #fafafe;
+    outline: none;
+    width: 180px;
+    transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #0b044d; }
+</style>
+@endpush
+
 @php
 $totalEmployees = 0;
 $activeEmployees = 0;
@@ -19,6 +48,7 @@ foreach ($employees as $employee) {
     $totalEmployees++;
 }
 
+$departments = \App\Models\Department::findAllWithUserID()->get();
 @endphp
 
 @section('page-content')
@@ -103,7 +133,22 @@ foreach ($employees as $employee) {
             <p class="table-title">Employee Directory</p>
             <p class="table-sub">All active government personnel</p>
         </div>
-        <div class="table-actions">
+        <div class="table-actions" style="gap: 10px;">
+            <div class="search-wrap">
+                <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="employee-search" placeholder="Search employees..." class="search-input">
+            </div>
+            <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <option value="">All Departments</option>
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                @endforeach
+            </select>
+            <select class="filter-select" id="status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
             <a href="{{ route('employees.archive') }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 View Archive
@@ -225,10 +270,23 @@ foreach ($employees as $employee) {
 @push('scripts')
 <script>
 $(function () {
-    $('#attendance-table').DataTable({
+    const table = $('#attendance-table').DataTable({
         columnDefs: [{ orderable: false, targets: [0, 6] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found', },
+        dom: 'rtip',
+    });
+
+    $('#employee-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    $('#dept-filter').on('change', function() {
+        table.column(2).search(this.value).draw();
+    });
+
+    $('#status-filter').on('change', function() {
+        table.column(5).search(this.value).draw();
     });
 
     $('#select-all').on('change', function () {

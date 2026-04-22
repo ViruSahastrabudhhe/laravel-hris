@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
+use App\Models\Deduction;
 use Illuminate\Support\Facades\DB;
 use App\Enums\EmploymentType;
 
@@ -72,19 +73,21 @@ class EmployeeObserver
     }
 
     private function createEmployeeMandatoryDeductions(Employee $employee) {
-        $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
-        $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
+        $gsis = Deduction::where('name', 'GSIS Contribution')->first();
+        $philhealth = Deduction::where('name', 'PhilHealth Personal Share Contribution')->first();
+
+        $amount = $employee->salary->amount ?? 0;
 
         $employeeDeduction = new EmployeeDeduction;
         $employeeDeduction->employee_id = $employee->id;
         $employeeDeduction->deduction_id = 1;
-        $employeeDeduction->amount = $employee->position->salary_amount * $gsis->rate;
+        $employeeDeduction->amount = $amount * $gsis->rate;
         $employeeDeduction->user_id = auth()->user()->id;
         
         $employeePhilhealth = new EmployeeDeduction;
         $employeePhilhealth->employee_id = $employee->id;
         $employeePhilhealth->deduction_id = 2;
-        $employeePhilhealth->amount = $employee->position->salary_amount * $philhealth->rate;
+        $employeePhilhealth->amount = $amount * $philhealth->rate;
         if ($employeePhilhealth->amount >= 2500) {
             $employeePhilhealth->amount = 2500;
         }
@@ -93,7 +96,7 @@ class EmployeeObserver
         $employeePagibig = new EmployeeDeduction;
         $employeePagibig->employee_id = $employee->id;
         $employeePagibig->deduction_id = 3;
-        if ($employee->position->salary_amount > 1500) {
+        if ($amount > 1500) {
             $employeePagibig->amount = 200;
         } else {
             $employeePagibig->amount = 100;
@@ -113,15 +116,21 @@ class EmployeeObserver
         $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
         $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
 
+        $amount = $employee->salary->amount ?? 0;
+
         $employeeDeduction = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 1)->first();
-        $employeeDeduction->amount = $employee->position->salary_amount * $gsis->rate;
-        $employeeDeduction->save();
+        if ($employeeDeduction) {
+            $employeeDeduction->amount = $amount * $gsis->rate;
+            $employeeDeduction->save();
+        }
 
         $employeePhilhealth = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 2)->first();
-        $employeePhilhealth->amount = $employee->position->salary_amount * $philhealth->rate;
-        if ($employeePhilhealth->amount >= 2500) {
-            $employeePhilhealth->amount = 2500;
+        if ($employeePhilhealth) {
+            $employeePhilhealth->amount = $amount * $philhealth->rate;
+            if ($employeePhilhealth->amount >= 2500) {
+                $employeePhilhealth->amount = 2500;
+            }
+            $employeePhilhealth->save();
         }
-        $employeePhilhealth->save();
     }
 }

@@ -23,8 +23,6 @@ class UpdatePositionRequest extends FormRequest
     {
         return [
             'title' => 'required',
-            'salary_grade' => 'required|numeric',
-            'salary_amount' => 'required|numeric',
             'user_id' => 'required',
         ];
     }

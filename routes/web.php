@@ -16,6 +16,8 @@ use App\Http\Controllers\Leave\EmployeeLeaveController;
 use App\Http\Controllers\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Leave\HolidayController;
 use App\Http\Controllers\Leave\LeaveTypeController;
+use App\Http\Controllers\Salary\SalaryController;
+use App\Http\Controllers\QrCodeController;
 
 Auth::routes(['verify' => true]);
 
@@ -37,6 +39,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
     Route::resource('employees', EmployeeController::class);
     Route::resource('positions', PositionController::class);
+    Route::resource('salaries', SalaryController::class);
     Route::resource('departments', DepartmentController::class);
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'csvStore'])->name('attendances.csvStore');
     Route::delete('attendances/bulk-destroy', [AttendanceController::class, 'bulkDestroy'])->name('attendances.bulkDestroy');
@@ -53,4 +56,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
     Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);
+    
+    // QR Code Routes
+    Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
+    Route::post('qr-code/generate', [QrCodeController::class, 'generate'])->name('qr-code.generate');
+    Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
+    Route::get('qr-code/history', [QrCodeController::class, 'history'])->name('qr-code.history');
 });
