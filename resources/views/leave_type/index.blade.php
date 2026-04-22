@@ -35,7 +35,6 @@
         <table class="payroll-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Leave Type</th>
                     <th>Days Allowed</th>
                     <th>Status</th>
@@ -45,7 +44,6 @@
             <tbody>
             @forelse($leaveTypes as $leaveType)
                 <tr>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px">
                             <div style="width:36px;height:36px;background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($leaveType->id % 5)] }};border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -66,14 +64,12 @@
                         <div class="row-actions">
                             <a href="{{ route('leave_types.edit', $leaveType) }}" class="btn-edit">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                Edit
                             </a>
                             <form action="{{ route('leave_types.destroy', $leaveType) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this leave type?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
+                                <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    Delete
                                 </button>
                             </form>
                         </div>

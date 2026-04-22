@@ -48,4 +48,10 @@ class Attendance extends Model
         $query->whereYear('created_at', '=', Carbon::now()->year)
               ->whereMonth('created_at', '=', Carbon::now()->month);
     }
+    
+    #[Scope]
+    protected function currentMonthBetween(Builder $query): void {
+        $query->whereDate('date', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('date', '<=', Carbon::now()->endOfMonth());
+    }
 }

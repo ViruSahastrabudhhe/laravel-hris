@@ -26,6 +26,9 @@ class DepartmentFactory extends Factory
     {
         return [
             'name' => 'Human Resources Management',
+            'department_code' => 'HR',
+            'department_head' => fake()->name(),
+            'is_active' => true,
             'user_id' => 1,
         ];
     }

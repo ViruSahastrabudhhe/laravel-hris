@@ -23,6 +23,9 @@ class StoreDepartmentRequest extends FormRequest
     {
         return [
             'name' => 'required',
+            'department_code' => 'required|unique:departments,department_code',
+            'department_head' => 'nullable|string',
+            'is_active' => 'boolean',
             'description' => 'nullable',
             'user_id' => 'required',
         ];

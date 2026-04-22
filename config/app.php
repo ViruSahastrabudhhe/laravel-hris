@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 return [
 
     /*
@@ -122,5 +124,20 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Date Format
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default date format for your application, which
+    | will be used by the PHP date and date-time functions. The timezone
+    | is set to "MM/DD/YYYY" by default as it is the standard in the Philippines.
+    |
+    */
+
+    'date' => Carbon::now()->format(env('DATE_FORMAT', 'l, F j, Y')),
+    'month' => Carbon::now()->format(env('DATE_MONTH', 'F Y')),
+    'year' => Carbon::now()->format(env('DATE_YEAR', 'Y')),
 
 ];

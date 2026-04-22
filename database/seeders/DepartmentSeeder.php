@@ -17,10 +17,10 @@ class DepartmentSeeder extends Seeder
         Department::factory()
             ->count(4)
             ->state(new Sequence(
-                ['name' => 'Human Resources Management'],
-                ['name' => 'Finance/Accounting'],
-                ['name' => 'Administration'],
-                ['name' => 'Research & Development'],
+                ['name' => 'Human Resources Management', 'department_code' => 'HR', 'department_head' => 'John Smith'],
+                ['name' => 'Finance/Accounting', 'department_code' => 'FIN', 'department_head' => 'Sarah Johnson'],
+                ['name' => 'Administration', 'department_code' => 'ADM', 'department_head' => 'Michael Brown'],
+                ['name' => 'Research & Development', 'department_code' => 'RND', 'department_head' => 'Emily Davis'],
             ))
             ->create();
     }

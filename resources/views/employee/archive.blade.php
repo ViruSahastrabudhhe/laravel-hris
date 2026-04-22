@@ -1,6 +1,12 @@
 @extends('layouts.admin')
 
 @section('page-content')
+<div style="margin-bottom:20px">
+    <a href="{{ route('employees.index') }}" class="auth-nav-back">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Employees
+    </a>
+</div>
 
 <div class="table-section">
     <div class="table-header">
@@ -9,10 +15,6 @@
             <p class="table-sub">Archived and inactive employees</p>
         </div>
         <div class="table-actions">
-            <a href="{{ route('employees.index') }}" class="btn-export">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                Back to Employees
-            </a>
         </div>
     </div>
 

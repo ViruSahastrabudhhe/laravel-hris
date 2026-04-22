@@ -24,8 +24,25 @@
         </div>
 
         <div class="auth-field">
+            <label>Department Code <span style="color:#dc2626">*</span></label>
+            <input type="text" name="department_code" value="{{ old('department_code') }}" placeholder="e.g. HR-001" required>
+        </div>
+
+        <div class="auth-field">
+            <label>Department Head</label>
+            <input type="text" name="department_head" value="{{ old('department_head') }}" placeholder="e.g. John Smith">
+        </div>
+
+        <div class="auth-field">
             <label>Description</label>
             <textarea name="description" rows="4" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Brief description of the department">{{ old('description') }}</textarea>
+        </div>
+
+        <div class="auth-field">
+            <label style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} style="width:auto">
+                <span>Active Department</span>
+            </label>
         </div>
 
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">

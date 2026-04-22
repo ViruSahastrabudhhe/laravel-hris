@@ -34,9 +34,10 @@
         <table class="payroll-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Department Name</th>
-                    <th>Description</th>
+                    <th>Code</th>
+                    <th>Head</th>
+                    <th>Status</th>
                     <th>Employees</th>
                     <th>Actions</th>
                 </tr>
@@ -44,7 +45,6 @@
             <tbody>
             @forelse($departments as $department)
                 <tr>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px">
                             <div style="width:36px;height:36px;background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($department->id % 5)] }};border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -53,7 +53,13 @@
                             <span style="font-size:13px;font-weight:600;color:#0b044d">{{ $department->name }}</span>
                         </div>
                     </td>
-                    <td><span style="font-size:12.5px;color:#5a5888">{{ $department->description ?? 'No description' }}</span></td>
+                    <td><span class="dept-tag">{{ $department->department_code }}</span></td>
+                    <td><span style="font-size:12.5px;color:#5a5888">{{ $department->department_head ?? 'Not assigned' }}</span></td>
+                    <td>
+                        <span class="dept-tag" style="background:{{ $department->is_active ? '#d1fae5' : '#fee2e2' }};color:{{ $department->is_active ? '#065f46' : '#991b1b' }}">
+                            {{ $department->is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
                     @php
                         $employeeCount = $employees->where('department_id', $department->id)->count();
                     @endphp
@@ -66,14 +72,12 @@
                         <div class="row-actions">
                             <a href="{{ route('departments.edit', $department) }}" class="btn-edit">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                Edit
                             </a>
                             <form action="{{ route('departments.destroy', $department) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this department?')">
-                                @csrf
+                                @csrf   
                                 @method('DELETE')
-                                <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
+                                <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    Delete
                                 </button>
                             </form>
                         </div>
@@ -81,7 +85,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="empty-state">
+                    <td colspan="7" class="empty-state">
                         <svg width="48" height="48" fill="none" stroke="#d9d9ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                         <p style="font-size:14px;color:#9999bb;margin-top:12px">No departments found</p>
                     </td>

@@ -19,7 +19,7 @@ foreach ($employees as $employee) {
         </div>
         <div>
             <h2>Payroll Management</h2>
-            <p>{{ now()->format('D - F j, Y') }}</p>
+            <p>{{ config('app.date') }}</p>
         </div>
     </div>
     <div class="banner-right">
@@ -39,7 +39,7 @@ foreach ($employees as $employee) {
         <p class="stat-value">₱{{ number_format($grossPayroll, 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ now()->format('F, Y') }}</p>
+            <p class="stat-sub">For {{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -105,7 +105,6 @@ foreach ($employees as $employee) {
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Employee</th>
                     <th>Department</th>
                     <th>Gross Pay</th>
@@ -121,7 +120,6 @@ foreach ($employees as $employee) {
             <tbody>
             @forelse($employees as $employee)
                 <tr>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -148,7 +146,6 @@ foreach ($employees as $employee) {
                         <a href="{{ route('payroll.show', $employee->id) }}">
                             <button class="btn-view">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                View
                             </button>
                         </a>
                     </td>
@@ -168,7 +165,7 @@ function viewPayslip(employeeId) {
 
 $(function () {
     $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 10] }],
+        columnDefs: [{ orderable: false, targets: [0, 9] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll recordsfound', },
     });

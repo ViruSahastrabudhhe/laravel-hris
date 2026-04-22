@@ -41,7 +41,7 @@ $totalOT = round($totalOT / 60, 2);
         <p class="stat-value">{{ now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1 }} days</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ now()->format('F, Y') }}</p>
+            <p class="stat-sub">For {{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -55,7 +55,7 @@ $totalOT = round($totalOT / 60, 2);
         <p class="stat-value">{{ $totalPresent }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">{{ now()->format('M Y') }}</p>
+            <p class="stat-sub">For {{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -121,9 +121,7 @@ $totalOT = round($totalOT / 60, 2);
             <thead>
                 <tr>
                     <th><input type="checkbox" id="select-all" title="Select all"></th>
-                    <th>#</th>
                     <th>Employee</th>
-                    <th>Date</th>
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Break</th>
@@ -137,7 +135,6 @@ $totalOT = round($totalOT / 60, 2);
             @foreach($attendances as $attendance)
                 <tr>
                     <td><input type="checkbox" class="row-check" value="{{ $attendance->id }}"></td>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($attendance->employee->id % 5)] }}">
@@ -149,7 +146,6 @@ $totalOT = round($totalOT / 60, 2);
                             </div>
                         </div>
                     </td>
-                    <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($attendance->date)->format('M d, Y') }}</span></td>
                     <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                     <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
                     <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
@@ -168,9 +164,8 @@ $totalOT = round($totalOT / 60, 2);
                         <form action="{{ route('attendances.destroy', $attendance) }}" method="post" style="display:inline" onsubmit="return confirm('Archive this attendance record?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
+                            <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                Archive
                             </button>
                         </form>
                     </td>
@@ -230,7 +225,7 @@ $(document).on('keydown', function (e) {
 
 $(function () {
     $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 10] }],
+        columnDefs: [{ orderable: false, targets: [0, 8] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
     });

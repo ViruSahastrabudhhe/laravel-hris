@@ -88,12 +88,10 @@ class Employee extends Model
     }
 
     public function hoursWorked() {
-        $total_minutes = DB::table('attendances')
-            ->join('employees', 'attendances.employee_id', '=', 'employees.id')
+        $total_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
-            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth())            
+            ->currentMonthBetween()           
             ->whereNull('attendances.deleted_at')
             ->sum('attendances.total_minutes');
 
@@ -101,12 +99,10 @@ class Employee extends Model
     }
 
     public function daysWorked() {
-        $entries = DB::table('attendances')
-            ->join('employees', 'attendances.employee_id', '=', 'employees.id')
+        $entries = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
-            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->currentMonthBetween()
             ->whereNull('attendances.deleted_at')
             ->count();
 
@@ -114,12 +110,10 @@ class Employee extends Model
     }
 
     public function overtimeWorked() {
-        $overtime_minutes = DB::table('attendances')
-            ->join('employees', 'attendances.employee_id', '=', 'employees.id')
+        $overtime_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
             ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
-            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->currentMonthBetween()
             ->whereNull('attendances.deleted_at')
             ->sum('overtime_minutes');
 
@@ -172,20 +166,16 @@ class Employee extends Model
             }
         }
 
-        $absences = DB::table('attendances')
-            ->where('user_id', auth()->user()->id)
+        $absences = Attendance::where('user_id', auth()->user()->id)
             ->where('employee_id', $this->id)
-            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->currentMonthBetween()
             ->whereNull('deleted_at')
             ->where('attendance_status', AttendanceStatus::Absent->value)
             ->count();
 
-        $lates = DB::table('attendances')
-            ->where('user_id', auth()->user()->id)
+        $lates = Attendance::where('user_id', auth()->user()->id)
             ->where('employee_id', $this->id)
-            ->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth())
+            ->currentMonthBetween()
             ->whereNull('deleted_at')
             ->where('attendance_status', AttendanceStatus::Late->value)
             ->count();

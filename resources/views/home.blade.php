@@ -26,7 +26,7 @@ $presentToday = $employees->filter(function($employee) {
         </div>
         <div>
             <h2>Welcome back, {{ auth()->user()->name }}!</h2>
-            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; PRIME HRIS Dashboard</p>
+            <p>{{ config('app.date') }} &nbsp;·&nbsp; PRIME HRIS Dashboard</p>
         </div>
     </div>
     <div class="banner-right">
@@ -34,7 +34,7 @@ $presentToday = $employees->filter(function($employee) {
             <span class="banner-badge-dot"></span>
             System Online
         </span>
-        <span class="banner-badge outline">FY {{ now()->year }}</span>
+        <span class="banner-badge outline">FY {{ config('app.year') }}</span>
     </div>
 </div>
 
@@ -92,21 +92,7 @@ $presentToday = $employees->filter(function($employee) {
         <p class="stat-value" style="font-size:20px">₱{{ number_format($monthlyPayroll, 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
-            <p class="stat-sub">For {{ now()->format('F Y') }}</p>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-top">
-            <p class="stat-label">System Status</p>
-            <div class="stat-icon-wrap" style="background:#fdf0ef">
-                <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-        </div>
-        <p class="stat-value" style="font-size:20px">Active</p>
-        <div class="stat-footer">
-            <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">All systems operational</p>
+            <p class="stat-sub">For {{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -130,7 +116,6 @@ $presentToday = $employees->filter(function($employee) {
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Name</th>
                     <th>Position</th>
                     <th>Department</th>
@@ -143,7 +128,6 @@ $presentToday = $employees->filter(function($employee) {
             <tbody>
             @forelse ($employees as $employee)
                 <tr>
-                    <td class="emp-cell"><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -280,7 +264,7 @@ $presentToday = $employees->filter(function($employee) {
             <p class="stat-value" style="font-size:20px;margin-bottom:6px">₱{{ number_format($monthlyPayroll, 2) }}</p>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#0b044d"></span>
-                <p class="stat-sub">For {{ now()->format('F Y') }}</p>
+                <p class="stat-sub">For {{ config('app.month') }}</p>
             </div>
         </div>
 
@@ -289,7 +273,7 @@ $presentToday = $employees->filter(function($employee) {
             <p class="stat-value" style="font-size:20px;margin-bottom:6px">₱{{ number_format($monthlyPayroll, 2) }}</p>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#0b044d"></span>
-                <p class="stat-sub">For {{ now()->format('F Y') }}</p>
+                <p class="stat-sub">For {{ config('app.month') }}</p>
             </div>
         </div>
 
@@ -340,7 +324,7 @@ $presentToday = $employees->filter(function($employee) {
 <script>
 $(function () {
     $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 7] }],
+        columnDefs: [{ orderable: false, targets: [0, 6] }],
         pageLength: 5,
         lengthMenu: [5, 10],
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ Entries', emptyTable: 'No employees found', },

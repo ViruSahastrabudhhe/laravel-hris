@@ -93,7 +93,6 @@
                             @method('PUT')
                             <button type="submit" class="btn-edit">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-                                Restore
                             </button>
                         </form>
                     </td>

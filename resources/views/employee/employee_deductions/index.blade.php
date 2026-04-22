@@ -35,7 +35,6 @@
         <table class="payroll-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Employee</th>
                     <th>Mandatory Deductions</th>
                     <th>Optional Deductions</th>
@@ -45,7 +44,6 @@
             <tbody>
             @forelse($employees as $employee)
                 <tr>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -77,7 +75,9 @@
                                     <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post" style="display:inline" onsubmit="return confirm('Remove this deduction?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce;padding:2px 8px;font-size:11px">Remove</button>
+                                        <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
+                                            Remove
+                                        </button>
                                     </form>
                                 </div>
                             @endif

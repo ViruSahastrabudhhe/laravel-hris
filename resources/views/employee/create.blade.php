@@ -157,7 +157,7 @@
             <p style="font-size:11px;font-weight:700;color:#9999bb;letter-spacing:1px;margin:0 0 12px">ACCOUNT INFORMATION</p>
             
             <div class="auth-field">
-                <label for="password">Password</label>
+                <label for="password">Password <span style="color:#dc2626">*</span></label>
                 <div class="auth-pw-wrap">
                     <input id="password" type="password" name="password" placeholder="Create a password" required autocomplete="new-password">
                     <button type="button" class="auth-eye" onclick="togglePassword('password', 'eye-icon-1')">
@@ -166,7 +166,7 @@
                 </div>
             </div>
             <div class="auth-field">
-                <label for="password-confirm">Confirm Password</label>
+                <label for="password-confirm">Confirm Password <span style="color:#dc2626">*</span></label>
                 <div class="auth-pw-wrap">
                     <input id="password-confirm" type="password" name="password_confirmation" placeholder="Repeat your password" required autocomplete="new-password">
                     <button type="button" class="auth-eye" onclick="togglePassword('password-confirm', 'eye-icon-2')">

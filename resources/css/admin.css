@@ -112,10 +112,16 @@
 .badge-status.pending { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
 .row-actions { display: flex; gap: 6px; }
 .btn-view, .btn-edit { padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
-.btn-view { background: #fff; border: 1px solid #e4e3f0; color: #6b6a8a; }
-.btn-view:hover { border-color: #0b044d; color: #0b044d; }
+.btn-view { background: #fff; border: 1.5px solid #0b044d; color: #0b044d; }
+.btn-view:hover { border-color: #0b044d; background: #0b044d; color: #fff; }
 .btn-edit { background: #0b044d; border: 1px solid #0b044d; color: #fff; }
 .btn-edit:hover { background: #1a0f6e; border-color: #1a0f6e; }
+.btn-success { padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 4px; transition: all 0.2s; background: #15803d; border: 1px solid #15803d; color: #fff; }
+.btn-success:hover { background: #166534; border-color: #166534; }
+.btn-danger { padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 4px; transition: all 0.2s; background: #dc2626; border: 1px solid #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+.btn-danger-outline { padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 4px; transition: all 0.2s; background: #fff; border: 1px solid #dc2626; color: #dc2626; }
+.btn-danger-outline:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
 .btn-export { padding: 8px 16px; border-radius: 8px; border: 1.5px solid #e4e3f0; background: #fff; color: #6b6a8a; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
 .btn-export:hover { border-color: #0b044d; color: #0b044d; }
 .empty-state { text-align: center; padding: 40px 20px; }

@@ -1,6 +1,12 @@
 @extends('layouts.admin')
 
 @section('page-content')
+<div style="margin-bottom:20px">
+    <a href="{{ route('payroll.index') }}" class="auth-nav-back">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Payroll
+    </a>
+</div>
 
 <div class="welcome-banner" style="margin-bottom:22px">
     <div class="banner-left">
@@ -9,7 +15,7 @@
         </div>
         <div>
             <h2>Payslip</h2>
-            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; For EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+            <p>{{ config('app.date') }} &nbsp;·&nbsp; For EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
         </div>
     </div>
     <div class="banner-right">
@@ -28,7 +34,7 @@
         <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->grossPay(), 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
-            <p class="stat-sub">{{ now()->format('F Y') }}</p>
+            <p class="stat-sub">{{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -70,7 +76,7 @@
         <p class="stat-value">{{ $employee->daysWorked() }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">{{ now()->format('F Y') }}</p>
+            <p class="stat-sub">{{ config('app.month') }}</p>
         </div>
     </div>
 
@@ -82,13 +88,13 @@
             <p class="table-title">Payslip Breakdown</p>
             <p class="table-sub">{{ $employee->first_name }} {{ $employee->last_name }} &nbsp;·&nbsp; EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
         </div>
-        <div class="table-actions">
-            <a href="{{ route('payroll.index') }}">
+        <div class="table-actions"> 
+            <!-- <a href="{{ route('payroll.index') }}">
                 <button class="btn-export">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
                     Back to Payroll
                 </button>
-            </a>
+            </a> -->
             <button class="btn-export" onclick="openModal()">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export Payslip to PDF
@@ -113,7 +119,15 @@
                 <div class="payslip-detail-row"><span>Position</span><strong>{{ $employee->position->title }}</strong></div>
                 <div class="payslip-detail-row"><span>Department</span><strong>{{ $employee->department->name }}</strong></div>
                 <div class="payslip-detail-row"><span>Employment Type</span><strong>{{ ucfirst($employee->employment_type) }}</strong></div>
-                <div class="payslip-detail-row"><span>Pay Period</span><strong>{{ now()->format('F Y') }}</strong></div>
+                <div class="payslip-detail-row"><span>Pay Period</span><strong>{{ config('app.month') }}</strong></div>
+                <div class="payslip-info-row"></div>
+                <p class="payslip-block-label">ATTENDANCE INFO</p>
+                <div class="payslip-detail-row"><span>Hours Worked</span><strong>{{ $employee->hoursWorked() }} hrs</strong></div>
+                <div class="payslip-detail-row"><span>Overtime Worked</span><strong>{{ $employee->overtimeWorked() }} hrs</strong></div>
+                <div class="payslip-detail-row"><span>Days Worked</span><strong>{{ $employee->daysWorked() }} days</strong></div>
+                <div class="payslip-detail-row"><span>Days Late</span><strong>{{ ucfirst($employee->employment_type) }} days</strong></div>
+                <div class="payslip-detail-row"><span>Days Absent</span><strong>{{ config('app.month') }} days</strong></div>
+                <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Total Hours Worked</span><strong style="color:#0b044d">{{ $employee->totalHoursWorked() }} hrs</strong></div>
             </div>
 
             <div class="payslip-block">
@@ -146,7 +160,7 @@
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
-                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(now()->format('F Y')) }}</span>
+                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(config('app.month')) }}</span>
                 <h3 class="modal-title">{{ $employee->first_name }} {{ $employee->last_name }}</h3>
                 <p class="modal-sub">{{ $employee->position->name }} · {{ $employee->department->name }}</p>
             </div>

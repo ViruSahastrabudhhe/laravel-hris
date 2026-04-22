@@ -103,7 +103,6 @@ foreach ($employeeLeaves as $leave) {
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Employee</th>
                     <th>Department</th>
                     <th>Leave Type</th>
@@ -117,7 +116,6 @@ foreach ($employeeLeaves as $leave) {
             <tbody>
             @forelse($employeeLeaves as $leave)
                 <tr>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($leave->employee->id % 5)] }}">
@@ -147,7 +145,6 @@ foreach ($employeeLeaves as $leave) {
                         <div class="row-actions">
                             <a href="{{ route('employee_leaves.edit', $leave) }}" class="btn-edit">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                Edit
                             </a>
                             @if ($leave->leave_status != \App\Enums\LeaveStatus::Pending->value)
                             <form action="{{ route('employee_leaves.destroy', $leave) }}" method="POST" style="display:inline" onsubmit="return confirm('Archive this leave request?')">
@@ -155,33 +152,25 @@ foreach ($employeeLeaves as $leave) {
                                 @method('DELETE')
                                 <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    Archive
                                 </button>
                             </form>
                             @else
                             <form action="{{ route('employee_leaves.approve', $leave) }}" method="post" style="display:inline" onsubmit="return confirm('Approve this leave request?')">
                                 @csrf
                                 @method('PUT')
-                                <button type="submit" class="btn-activate" style="display: inline-flex; align-items: center; gap: 4px;">
+                                <button type="submit" class="btn-success" style="display: inline-flex; align-items: center; gap: 4px;">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>    
-                                    Approve
                                 </button>
                             </form>
-                            <button type="button" class="btn-deactivate" style="display:inline-flex;align-items:center;gap:4px" onclick="openDenyModal('{{ route('employee_leaves.deny', $leave) }}', '{{ $leave->employee->first_name }} {{ $leave->employee->last_name }}')">
+                            <button type="button" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px" onclick="openDenyModal('{{ route('employee_leaves.deny', $leave) }}', '{{ $leave->employee->first_name }} {{ $leave->employee->last_name }}')">
                                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                                Deny
                             </button>
                             @endif
                         </div>
                     </td>
                 </tr>
             @empty
-            <tr>
-                <td colspan="8" class="empty-state">
-                    <svg width="48" height="48" fill="none" stroke="#d9d9ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <p style="font-size:14px;color:#9999bb;margin-top:12px">No leave records found</p>
-                </td>
-            </tr>
+
             @endforelse
             </tbody>
         </table>
@@ -225,9 +214,9 @@ foreach ($employeeLeaves as $leave) {
 <script>
 $(function () {
     $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 7] }],
+        columnDefs: [{ orderable: false, targets: [0, 6] }],
         pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found', },
+        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employee leave requests found', },
     });
 });
 
