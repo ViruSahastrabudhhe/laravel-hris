@@ -215,8 +215,8 @@
 .payslip-detail-row span { font-size:13px; color:#9999bb; font-weight:500; }
 .payslip-detail-row strong { font-size:13px; color:#0b044d; font-weight:600; }
 
-.modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-.modal-box { background:#fff; border-radius:16px; width:100%; max-width:480px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; }
+.modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
+.modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
 @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
 .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
 .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
@@ -243,14 +243,22 @@
 
 @media (max-width: 768px) {
     .payslip-grid { grid-template-columns:1fr; }
+    .modal-box { border-radius:12px; }
+    .modal-header { padding:16px 16px 0; }
+    .modal-body { padding:14px 16px; }
+    .modal-footer { padding:12px 16px 16px; }
+}
+@media (max-width: 400px) {
+    .modal-overlay { padding:0; align-items:flex-end; }
+    .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
 }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-function openModal() { document.getElementById('payslipModal').style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function openModal() { document.getElementById('payslipModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('payslipModal'); });
 </script>
 @endpush

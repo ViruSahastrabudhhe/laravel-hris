@@ -12,8 +12,15 @@
     <link rel="icon" type="image/jpeg" href="{{ asset('images\municipal-of-pagsanjan-logo.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    @vite([
+        'resources/css/app.css', 
+        'resources/css/admin.css',
+        'resources/css/datatable.css',
+        'resources/css/jquery.dataTables.min.css',
+        'resources/js/app.js',
+    ])
 
-    @vite('resources/js/app.js')
     @stack('styles')
 </head>
 <body>
