@@ -14,6 +14,26 @@ $totalOT = round($totalOT / 60, 2);
 $departments = \App\Models\Department::findAllWithUserID()->get();
 @endphp
 
+@push('styles')
+<style>
+.modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
+.modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
+@keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
+.modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
+.modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
+.modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
+.modal-close:hover { color:#0b044d; }
+.modal-body { padding:20px 24px; }
+.modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
+.modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
+.modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
+.modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
+@media (max-width:768px) { .modal-box { border-radius:12px; } .modal-header { padding:16px 16px 0; } .modal-body { padding:14px 16px; } .modal-footer { padding:12px 16px 16px; } }
+@media (max-width:400px) { .modal-overlay { padding:0; align-items:flex-end; } .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; } }
+</style>
+@endpush
+
 @section('page-content')
 <div class="welcome-banner">
     <div class="banner-left">
@@ -90,62 +110,29 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 
 </div>
 
-@push('styles')
-<style>
-.search-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.search-input-wrap svg {
-    position: absolute;
-    left: 12px;
-    pointer-events: none;
-}
-.search-input {
-    padding: 8px 12px 8px 38px;
-    border: 1.5px solid #e4e3f0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'Poppins', sans-serif;
-    color: #0b044d;
-    background: #fafafe;
-    outline: none;
-    width: 200px;
-    transition: border-color 0.2s;
-}
-.search-input:focus { border-color: #0b044d; }
-
-.filter-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 14px;
-    padding: 0 4px;
-}
-.filter-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-.filter-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-</style>
-@endpush
-
 <div class="table-section">
-    <div class="table-header" style="margin-bottom: 20px;">
+    <div class="table-header">
         <div>
             <p class="table-title">Attendance Records</p>
             <p class="table-sub">Track employee time and attendance</p>
         </div>
         <div class="table-actions">
+            <div class="search-wrap" style="position:relative;display:flex;align-items:center">
+                <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
+            </div>
+            <select id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <option value="">All Departments</option>
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                @endforeach
+            </select>
+            <select id="status-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <option value="">All Status</option>
+                <option value="Present">Present</option>
+                <option value="Late">Late</option>
+                <option value="Absent">Absent</option>
+            </select>
             <form id="bulk-archive-form" action="{{ route('attendances.bulkDestroy') }}" method="POST" style="display:inline">
                 @csrf
                 @method('DELETE')
@@ -170,38 +157,13 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
         </div>
     </div>
 
-    <div class="filter-row">
-        <div class="filter-group">
-            <div class="search-input-wrap">
-                <svg width="16" height="16" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="attendance-search" placeholder="Search records..." class="search-input">
-            </div>
-        </div>
-        <div class="filter-actions">
-            <select class="filter-select" id="dept-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
-                <option value="">All Departments</option>
-                @foreach($departments as $dept)
-                    <option value="{{ $dept->name }}">{{ $dept->name }}</option>
-                @endforeach
-            </select>
-            <select class="filter-select" id="status-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
-                <option value="">All Status</option>
-                <option value="Present">Present</option>
-                <option value="Late">Late</option>
-            </select>
-            <button class="btn-export">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Export
-            </button>
-        </div>
-    </div>
-
     <div class="table-wrapper">
         <table class="payroll-table" id="attendance-table">
             <thead>
                 <tr>
                     <th><input type="checkbox" id="select-all" title="Select all"></th>
                     <th>Employee</th>
+                    <th>Date</th>
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Break</th>
@@ -226,6 +188,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                             </div>
                         </div>
                     </td>
+                    <td>{{ $attendance->date }}</td>
                     <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                     <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
                     <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
@@ -257,21 +220,20 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 </div>
 
 {{-- Attendance Modal --}}
-<div class="modal-overlay" id="attendance-modal" style="display:none;">
-    <div class="modal-box" style="max-width:460px;">
+<div class="modal-overlay" id="attendance-modal" style="display:none" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">
+    <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <span class="modal-eyebrow">IMPORT ATTENDANCE</span>
                 <h3 class="modal-title">Upload CSV File</h3>
             </div>
-            <button class="modal-close" onclick="document.getElementById('attendance-modal').style.display='none'">
+            <button class="modal-close" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-
         <form action="{{ route('attendances.csvStore') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="modal-body pmodal-body" style="max-height:60vh;overflow-y:auto;">
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
                 <div class="form-field">
                     <label>CSV File <span style="color:#dc2626">*</span></label>
                     <input type="file" name="csv_file" accept=".csv" required>
@@ -282,7 +244,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="document.getElementById('attendance-modal').style.display='none'">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Import CSV
@@ -332,164 +294,166 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-let html5QrCode;
+    let html5QrCode;
 
-function startQRScanner() {
-    document.getElementById('qr-modal').style.display = 'flex';
-    document.getElementById('scan-success-card').style.display = 'none';
-    document.getElementById('scan-error-card').style.display = 'none';
-    document.getElementById('status-text').textContent = 'Position QR code within the frame';
-    
-    html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess,
-        onScanError
-    ).catch(err => {
-        console.error("Camera error:", err);
-        document.getElementById('status-text').innerHTML = '<span style="color:#dc2626">Camera error. Please check permissions.</span>';
-    });
-}
+    function startQRScanner() {
+        document.getElementById('qr-modal').style.display = 'flex';
+        document.getElementById('scan-success-card').style.display = 'none';
+        document.getElementById('scan-error-card').style.display = 'none';
+        document.getElementById('status-text').textContent = 'Position QR code within the frame';
+        
+        html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess,
+            onScanError
+        ).catch(err => {
+            console.error("Camera error:", err);
+            document.getElementById('status-text').innerHTML = '<span style="color:#dc2626">Camera error. Please check permissions.</span>';
+        });
+    }
 
-function stopQRScanner() {
-    document.getElementById('qr-modal').style.display = 'none';
-    
-    if (html5QrCode) {
-        try {
-            html5QrCode.stop().then(() => {
-                html5QrCode.clear();
-            }).catch(err => {
-                // If it wasn't running, stop() might fail, which is fine
-                console.warn("Scanner stop handled:", err);
-                html5QrCode.clear();
-            });
-        } catch (e) {
-            console.error("Scanner exception:", e);
+    function stopQRScanner() {
+        document.getElementById('qr-modal').style.display = 'none';
+        
+        if (html5QrCode) {
+            try {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                }).catch(err => {
+                    // If it wasn't running, stop() might fail, which is fine
+                    console.warn("Scanner stop handled:", err);
+                    html5QrCode.clear();
+                });
+            } catch (e) {
+                console.error("Scanner exception:", e);
+            }
         }
     }
-}
 
-function onScanSuccess(decodedText, decodedResult) {
-    if (html5QrCode) {
-        html5QrCode.pause(true);
-    }
-    
-    document.getElementById('status-text').textContent = 'Processing...';
-    
-    fetch('/api/qr-scanner/scan', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ qr_data: decodedText })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showScanSuccess(data);
-        } else {
-            showScanError(data.message);
+    function onScanSuccess(decodedText, decodedResult) {
+        if (html5QrCode) {
+            html5QrCode.pause(true);
+        }
+        
+        document.getElementById('status-text').textContent = 'Processing...';
+        
+        fetch('/api/qr-scanner/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ qr_data: decodedText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showScanSuccess(data);
+            } else {
+                showScanError(data.message);
+                if (html5QrCode) html5QrCode.resume();
+            }
+        })
+        .catch(error => {
+            showScanError('Network error: ' + error.message);
             if (html5QrCode) html5QrCode.resume();
-        }
-    })
-    .catch(error => {
-        showScanError('Network error: ' + error.message);
-        if (html5QrCode) html5QrCode.resume();
-    });
-}
-
-function onScanError(errorMessage) {
-    // Standard scanning errors can be ignored
-}
-
-function showScanSuccess(data) {
-    document.getElementById('scan-error-card').style.display = 'none';
-    const card = document.getElementById('scan-success-card');
-    card.style.display = 'block';
-    
-    document.getElementById('scan-details').innerHTML = `
-        <strong>Employee:</strong> ${data.data.employee_name}<br>
-        <strong>Time In:</strong> ${data.data.time_in || 'N/A'}<br>
-        <strong>Time Out:</strong> ${data.data.time_out || 'N/A'}<br>
-        <strong>Status:</strong> Attendance recorded.
-    `;
-    
-    document.getElementById('status-text').innerHTML = '<span style="color:#15803d;font-weight:700">✓ RECORDED</span>';
-    
-    setTimeout(() => {
-        location.reload();
-    }, 2500);
-}
-
-function showScanError(message) {
-    document.getElementById('scan-success-card').style.display = 'none';
-    const card = document.getElementById('scan-error-card');
-    card.style.display = 'block';
-    document.getElementById('scan-error-text').textContent = message;
-    document.getElementById('status-text').textContent = 'Try again';
-}
-
-$('#add-attendance-btn').on('click', function () {
-    document.getElementById('attendance-modal').style.display = 'flex';
-});
-
-$('#scan-qr-btn').on('click', function () {
-    startQRScanner();
-});
-
-$(document).on('keydown', function (e) {
-    if (e.key === 'Escape') {
-        document.getElementById('attendance-modal').style.display = 'none';
-        if (document.getElementById('qr-modal').style.display === 'flex') {
-            stopQRScanner();
-        }
+        });
     }
-});
 
-$(function () {
-    const table = $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 9] }],
-        pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
-        dom: 'rtip',
-    });
-
-    $('#attendance-search').on('keyup', function() {
-        table.search(this.value).draw();
-    });
-
-    $('#dept-filter').on('change', function() {
-        table.column(1).search(this.value).draw();
-    });
-
-    $('#status-filter').on('change', function() {
-        table.column(8).search(this.value).draw();
-    });
-
-    $('#select-all').on('change', function () {
-        $('.row-check').prop('checked', this.checked);
-        updateBulkBar();
-    });
-
-    $(document).on('change', '.row-check', function () {
-        if (!this.checked) $('#select-all').prop('checked', false);
-        updateBulkBar();
-    });
-
-    function updateBulkBar() {
-        const checked = $('.row-check:checked');
-        if (checked.length) {
-            $('#bulk-btn').show();
-            $('#bulk-count').text(checked.length);
-            $('#bulk-ids').html(checked.map((_, el) =>
-                `<input type="hidden" name="ids[]" value="${el.value}">`
-            ).get().join(''));
-        } else {
-            $('#bulk-btn').hide();
-        }
+    function onScanError(errorMessage) {
+        // Standard scanning errors can be ignored
     }
-});
+
+    function showScanSuccess(data) {
+        document.getElementById('scan-error-card').style.display = 'none';
+        const card = document.getElementById('scan-success-card');
+        card.style.display = 'block';
+        
+        document.getElementById('scan-details').innerHTML = `
+            <strong>Employee:</strong> ${data.data.employee_name}<br>
+            <strong>Time In:</strong> ${data.data.time_in || 'N/A'}<br>
+            <strong>Time Out:</strong> ${data.data.time_out || 'N/A'}<br>
+            <strong>Status:</strong> Attendance recorded.
+        `;
+        
+        document.getElementById('status-text').innerHTML = '<span style="color:#15803d;font-weight:700">✓ RECORDED</span>';
+        
+        setTimeout(() => {
+            location.reload();
+        }, 2500);
+    }
+
+    function showScanError(message) {
+        document.getElementById('scan-success-card').style.display = 'none';
+        const card = document.getElementById('scan-error-card');
+        card.style.display = 'block';
+        document.getElementById('scan-error-text').textContent = message;
+        document.getElementById('status-text').textContent = 'Try again';
+    }
+
+    $('#add-attendance-btn').on('click', function () {
+        document.getElementById('attendance-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+
+    $('#scan-qr-btn').on('click', function () {
+        startQRScanner();
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            document.getElementById('attendance-modal').style.display = 'none';
+            document.body.style.overflow = '';
+            if (document.getElementById('qr-modal').style.display === 'flex') {
+                stopQRScanner();
+            }
+        }
+    });
+
+    $(function () {
+        const table = $('#attendance-table').DataTable({
+            columnDefs: [{ orderable: false, targets: [0, 9] }],
+            pageLength: 25,
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
+            dom: 'rtip',
+        });
+
+        $('#attendance-search').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+
+        $('#dept-filter').on('change', function() {
+            table.column(1).search(this.value).draw();
+        });
+
+        $('#status-filter').on('change', function() {
+            table.column(8).search(this.value).draw();
+        });
+
+        $('#select-all').on('change', function () {
+            $('.row-check').prop('checked', this.checked);
+            updateBulkBar();
+        });
+
+        $(document).on('change', '.row-check', function () {
+            if (!this.checked) $('#select-all').prop('checked', false);
+            updateBulkBar();
+        });
+
+        function updateBulkBar() {
+            const checked = $('.row-check:checked');
+            if (checked.length) {
+                $('#bulk-btn').show();
+                $('#bulk-count').text(checked.length);
+                $('#bulk-ids').html(checked.map((_, el) =>
+                    `<input type="hidden" name="ids[]" value="${el.value}">`
+                ).get().join(''));
+            } else {
+                $('#bulk-btn').hide();
+            }
+        }
+    });
 </script>
 @endpush

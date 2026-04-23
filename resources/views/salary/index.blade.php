@@ -57,7 +57,7 @@
                             </div>
                         </div>
                     </td>
-                    <td><span class="dept-tag" style="background:#eff6ff;color:#1e40af;border-color:#bfdbfe">{{ ucfirst($salary->salary_type->value) }}</span></td>
+                    <td><span class="dept-tag">{{ ucfirst($salary->salary_type->value) }}</span></td>
                     <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">SG {{ $salary->salary_grade ?? 'N/A' }}</span></td>
                     <td><span class="pay-cell">Step {{ $salary->step ?? 'N/A' }}</span></td>
                     <td><span class="pay-cell" style="font-weight:700">₱{{ number_format($salary->amount, 2) }}</span></td>

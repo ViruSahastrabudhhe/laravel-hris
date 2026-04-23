@@ -12,7 +12,9 @@ use App\Models\WorkSchedule;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
+use App\Models\Salary;
 use App\Enums\EmploymentType;
+use App\Enums\SalaryType;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
@@ -112,6 +114,7 @@ class EmployeeController extends Controller
                 'departments' => $departments,
                 'workSchedules' => $workSchedules,
                 'employmentTypes' => $employmentTypes,
+                'salaryTypes' => SalaryType::cases(),
             ]
         );
     }
@@ -126,6 +129,13 @@ class EmployeeController extends Controller
         $employee->update($data);
 
         $employee->address()->update($data['address']);
+
+        if (!empty($data['salary'])) {
+            $employee->salary()->updateOrCreate(
+                ['employee_id' => $employee->id],
+                array_merge($data['salary'], ['user_id' => auth()->user()->id])
+            );
+        }
 
         return redirect()->route('employees.index')->with('success', __('employee.success_editing'));
     }

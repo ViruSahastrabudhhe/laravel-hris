@@ -146,6 +146,37 @@
             </div>
         </div>
 
+        <div style="background:#f7f6ff;padding:16px;border-radius:10px;margin-bottom:18px">
+            <p style="font-size:11px;font-weight:700;color:#9999bb;letter-spacing:1px;margin:0 0 12px">SALARY INFORMATION</p>
+
+            <div class="auth-row-2">
+                <div class="auth-field">
+                    <label>Salary Grade</label>
+                    <input type="number" name="salary[salary_grade]" value="{{ old('salary.salary_grade', $employee->salary->salary_grade ?? '') }}" min="1">
+                </div>
+                <div class="auth-field">
+                    <label>Step</label>
+                    <input type="number" name="salary[step]" value="{{ old('salary.step', $employee->salary->step ?? '') }}" min="1">
+                </div>
+            </div>
+
+            <div class="auth-row-2">
+                <div class="auth-field">
+                    <label>Salary Type <span style="color:#dc2626">*</span></label>
+                    <select name="salary[salary_type]" required>
+                        <option value="">Select salary type</option>
+                        @foreach($salaryTypes as $type)
+                            <option value="{{ $type->value }}" {{ old('salary.salary_type', $employee->salary->salary_type->value ?? '') == $type->value ? 'selected' : '' }}>{{ ucfirst($type->value) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="auth-field">
+                    <label>Amount <span style="color:#dc2626">*</span></label>
+                    <input type="number" name="salary[amount]" value="{{ old('salary.amount', $employee->salary->amount ?? '') }}" step="0.01" min="0" required>
+                </div>
+            </div>
+        </div>
+
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
         <input type="hidden" name="address[user_id]" value="{{ auth()->user()->id }}">
 

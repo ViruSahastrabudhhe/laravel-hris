@@ -85,84 +85,24 @@ foreach ($employeeLeaves as $leave) {
     </div>
 </div>
 
-@push('styles')
-<style>
-.search-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.search-input-wrap svg {
-    position: absolute;
-    left: 12px;
-    pointer-events: none;
-}
-.search-input {
-    padding: 8px 12px 8px 38px;
-    border: 1.5px solid #e4e3f0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'Poppins', sans-serif;
-    color: #0b044d;
-    background: #fafafe;
-    outline: none;
-    width: 200px;
-    transition: border-color 0.2s;
-}
-.search-input:focus { border-color: #0b044d; }
-
-.filter-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 14px;
-    padding: 0 4px;
-}
-.filter-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-.filter-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-</style>
-@endpush
-
 <div class="table-section">
-    <div class="table-header" style="margin-bottom: 20px;">
+    <div class="table-header">
         <div>
             <p class="table-title">Leave Management</p>
             <p class="table-sub">Track and manage employee leave requests</p>
         </div>
-        <div class="table-actions">
-            <a href="{{ route('employee_leaves.create') }}" class="modal-btn-primary">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Leave Request
-            </a>
-        </div>
-    </div>
-
-    <div class="filter-row">
-        <div class="filter-group">
-            <div class="search-input-wrap">
-                <svg width="16" height="16" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="leave-search" placeholder="Search requests..." class="search-input">
+        <div class="table-actions" style="gap: 10px;">
+            <div class="search-wrap" style="position:relative;display:flex;align-items:center">
+                <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="leave-search" placeholder="Search requests..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
             </div>
-        </div>
-        <div class="filter-actions">
-            <select class="filter-select" id="dept-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
+            <select id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                 <option value="">All Departments</option>
                 @foreach(\App\Models\Department::all() as $dept)
                     <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                 @endforeach
             </select>
-            <select class="filter-select" id="status-filter" style="padding: 8px 32px 8px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 13px; color: #0b044d; outline: none; background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6a8a%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 10px center; appearance: none; cursor: pointer;">
+            <select id="status-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                 <option value="">All Status</option>
                 <option value="Approved">Approved</option>
                 <option value="Pending">Pending</option>
@@ -171,6 +111,10 @@ foreach ($employeeLeaves as $leave) {
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export
             </button>
+            <a href="{{ route('employee_leaves.create') }}" class="modal-btn-primary">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Leave Request
+            </a>
         </div>
     </div>
 

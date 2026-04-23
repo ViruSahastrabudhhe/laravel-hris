@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeDeduction;
 use App\Enums\EmploymentType;
+use App\Models\Salary;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class EmployeeSeeder extends Seeder
@@ -29,6 +30,27 @@ class EmployeeSeeder extends Seeder
                     [
                     'employee_id' => 2,
                     'work_schedule_id' => 1,
+                    'user_id' => 1,
+                    ],
+                ))
+            )
+            ->has(
+                Salary::factory()
+                ->state(new Sequence(
+                    [
+                    'amount' => 14000,
+                    'salary_grade' => 11,
+                    'step' => 1,
+                    'salary_type' => \App\Enums\SalaryType::Monthly->value,
+                    'employee_id' => 1,
+                    'user_id' => 1,
+                    ],
+                    [
+                    'amount' => 17000,
+                    'salary_grade' => 16,
+                    'step' => 1,
+                    'salary_type' => \App\Enums\SalaryType::Monthly->value,
+                    'employee_id' => 2,
                     'user_id' => 1,
                     ],
                 ))

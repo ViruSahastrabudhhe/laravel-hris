@@ -40,6 +40,10 @@ class UpdateEmployeeRequest extends FormRequest
             'department_id' => 'required',
             'work_schedule_id' => 'required',
             'user_id' => 'required',
+            'salary.amount' => 'required|numeric|min:0',
+            'salary.salary_type' => 'required|string',
+            'salary.salary_grade' => 'nullable|integer|min:1',
+            'salary.step' => 'nullable|integer|min:1',
         ];
     }
 }
