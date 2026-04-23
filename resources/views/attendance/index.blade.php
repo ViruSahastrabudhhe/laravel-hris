@@ -111,12 +111,21 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 </div>
 
 <div class="table-section">
-    <div class="table-header">
+    <div class="table-header" style="margin-bottom: 20px;">
         <div>
             <p class="table-title">Attendance Records</p>
             <p class="table-sub">Track employee time and attendance</p>
         </div>
         <div class="table-actions">
+            <form id="bulk-archive-form" action="{{ route('attendances.bulkDestroy') }}" method="POST" style="display:inline">
+                @csrf
+                @method('DELETE')
+                <div id="bulk-ids"></div>
+                <button type="submit" id="bulk-btn" class="btn-danger" style="display:none;" onclick="return confirm('Archive selected records?')">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    (<span id="bulk-count">0</span>)
+                </button>
+            </form>
             <div class="search-wrap" style="position:relative;display:flex;align-items:center">
                 <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
@@ -133,15 +142,6 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                 <option value="Late">Late</option>
                 <option value="Absent">Absent</option>
             </select>
-            <form id="bulk-archive-form" action="{{ route('attendances.bulkDestroy') }}" method="POST" style="display:inline">
-                @csrf
-                @method('DELETE')
-                <div id="bulk-ids"></div>
-                <button type="submit" id="bulk-btn" class="btn-export" style="display:none;color:#8e1e18;border-color:#f5d0ce" onclick="return confirm('Archive selected records?')">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Archive Selected (<span id="bulk-count">0</span>)
-                </button>
-            </form>
             <a href="{{ route('attendances.archive') }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 View Archive
@@ -163,6 +163,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                 <tr>
                     <th><input type="checkbox" id="select-all" title="Select all"></th>
                     <th>Employee</th>
+                    <th style="display:none">Department</th>
                     <th>Date</th>
                     <th>Time In</th>
                     <th>Time Out</th>
@@ -188,6 +189,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                             </div>
                         </div>
                     </td>
+                    <td style="display:none">{{ $attendance->employee->department->name }}</td>
                     <td>{{ $attendance->date }}</td>
                     <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                     <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
@@ -414,7 +416,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 
     $(function () {
         const table = $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [0, 9] }],
+            columnDefs: [{ orderable: false, targets: [0, 10] }, { visible: false, targets: [2] }],
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
             dom: 'rtip',
@@ -425,11 +427,11 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
         });
 
         $('#dept-filter').on('change', function() {
-            table.column(1).search(this.value).draw();
+            table.column(2).search(this.value).draw();
         });
 
         $('#status-filter').on('change', function() {
-            table.column(8).search(this.value).draw();
+            table.column(9).search(this.value).draw();
         });
 
         $('#select-all').on('change', function () {

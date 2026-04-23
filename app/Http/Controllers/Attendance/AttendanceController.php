@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Attendance;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\EmployeeLeaveBalance;
+use App\Models\WorkSchedule;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -19,8 +20,9 @@ class AttendanceController extends Controller
     public function index()
     {
         $attendances = Attendance::findAllWithUserID()->currentMonth()->get();
+        $schedules = WorkSchedule::where('user_id', auth()->id())->get();
 
-        return view('attendance.index', ['attendances' => $attendances]);
+        return view('attendance.index', compact('attendances', 'schedules'));
     }
 
     /**

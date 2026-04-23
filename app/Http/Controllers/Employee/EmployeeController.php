@@ -28,8 +28,10 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::findAllWithUserID()->get();
+        $positions = Position::findAllWithUserID()->get();
+        $departments = Department::findAllWithUserID()->get();
 
-        return view('employee.index', ['employees' => $employees]);
+        return view('employee.index', compact('employees', 'positions', 'departments'));
     }   
 
     /**

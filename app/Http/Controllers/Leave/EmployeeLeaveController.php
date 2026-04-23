@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Leave;
 use App\Models\EmployeeLeave;
 use App\Models\Employee;
 use App\Models\LeaveType;
+use App\Models\Holiday;
 use App\Enums\LeaveStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
@@ -19,8 +20,10 @@ class EmployeeLeaveController extends Controller
     public function index()
     {
         $employeeLeaves = EmployeeLeave::findAllWithUserID()->get();
+        $leaveTypes = LeaveType::findAllWithUserID()->get();
+        $holidays = Holiday::findAllWithUserID()->get();
 
-        return view('employee.employee_leave.index', ['employeeLeaves' => $employeeLeaves]);
+        return view('employee.employee_leave.index', compact('employeeLeaves', 'leaveTypes', 'holidays'));
     }
 
     /**

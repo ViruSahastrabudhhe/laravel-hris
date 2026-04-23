@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Deduction;
 use App\Models\EmployeeDeduction;
 use App\Models\Employee;
 use App\Models\Deduction;
+use App\Models\Salary;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Deduction\StoreEmployeeDeductionRequest;
 use App\Http\Requests\Deduction\UpdateEmployeeDeductionRequest;
@@ -17,8 +18,11 @@ class EmployeeDeductionController extends Controller
     public function index()
     {
         $employees = Employee::findAllWithUserID()->get();
-        
-        return view('employee.employee_deductions.index', ['employees' => $employees]);
+        $salaries = Salary::whereHas('employee', fn($q) => $q->where('user_id', auth()->id()))
+            ->with('employee.position')
+            ->paginate(15);
+
+        return view('employee.employee_deductions.index', compact('employees', 'salaries'));
     }
 
     /**

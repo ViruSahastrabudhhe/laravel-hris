@@ -48,6 +48,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('attendances/{attendanceId}/restore', [AttendanceController::class, 'restore'])->name('attendances.restore');
     Route::resource('attendances', AttendanceController::class);
     Route::resource('work_schedules', WorkScheduleController::class);
+    Route::get('payroll/export-payroll', [PayrollController::class, 'exportPayroll'])->name('payroll.exportPayroll');
+    Route::get('payroll/{employee}/export-payslip', [PayrollController::class, 'exportPayslip'])->name('payroll.exportPayslip');
     Route::resource('payroll', PayrollController::class);
     Route::resource('deductions', DeductionController::class);
     Route::resource('employee_deductions', EmployeeDeductionController::class);

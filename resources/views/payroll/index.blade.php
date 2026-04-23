@@ -105,10 +105,10 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                     <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                 @endforeach
             </select>
-            <button class="btn-export">
+            <a href="{{ route('payroll.exportPayroll') }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Export Payroll
-            </button>
+                Export CSV
+            </a>
         </div>
     </div>
 
@@ -170,10 +170,6 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 
 @push('scripts')
 <script>
-function viewPayslip(employeeId) {
-    alert('Payslip view for Employee ID: ' + employeeId + '\n\nThis would open a detailed payslip modal or page.');
-}
-
 $(function () {
     const table = $('#attendance-table').DataTable({
         columnDefs: [{ orderable: false, targets: [9] }],
@@ -189,30 +185,6 @@ $(function () {
     $('#dept-filter').on('change', function() {
         table.column(1).search(this.value).draw();
     });
-});
-
-    $('#select-all').on('change', function () {
-        $('.row-check').prop('checked', this.checked);
-        updateBulkBar();
-    });
-
-    $(document).on('change', '.row-check', function () {
-        if (!this.checked) $('#select-all').prop('checked', false);
-        updateBulkBar();
-    });
-
-    function updateBulkBar() {
-        const checked = $('.row-check:checked');
-        if (checked.length) {
-            $('#bulk-btn').show();
-            $('#bulk-count').text(checked.length);
-            $('#bulk-ids').html(checked.map((_, el) =>
-                `<input type="hidden" name="ids[]" value="${el.value}">`
-            ).get().join(''));
-        } else {
-            $('#bulk-btn').hide();
-        }
-    }
 });
 </script>
 @endpush

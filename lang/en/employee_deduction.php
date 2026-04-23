@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Employee Deductions',
+    'title' => 'Salary Structure',
 
     'sidebar' => 'Employee Deductions List',
 
