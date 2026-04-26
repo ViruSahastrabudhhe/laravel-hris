@@ -141,15 +141,15 @@ class Employee extends Model
     }
 
     public function grossPay() {
+        $basicPay = $this->salary->amount ?? 0;
         $overtime = $this->overtimePay();
         $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
-        $amount = $this->salary->amount ?? 0;
 
         if ($this->isJobOrder()) {
-            return $monthlySalary + $overtime;
+            return $basicPay + $overtime;
         }
         
-        return round(($amount + $overtime), 2);
+        return round(($basicPay + $overtime), 2);
     }
 
     public function overtimePay() {

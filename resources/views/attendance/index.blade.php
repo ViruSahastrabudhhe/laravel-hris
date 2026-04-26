@@ -127,7 +127,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 </div>
 
 <div class="table-section">
-    <div class="table-header" style="margin-bottom: 20px;">
+    <div class="table-header">
         <div>
             <p class="table-title">Attendance Records</p>
             <p class="table-sub">Track employee time and attendance</p>
@@ -230,14 +230,14 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 </div>
 
 {{-- Attendance Modal --}}
-<div class="modal-overlay" id="attendance-modal" style="display:none" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">
+<div class="modal-overlay" id="attendance-modal" style="display:none" onclick="closeAttendanceModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <span class="modal-eyebrow">IMPORT ATTENDANCE</span>
                 <h3 class="modal-title">Upload CSV File</h3>
             </div>
-            <button class="modal-close" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">
+            <button class="modal-close" onclick="closeAttendanceModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -254,7 +254,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="document.getElementById('attendance-modal').style.display='none';document.body.style.overflow=''">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeAttendanceModal()">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Import CSV
@@ -305,6 +305,12 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
     let html5QrCode;
+
+    function closeAttendanceModal() {
+        document.getElementById('attendance-modal').style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }
 
     function startQRScanner() {
         document.getElementById('qr-modal').style.display = 'flex';
@@ -403,19 +409,22 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
         document.getElementById('status-text').textContent = 'Try again';
     }
 
-    $('#add-attendance-btn').on('click', function () {
+    $('#add-attendance-btn').on('click', function (e) {
+        e.preventDefault();
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.paddingRight = scrollbarWidth + 'px';
         document.getElementById('attendance-modal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
     });
 
-    $('#scan-qr-btn').on('click', function () {
+    $('#scan-qr-btn').on('click', function (e) {
+        e.preventDefault();
         startQRScanner();
     });
 
     $(document).on('keydown', function (e) {
         if (e.key === 'Escape') {
-            document.getElementById('attendance-modal').style.display = 'none';
-            document.body.style.overflow = '';
+            closeAttendanceModal();
             if (document.getElementById('qr-modal').style.display === 'flex') {
                 stopQRScanner();
             }

@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\EmployeeLeave;
+use App\Models\Salary;
 use App\Observers\AttendanceObserver;
 use App\Observers\EmployeeObserver;
 use App\Observers\EmployeeLeaveObserver;
+use App\Observers\SalaryObserver;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Attendance::observe(AttendanceObserver::class);
         Employee::observe(EmployeeObserver::class);
         EmployeeLeave::observe(EmployeeLeaveObserver::class);
+        Salary::observe(SalaryObserver::class);
         
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();

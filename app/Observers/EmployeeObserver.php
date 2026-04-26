@@ -7,8 +7,10 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
 use App\Models\Deduction;
-use Illuminate\Support\Facades\DB;
 use App\Enums\EmploymentType;
+use App\Enums\DeductionType;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeObserver
 {
@@ -28,7 +30,22 @@ class EmployeeObserver
      */
     public function updated(Employee $employee): void
     {
-        $this->updateEmployeeDeduction($employee);
+        if ($employee->isJobOrder()) {
+            foreach ($employee->employeeDeduction as $deduction) {
+                if ($deduction->deduction->type == DeductionType::Mandatory->value) {
+                    Log::info($employee->id .': '.$deduction->amount);
+                    $deduction->amount = 0;
+                    $deduction->save();
+                }
+            }
+        }
+
+        if (!$employee->isJobOrder()) {
+            $this->updateEmployeeDeduction($employee);
+            foreach ($employee->employeeDeduction as $deduction) {
+                Log::info($employee->id .': '.$deduction->amount);
+            }
+        }
     }
 
     /**
@@ -132,5 +149,19 @@ class EmployeeObserver
             }
             $employeePhilhealth->save();
         }
+
+        $employeePagibig = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 3)->first();
+        if ($employeePagibig) {
+            if ($amount > 1500) {
+                $employeePagibig->amount = 200;
+            } else {
+                $employeePagibig->amount = 100;
+            }
+            $employeePagibig->save();
+        }
     }
+
+    // private function deleteEmployeeDeductions(Employee $employee) {
+    //     EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_type', DeductionType::Optional->value)->delete();
+    // }
 }
