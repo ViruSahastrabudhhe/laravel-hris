@@ -1,261 +1,324 @@
-@extends('layouts.admin')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>QR Attendance Scanner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0effe; min-height: 100vh; display: flex; flex-direction: column; }
 
-@section('page-content')
-<div style="margin-bottom:20px">
-    <h2 style="color:#0b044d;font-size:24px;font-weight:700;margin:0">Scan QR Code</h2>
-    <p style="color:#9999bb;font-size:14px;margin:4px 0 0">Scan attendance QR codes using camera or upload</p>
+        .page-header {
+            background: linear-gradient(135deg, #0b044d, #1a0f6e);
+            color: #fff;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .page-header h1 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .page-header a { color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .page-header a:hover { color: #fff; }
+
+        .main { display: flex; flex: 1; gap: 0; height: calc(100vh - 57px); }
+
+        /* LEFT — Camera */
+        .panel-camera {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            background: #fff;
+            border-right: 1px solid #e4e3f0;
+        }
+        .panel-camera h2 { font-size: 16px; font-weight: 700; color: #0b044d; margin-bottom: 6px; }
+        .panel-camera p { font-size: 13px; color: #9999bb; margin-bottom: 24px; }
+
+        #reader-wrap {
+            width: 100%;
+            max-width: 460px;
+            background: #f7f6ff;
+            border-radius: 16px;
+            padding: 16px;
+            overflow: hidden;
+        }
+        #reader { width: 100%; }
+
+        #status-bar {
+            margin-top: 20px;
+            text-align: center;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #status-text { font-size: 13px; color: #9999bb; }
+
+        .result-card {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 460px;
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+        .result-card.success { background: #f0fdf4; border: 1.5px solid #22c55e; }
+        .result-card.error   { background: #fef2f2; border: 1.5px solid #ef4444; }
+        .result-card .rc-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+        .result-card.success .rc-title { color: #15803d; }
+        .result-card.error   .rc-title { color: #dc2626; }
+        .result-card .rc-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .result-card .rc-row:last-child { border-bottom: none; }
+        .result-card.success .rc-row { color: #15803d; }
+        .result-card.error   .rc-row { color: #991b1b; }
+
+        /* RIGHT — History */
+        .panel-history {
+            width: 380px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            overflow: hidden;
+        }
+        .history-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #f0effe;
+        }
+        .history-header h2 { font-size: 15px; font-weight: 700; color: #0b044d; }
+        .history-header p  { font-size: 12px; color: #9999bb; margin-top: 2px; }
+
+        .history-list { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fafafe;
+            border: 1px solid #f0effe;
+            transition: background 0.15s;
+        }
+        .history-item.new { animation: fadeIn 0.4s ease; border-color: #bbf7d0; background: #f0fdf4; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+        .hi-avatar {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .hi-info { flex: 1; min-width: 0; }
+        .hi-name  { font-size: 13px; font-weight: 600; color: #0b044d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hi-meta  { font-size: 11px; color: #9999bb; margin-top: 2px; }
+        .hi-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; flex-shrink: 0; }
+        .hi-badge.scanned { background: #f0fdf4; color: #15803d; }
+        .hi-badge.pending { background: #fefce8; color: #a16207; }
+
+        .history-empty { text-align: center; padding: 40px 20px; color: #9999bb; font-size: 13px; }
+
+        @media (max-width: 768px) {
+            .main { flex-direction: column; height: auto; }
+            .panel-history { width: 100%; min-width: unset; border-top: 1px solid #e4e3f0; max-height: 50vh; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
+        QR Attendance Scanner
+    </h1>
+    <a href="{{ route('attendances.index') }}">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Attendance
+    </a>
 </div>
 
-<div class="table-section">
-    <div class="table-header">
-        <div>
-            <p class="table-title">QR Code Scanner</p>
-            <p class="table-sub">Use camera or upload QR code image</p>
+<div class="main">
+
+    {{-- LEFT: Camera --}}
+    <div class="panel-camera">
+        <h2>Scan QR Code</h2>
+        <p>Position the employee QR code within the camera frame</p>
+
+        <div id="reader-wrap">
+            <div id="reader"></div>
+        </div>
+
+        <div id="status-bar">
+            <span id="status-text">Starting camera…</span>
+        </div>
+
+        <div class="result-card success" id="success-card">
+            <div class="rc-title">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Attendance Recorded
+            </div>
+            <div id="success-details"></div>
+        </div>
+
+        <div class="result-card error" id="error-card">
+            <div class="rc-title">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Scan Failed
+            </div>
+            <p id="error-text" style="font-size:13px;color:#991b1b"></p>
         </div>
     </div>
 
-    <div class="table-wrapper" style="padding:30px">
-        <div style="max-width:800px;margin:0 auto">
-            
-            <!-- Tab Navigation -->
-            <div style="display:flex;gap:10px;margin-bottom:24px;border-bottom:2px solid #f0effe">
-                <button onclick="switchTab('camera')" id="camera-tab" class="scanner-tab active">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    Camera Scan
-                </button>
-                <button onclick="switchTab('upload')" id="upload-tab" class="scanner-tab">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    Upload Image
-                </button>
-            </div>
-
-            <!-- Camera Scanner -->
-            <div id="camera-scanner" class="scanner-content">
-                <div style="background:#f7f6ff;border-radius:12px;padding:20px;text-align:center">
-                    <div id="reader" style="width:100%;max-width:500px;margin:0 auto"></div>
-                    <p style="color:#9999bb;font-size:13px;margin-top:16px">Position the QR code within the frame</p>
+    {{-- RIGHT: History --}}
+    <div class="panel-history">
+        <div class="history-header">
+            <h2>Scan History</h2>
+            <p>Recent QR code scans</p>
+        </div>
+        <div class="history-list" id="history-list">
+            @forelse($scans as $scan)
+            @php $colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed']; @endphp
+            <div class="history-item">
+                <div class="hi-avatar" style="background:{{ $colors[$scan->employee_id % 5] }}">
+                    {{ strtoupper(substr($scan->employee->first_name,0,1).substr($scan->employee->last_name,0,1)) }}
                 </div>
-            </div>
-
-            <!-- Upload Scanner -->
-            <div id="upload-scanner" class="scanner-content" style="display:none">
-                <div style="background:#f7f6ff;border-radius:12px;padding:40px;text-align:center">
-                    <form id="upload-form" enctype="multipart/form-data">
-                        @csrf
-                        <div style="border:2px dashed #dddcf0;border-radius:12px;padding:40px;background:#fff">
-                            <svg width="48" height="48" fill="none" stroke="#9999bb" stroke-width="2" viewBox="0 0 24 24" style="margin:0 auto 16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <p style="color:#0b044d;font-size:16px;font-weight:600;margin:0 0 8px">Upload QR Code Image</p>
-                            <p style="color:#9999bb;font-size:13px;margin:0 0 20px">PNG, JPG up to 5MB</p>
-                            <input type="file" id="qr-file" name="qr_image" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
-                            <label for="qr-file" style="display:inline-block;padding:10px 20px;border-radius:8px;background:linear-gradient(135deg,#0b044d,#1a0f6e);color:#fff;font-size:14px;font-weight:600;cursor:pointer">
-                                Choose File
-                            </label>
-                        </div>
-                        <div id="preview-container" style="margin-top:20px;display:none">
-                            <img id="preview-image" style="max-width:300px;border-radius:8px;margin-bottom:16px">
-                            <br>
-                            <button type="button" onclick="processUploadedQR()" style="padding:10px 20px;border-radius:8px;border:none;background:#15803d;color:#fff;font-size:14px;font-weight:600;cursor:pointer">
-                                Process QR Code
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Result Display -->
-            <div id="scan-result" style="margin-top:24px;display:none">
-                <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:20px">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-                        <svg width="24" height="24" fill="none" stroke="#15803d" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        <h3 style="color:#15803d;font-size:18px;font-weight:700;margin:0">Scan Successful</h3>
+                <div class="hi-info">
+                    <div class="hi-name">{{ $scan->employee->first_name }} {{ $scan->employee->last_name }}</div>
+                    <div class="hi-meta">
+                        {{ $scan->date->format('M d, Y') }}
+                        @if($scan->time_in) · In: {{ $scan->time_in }} @endif
+                        @if($scan->scanned_at) · {{ $scan->scanned_at->diffForHumans() }} @endif
                     </div>
-                    <div id="result-details"></div>
                 </div>
+                <span class="hi-badge {{ $scan->scanned_at ? 'scanned' : 'pending' }}">
+                    {{ $scan->scanned_at ? 'Scanned' : 'Pending' }}
+                </span>
             </div>
-
-            <div id="scan-error" style="margin-top:24px;display:none">
-                <div style="background:#fef2f2;border:2px solid #ef4444;border-radius:12px;padding:20px">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-                        <svg width="24" height="24" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                        <h3 style="color:#dc2626;font-size:18px;font-weight:700;margin:0">Scan Failed</h3>
-                    </div>
-                    <p id="error-message" style="color:#991b1b;font-size:14px;margin:0"></p>
-                </div>
-            </div>
-
+            @empty
+            <div class="history-empty" id="history-empty">No scans yet</div>
+            @endforelse
         </div>
     </div>
+
 </div>
 
-@push('scripts')
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-let html5QrCode;
+const avatarColors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+let scanner, scanning = true;
 
-function switchTab(tab) {
-    document.querySelectorAll('.scanner-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.scanner-content').forEach(c => c.style.display = 'none');
-    
-    if (tab === 'camera') {
-        document.getElementById('camera-tab').classList.add('active');
-        document.getElementById('camera-scanner').style.display = 'block';
-        startCamera();
-    } else {
-        document.getElementById('upload-tab').classList.add('active');
-        document.getElementById('upload-scanner').style.display = 'block';
-        stopCamera();
-    }
+function initials(name) {
+    const p = name.trim().split(' ');
+    return (p[0][0] + (p[p.length-1][0] || '')).toUpperCase();
 }
 
-function startCamera() {
-    if (html5QrCode) {
-        html5QrCode.clear();
-    }
-    
-    html5QrCode = new Html5Qrcode("reader");
-    
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess,
-        onScanError
-    ).catch(err => {
-        console.error("Camera error:", err);
-    });
+function setStatus(msg, color = '#9999bb') {
+    document.getElementById('status-text').innerHTML = `<span style="color:${color}">${msg}</span>`;
 }
 
-function stopCamera() {
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-            html5QrCode.clear();
-        }).catch(err => console.error("Stop error:", err));
-    }
-}
+function onScanSuccess(decodedText) {
+    if (!scanning) return;
+    scanning = false;
+    scanner.pause(true);
+    setStatus('Processing…', '#a16207');
 
-function onScanSuccess(decodedText, decodedResult) {
-    stopCamera();
-    processScan(decodedText);
-}
-
-function onScanError(errorMessage) {
-    // Ignore scan errors (they happen continuously while scanning)
-}
-
-function handleFileUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('preview-image').src = e.target.result;
-            document.getElementById('preview-container').style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function processUploadedQR() {
-    const fileInput = document.getElementById('qr-file');
-    if (!fileInput.files[0]) return;
-
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.scanFile(fileInput.files[0], true)
-        .then(decodedText => {
-            processScan(decodedText);
-        })
-        .catch(err => {
-            showError('Failed to decode QR code from image');
-        });
-}
-
-function processScan(qrData) {
     fetch('/api/qr-scanner/scan', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({ qr_data: qrData })
+        body: JSON.stringify({ qr_data: decodedText })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
         if (data.success) {
-            showSuccess(data);
+            showSuccess(data.data);
+            prependHistory(data.data);
         } else {
             showError(data.message);
+            setTimeout(() => {
+                hideCards();
+                setStatus('Position QR code within the frame');
+                scanning = true;
+                scanner.resume();
+            }, 3000);
         }
     })
-    .catch(error => {
-        showError('Network error: ' + error.message);
+    .catch(err => {
+        showError('Network error: ' + err.message);
+        setTimeout(() => {
+            hideCards();
+            setStatus('Position QR code within the frame');
+            scanning = true;
+            scanner.resume();
+        }, 3000);
     });
 }
 
-function showSuccess(data) {
-    document.getElementById('scan-error').style.display = 'none';
-    document.getElementById('scan-result').style.display = 'block';
-    
-    const details = `
-        <div style="display:grid;gap:8px">
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #bbf7d0">
-                <span style="color:#15803d;font-size:13px;font-weight:600">Employee</span>
-                <strong style="color:#15803d;font-size:13px">${data.data.employee_name}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #bbf7d0">
-                <span style="color:#15803d;font-size:13px;font-weight:600">Date</span>
-                <strong style="color:#15803d;font-size:13px">${data.data.date}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #bbf7d0">
-                <span style="color:#15803d;font-size:13px;font-weight:600">Time In</span>
-                <strong style="color:#15803d;font-size:13px">${data.data.time_in || 'N/A'}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0">
-                <span style="color:#15803d;font-size:13px;font-weight:600">Scanned At</span>
-                <strong style="color:#15803d;font-size:13px">${new Date(data.data.scanned_at).toLocaleString()}</strong>
-            </div>
-        </div>
+function showSuccess(d) {
+    hideCards();
+    setStatus('✓ Recorded', '#15803d');
+    const card = document.getElementById('success-card');
+    document.getElementById('success-details').innerHTML = `
+        <div class="rc-row"><span>Employee</span><strong>${d.employee_name}</strong></div>
+        <div class="rc-row"><span>Date</span><strong>${d.date}</strong></div>
+        <div class="rc-row"><span>Time In</span><strong>${d.time_in || 'N/A'}</strong></div>
+        <div class="rc-row"><span>Time Out</span><strong>${d.time_out || 'N/A'}</strong></div>
     `;
-    
-    document.getElementById('result-details').innerHTML = details;
-    
+    card.style.display = 'block';
     setTimeout(() => {
-        location.reload();
-    }, 3000);
+        hideCards();
+        setStatus('Position QR code within the frame');
+        scanning = true;
+        scanner.resume();
+    }, 4000);
 }
 
-function showError(message) {
-    document.getElementById('scan-result').style.display = 'none';
-    document.getElementById('scan-error').style.display = 'block';
-    document.getElementById('error-message').textContent = message;
+function showError(msg) {
+    hideCards();
+    document.getElementById('error-text').textContent = msg;
+    document.getElementById('error-card').style.display = 'block';
 }
 
-// Start camera on page load
-startCamera();
+function hideCards() {
+    document.getElementById('success-card').style.display = 'none';
+    document.getElementById('error-card').style.display = 'none';
+}
+
+function prependHistory(d) {
+    const empty = document.getElementById('history-empty');
+    if (empty) empty.remove();
+
+    const list = document.getElementById('history-list');
+    const color = avatarColors[d.employee_id % 5];
+    const div = document.createElement('div');
+    div.className = 'history-item new';
+    div.innerHTML = `
+        <div class="hi-avatar" style="background:${color}">${initials(d.employee_name)}</div>
+        <div class="hi-info">
+            <div class="hi-name">${d.employee_name}</div>
+            <div class="hi-meta">${d.date}${d.time_in ? ' · In: ' + d.time_in : ''} · just now</div>
+        </div>
+        <span class="hi-badge scanned">Scanned</span>
+    `;
+    list.prepend(div);
+}
+
+scanner = new Html5Qrcode('reader');
+scanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 260, height: 260 } },
+    onScanSuccess,
+    () => {}
+).then(() => {
+    setStatus('Position QR code within the frame');
+}).catch(err => {
+    setStatus('Camera error — check permissions', '#dc2626');
+    console.error(err);
+});
 </script>
-@endpush
-
-@push('styles')
-<style>
-.scanner-tab {
-    padding: 12px 20px;
-    border: none;
-    background: transparent;
-    color: #9999bb;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.scanner-tab.active {
-    color: #0b044d;
-    border-bottom-color: #0b044d;
-}
-
-.scanner-tab:hover {
-    color: #0b044d;
-}
-</style>
-@endpush
-@endsection
+</body>
+</html>

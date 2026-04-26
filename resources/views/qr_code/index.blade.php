@@ -15,12 +15,23 @@
     </div>
 
     <div class="table-wrapper" style="padding:30px">
+        @php
+        $scheduleMap = $employees->mapWithKeys(function($e) {
+            $ws = $e->employeeWorkSchedule?->workSchedule;
+            return [$e->id => $ws ? [
+                'time_in'  => $ws->start_time,
+                'time_out' => $ws->end_time,
+                'pm_in'    => $ws->pm_start_time,
+            ] : null];
+        })->toJson();
+        @endphp
+
         <form action="{{ route('qr-code.generate') }}" method="POST" style="max-width:600px">
             @csrf
 
             <div style="margin-bottom:20px">
                 <label style="display:block;font-size:13px;font-weight:600;color:#0b044d;margin-bottom:8px">Employee *</label>
-                <select name="employee_id" required style="width:100%;padding:10px 14px;border:1.5px solid #dddcf0;border-radius:8px;font-size:14px;color:#0b044d">
+                <select name="employee_id" id="employee-select" required style="width:100%;padding:10px 14px;border:1.5px solid #dddcf0;border-radius:8px;font-size:14px;color:#0b044d">
                     <option value="">Select Employee</option>
                     @foreach($employees as $employee)
                         <option value="{{ $employee->id }}">
@@ -74,4 +85,16 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+const schedules = {!! $scheduleMap !!};
+document.getElementById('employee-select').addEventListener('change', function () {
+    const s = schedules[this.value];
+    document.querySelector('[name=time_in]').value  = s?.time_in  ?? '';
+    document.querySelector('[name=time_out]').value = s?.time_out ?? '';
+    document.querySelector('[name=pm_in]').value    = s?.pm_in    ?? '';
+});
+</script>
+@endpush
 @endsection

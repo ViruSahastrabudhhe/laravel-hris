@@ -11,7 +11,7 @@ class QrCodeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::with(['position', 'department'])->get();
+        $employees = Employee::with(['position', 'department', 'employeeWorkSchedule.workSchedule'])->get();
         return view('qr_code.index', compact('employees'));
     }
 
@@ -59,7 +59,11 @@ class QrCodeController extends Controller
 
     public function scan()
     {
-        return view('qr_code.scan');
+        $scans = QrAttendanceScan::with('employee')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+        return view('qr_code.scan', compact('scans'));
     }
 
     public function history()
