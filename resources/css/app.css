@@ -264,6 +264,86 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 .pub-footer-links a:hover { color: #ffffff; }
 .pub-footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); }
 
+/* Quick Action Buttons */
+.view-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    background: #f7f6ff;
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid #eceaf8;
+    width: fit-content;
+}
+.view-tab {
+    padding: 8px 18px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b6a8a;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.view-tab:hover {
+    color: #0b044d;
+}
+.view-tab.active {
+    background: #fff;
+    color: #0b044d;
+    box-shadow: 0 2px 5px rgba(11,4,77,0.06);
+}
+.quick-actions-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.qa-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e5e4f0;
+    border-radius: 10px;
+    color: #0b044d;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 200px;
+}
+.qa-btn:hover {
+    border-color: #0b044d;
+    box-shadow: 0 4px 12px rgba(11, 4, 77, 0.05);
+    transform: translateY(-2px);
+}
+.qa-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+}
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+.tab-pane.active {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── AI Chatbot ── */
 .chat-fab {
   position: fixed; bottom: 28px; right: 28px;
@@ -769,6 +849,8 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
   cursor: pointer; transition: background 0.2s;
 }
 .modal-btn-primary:hover { background: #8e1e18; }
+.qa-btn.modal-btn-primary { height: unset; padding: 12px 16px; background: #0b044d; color: #ffffff; border: none; }
+.qa-btn.modal-btn-primary:hover { background: #8e1e18; }
 
 /* Payroll Table */
 .table-wrapper { overflow-x: auto; padding: 20px 20px 16px; }
@@ -895,6 +977,13 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 
 /* Dashboard responsive */
 .stats-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.view-tabs{display:flex;gap:6px;margin:24px 0 12px;background:#f7f6ff;padding:6px;border-radius:10px;border:1px solid #eceaf8;width:fit-content;flex-wrap:wrap}
+.view-tab{padding:8px 18px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:600;color:#6b6a8a;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.view-tab:hover{color:#0b044d}
+.view-tab.active{background:#fff;color:#0b044d;box-shadow:0 2px 5px rgba(11,4,77,0.06)}
+.tab-pane{display:none;animation:fadeIn 0.3s ease}
+.tab-pane.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 .bottom-row {
   display: grid;

@@ -14,8 +14,7 @@ class PositionController extends Controller
      */
     public function index()
     {
-        $positions = Position::findAllWithUserID()->get();
-        return view('position.index', ["positions" => $positions]);
+        return redirect()->route('employees.index');
     }
 
     /**

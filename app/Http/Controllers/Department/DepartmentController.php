@@ -18,10 +18,7 @@ class DepartmentController extends Controller
         $departments = Department::findAllWithUserID()->get();
         $employees = Employee::findAllWithUserID()->get();
 
-        return view('department.index', [
-            'departments' => $departments,
-            'employees' => $employees,
-        ]); 
+        return redirect()->route('employees.index');
     }
 
     /**

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('gender');
-            $table->string('email');
+            $table->string('email')->unique();
             $table->date('date_of_birth');
             $table->string('phone_number');
             $table->enum('employment_type', EmploymentType::cases());

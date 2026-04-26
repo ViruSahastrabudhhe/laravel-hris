@@ -28,7 +28,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
 .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
 .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-.modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
+.modal-btn-primary { border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-weight:700; }
 @media (max-width:768px) { .modal-box { border-radius:12px; } .modal-header { padding:16px 16px 0; } .modal-body { padding:14px 16px; } .modal-footer { padding:12px 16px 16px; } }
 @media (max-width:400px) { .modal-overlay { padding:0; align-items:flex-end; } .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; } }
 </style>
@@ -48,6 +48,22 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
     <div class="banner-right">
         <span class="banner-badge outline">{{ $attendances->count() }} Records</span>
     </div>
+</div>
+
+<div class="quick-actions-row">
+    <a class="qa-btn modal-btn-primary" id="scan-qr-btn" href="#scan">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
+        Scan QR Code
+    </a>
+    <a class="qa-btn" id="add-attendance-btn" href="#attendance">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Import Attendance CSV
+    </a>    
+    <a class="qa-btn" href="{{ route('attendances.archive') }}">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        View Archive
+    </a>
+    <a class="qa-btn"></a>
 </div>
 
 <div class="stats-grid stats-grid-4">
@@ -142,18 +158,10 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                 <option value="Late">Late</option>
                 <option value="Absent">Absent</option>
             </select>
-            <a href="{{ route('attendances.archive') }}" class="btn-export">
+            <!-- <a href="{{ route('attendances.archive') }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 View Archive
-            </a>
-            <button class="btn-export" id="scan-qr-btn">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
-                Scan QR Code
-            </button>
-            <button class="modal-btn-primary" id="add-attendance-btn">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Attendance
-            </button>
+            </a> -->
         </div>
     </div>
 

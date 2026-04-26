@@ -3,7 +3,7 @@
 @section('page-content')
 
 <div style="margin-bottom:20px">
-    <a href="{{ route('work_schedules.index') }}" class="auth-nav-back">
+    <a href="{{ url()->previous() }}" class="auth-nav-back">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Work Schedules
     </a>

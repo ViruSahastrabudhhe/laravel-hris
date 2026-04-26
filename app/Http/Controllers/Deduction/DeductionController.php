@@ -17,7 +17,7 @@ class DeductionController extends Controller
     {
         $deductions = Deduction::findAllWithUserID()->get();
 
-        return view('deduction.index', ['deductions' => $deductions]);
+        return redirect()->route('employee_deductions.index');
     }
 
     /**

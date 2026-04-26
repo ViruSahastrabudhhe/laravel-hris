@@ -34,6 +34,7 @@ Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'veri
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
+    Route::get('employees/check-email', [EmployeeController::class, 'checkEmail'])->name('employees.checkEmail');
     Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::put('employees/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
     Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');

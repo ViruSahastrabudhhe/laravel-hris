@@ -16,7 +16,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 <div class="welcome-banner" style="margin-bottom:22px">
     <div class="banner-left">
         <div class="banner-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#d9bb00" stroke="none"><text x="3" y="19" font-size="17" font-weight="bold" font-family="Arial, sans-serif">₱</text></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#d9bb00" stroke="none"><text x="7" y="19" font-size="21" font-weight="bold" font-family="Arial, sans-serif">₱</text></svg>
         </div>
         <div>
             <h2>Payroll Management</h2>

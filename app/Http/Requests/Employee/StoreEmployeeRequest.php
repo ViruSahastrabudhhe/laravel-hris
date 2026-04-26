@@ -41,6 +41,10 @@ class StoreEmployeeRequest extends FormRequest
             'work_schedule_id' => 'required',
             'password' => 'required|min:8|confirmed|string',
             'user_id' => 'required',
+            'salary.salary_type' => 'required',
+            'salary.amount' => 'required|numeric|min:0',
+            'salary.salary_grade' => 'required|integer',
+            'salary.step' => 'required|integer',
         ];
     }
 }

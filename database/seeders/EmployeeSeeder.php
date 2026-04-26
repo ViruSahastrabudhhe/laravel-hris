@@ -7,8 +7,9 @@ use Illuminate\Database\Seeder;
 use App\Models\Employee;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeDeduction;
-use App\Enums\EmploymentType;
 use App\Models\Salary;
+use App\Enums\EmploymentType;
+use App\Enums\SalaryType;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class EmployeeSeeder extends Seeder
@@ -18,45 +19,8 @@ class EmployeeSeeder extends Seeder
      */
     public function run(): void
     {
-        Employee::factory()
-            ->has(
-                EmployeeWorkSchedule::factory()
-                ->state(new Sequence(
-                    [
-                    'employee_id' => 1,
-                    'work_schedule_id' => 1,
-                    'user_id' => 1,
-                    ],
-                    [
-                    'employee_id' => 2,
-                    'work_schedule_id' => 1,
-                    'user_id' => 1,
-                    ],
-                ))
-            )
-            ->has(
-                Salary::factory()
-                ->state(new Sequence(
-                    [
-                    'amount' => 14000,
-                    'salary_grade' => 11,
-                    'step' => 1,
-                    'salary_type' => \App\Enums\SalaryType::Monthly->value,
-                    'employee_id' => 1,
-                    'user_id' => 1,
-                    ],
-                    [
-                    'amount' => 17000,
-                    'salary_grade' => 16,
-                    'step' => 1,
-                    'salary_type' => \App\Enums\SalaryType::Monthly->value,
-                    'employee_id' => 2,
-                    'user_id' => 1,
-                    ],
-                ))
-            )
-            ->state(new Sequence(
-                [
+        $employees = [
+            [
                 'first_name' => 'John',
                 'last_name' => 'Doe',
                 'gender' => 'Male',
@@ -69,8 +33,8 @@ class EmployeeSeeder extends Seeder
                 'position_id' => 2,
                 'department_id' => 2,
                 'user_id' => 1,
-                ],
-                [
+            ],
+            [
                 'first_name' => 'Jane',
                 'last_name' => 'Mary',
                 'gender' => 'Female',
@@ -83,51 +47,38 @@ class EmployeeSeeder extends Seeder
                 'position_id' => 3,
                 'department_id' => 3,
                 'user_id' => 1,
-                ],
-            ))
-            ->count(2)
-            ->has(
-                EmployeeDeduction::factory()
-                ->state(new Sequence(
-                    [
-                        'employee_id' => 1,
-                        'deduction_id' => 1,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                    [
-                        'employee_id' => 1,
-                        'deduction_id' => 2,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                    [
-                        'employee_id' => 1,
-                        'deduction_id' => 3,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                    [
-                        'employee_id' => 2,
-                        'deduction_id' => 1,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                    [
-                        'employee_id' => 2,
-                        'deduction_id' => 2,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                    [
-                        'employee_id' => 2,
-                        'deduction_id' => 3,
-                        'amount' => 0,
-                        'user_id' => 1,
-                    ],
-                ))
-                ->count(3)
-            )
-            ->create();
+            ],
+        ];
+
+        $salaries = [
+            ['amount' => 14000, 'salary_grade' => 1, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
+            ['amount' => 17000, 'salary_grade' => 6, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
+        ];
+
+        $workSchedules = [
+            ['work_schedule_id' => 1, 'user_id' => 1],
+            ['work_schedule_id' => 1, 'user_id' => 1],
+        ];
+
+        $deductions = [
+            [
+                ['deduction_id' => 1, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 2, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 3, 'amount' => 0, 'user_id' => 1],
+            ],
+            [
+                ['deduction_id' => 1, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 2, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 3, 'amount' => 0, 'user_id' => 1],
+            ],
+        ];
+
+        foreach ($employees as $index => $employeeData) {
+            $employee = Employee::factory()
+                ->has(EmployeeWorkSchedule::factory()->state($workSchedules[$index]))
+                ->has(Salary::factory()->state($salaries[$index]))
+                ->has(EmployeeDeduction::factory()->count(3)->state(new Sequence(...$deductions[$index])))
+                ->create($employeeData);
+        }
     }
 }

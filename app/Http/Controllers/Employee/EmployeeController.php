@@ -16,6 +16,7 @@ use App\Models\Salary;
 use App\Enums\EmploymentType;
 use App\Enums\SalaryType;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
@@ -44,7 +45,7 @@ class EmployeeController extends Controller
         $employmentTypes = EmploymentType::cases();
         $workSchedules = WorkSchedule::findAllWithUserID()->get();
 
-        return view('employee.create', ['positions' => $positions, 'departments' => $departments, 'workSchedules' => $workSchedules, 'employmentTypes' => $employmentTypes]);
+        return view('employee.create', ['positions' => $positions, 'departments' => $departments, 'workSchedules' => $workSchedules, 'employmentTypes' => $employmentTypes, 'salaryTypes' => SalaryType::cases()]);
     }
 
     /**
@@ -57,7 +58,7 @@ class EmployeeController extends Controller
         // creates address, employee, emp work schedule, and emp leave balance at once
         $address = Address::create($data['address']);
 
-        $employee = Employee::create([
+        $employee = Employee::createQuietly([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'gender' => $data['gender'],
@@ -72,6 +73,14 @@ class EmployeeController extends Controller
             'user_id' => $data['user_id'],
         ]);
 
+        $employeeSalary = Salary::create(array_merge($data['salary'], [
+            'employee_id' => $employee->id,
+            'user_id' => auth()->user()->id,
+        ]));
+
+        $employeeObserver = new \App\Observers\EmployeeObserver();
+        $employeeObserver->created($employee);
+
         $employeeWorkSchedule = new EmployeeWorkSchedule;
         $employeeWorkSchedule->employee_id = $employee->id;
         $employeeWorkSchedule->work_schedule_id = $data['work_schedule_id'];
@@ -85,7 +94,7 @@ class EmployeeController extends Controller
         $employeeAccount->save();
 
         $employeeAccount->assignRole('employee');
-
+        
         event(new Registered($employeeAccount));
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
@@ -174,6 +183,14 @@ class EmployeeController extends Controller
         $employee->save();
 
         return redirect()->route('employees.index')->with('success', __('employee.success_deactivating'));
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $exists = User::where('email', $request->email)->exists()
+            || Employee::where('email', $request->email)->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 
     public function archive() {

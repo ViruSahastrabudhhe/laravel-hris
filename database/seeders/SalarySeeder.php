@@ -12,11 +12,6 @@ class SalarySeeder extends Seeder
      */
     public function run(): void
     {
-        $employees = \App\Models\Employee::all();
-        foreach ($employees as $employee) {
-            \App\Models\Salary::factory()->create([
-                'employee_id' => $employee->id,
-            ]);
-        }
+        //
     }
 }

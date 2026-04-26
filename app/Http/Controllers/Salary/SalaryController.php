@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Salary;
 
 use App\Models\Salary;
+use App\Models\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Salary\StoreSalaryRequest;
 use App\Http\Requests\Salary\UpdateSalaryRequest;
@@ -14,8 +15,7 @@ class SalaryController extends Controller
      */
     public function index()
     {
-        $salaries = Salary::with('employee')->paginate(10);
-        return view('salary.index', compact('salaries'));
+        return redirect()->route('employee_deductions.index');
     }
 
     /**
@@ -23,7 +23,7 @@ class SalaryController extends Controller
      */
     public function create()
     {
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::findAllWithUserID()->get();
         return view('salary.create', compact('employees'));
     }
 
@@ -45,7 +45,7 @@ class SalaryController extends Controller
      */
     public function edit(Salary $salary)
     {
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::findAllWithUserID()->get();
         return view('salary.edit', compact('salary', 'employees'));
     }
 

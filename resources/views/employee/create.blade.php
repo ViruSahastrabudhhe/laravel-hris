@@ -2,7 +2,7 @@
 
 @section('page-content')
 <div style="margin-bottom:20px">
-    <a href="{{ route('employees.index') }}" class="auth-nav-back">
+    <a href="{{ url()->previous() }}" class="auth-nav-back">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Employees
     </a>
@@ -51,7 +51,8 @@
             <div class="auth-row-2">
                 <div class="auth-field">
                     <label>Email Address <span style="color:#dc2626">*</span></label>
-                    <input type="email" name="email" value="{{ old('email') }}" placeholder="e.g. juan@lgu.gov.ph" required>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="e.g. juan@lgu.gov.ph" required>
+                    <span id="email-error" style="color:#dc2626;font-size:12px;display:none">This email is already in use.</span>
                 </div>
                 <div class="auth-field">
                     <label>Contact Number <span style="color:#dc2626">*</span></label>
@@ -154,6 +155,39 @@
         </div>
         
         <div style="background:#f7f6ff;padding:16px;border-radius:10px;margin-bottom:18px">
+            <p style="font-size:11px;font-weight:700;color:#9999bb;letter-spacing:1px;margin:0 0 12px">SALARY INFORMATION</p>
+
+            <div class="auth-row-2">
+                <div class="auth-field">
+                    <label>Salary Type <span style="color:#dc2626">*</span></label>
+                    <select name="salary[salary_type]" required>
+                        <option value="">Select salary type</option>
+                        @foreach($salaryTypes as $type)
+                            <option value="{{ $type->value }}" {{ old('salary.salary_type') == $type->value ? 'selected' : '' }}>
+                                {{ $type }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="auth-field">
+                    <label>Amount <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" name="salary[amount]" value="{{ old('salary.amount') }}" placeholder="e.g. 25000.00" required>
+                </div>
+            </div>
+
+            <div class="auth-row-2">
+                <div class="auth-field">
+                    <label>Salary Grade</label>
+                    <input type="number" name="salary[salary_grade]" value="{{ old('salary.salary_grade') }}" placeholder="e.g. 10">
+                </div>
+                <div class="auth-field">
+                    <label>Step</label>
+                    <input type="number" name="salary[step]" value="{{ old('salary.step') }}" placeholder="e.g. 1">
+                </div>
+            </div>
+        </div>
+
+        <div style="background:#f7f6ff;padding:16px;border-radius:10px;margin-bottom:18px">
             <p style="font-size:11px;font-weight:700;color:#9999bb;letter-spacing:1px;margin:0 0 12px">ACCOUNT INFORMATION</p>
             
             <div class="auth-field">
@@ -204,5 +238,24 @@ function togglePassword(inputId, iconId) {
         icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
     }
 }
+
+let emailTimeout;
+document.getElementById('email').addEventListener('input', function () {
+    clearTimeout(emailTimeout);
+    const email = this.value;
+    const error = document.getElementById('email-error');
+    if (!email) { error.style.display = 'none'; return; }
+    emailTimeout = setTimeout(() => {
+        fetch('{{ route('employees.checkEmail') }}?email=' + encodeURIComponent(email))
+            .then(r => r.json())
+            .then(data => { error.style.display = data.exists ? 'block' : 'none'; });
+    }, 400);
+});
+
+document.querySelector('form').addEventListener('submit', function (e) {
+    if (document.getElementById('email-error').style.display === 'block') {
+        e.preventDefault();
+    }
+});
 </script>
 @endsection

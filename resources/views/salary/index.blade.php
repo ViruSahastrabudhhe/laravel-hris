@@ -36,6 +36,7 @@
             <thead>
                 <tr>
                     <th>Employee</th>
+                    <th>Department</th>
                     <th>Salary Type</th>
                     <th>Salary Grade</th>
                     <th>Step</th>
@@ -57,6 +58,7 @@
                             </div>
                         </div>
                     </td>
+                    <td><span class="dept-tag">{{ ucfirst($salary->salary_type->value) }}</span></td>
                     <td><span class="dept-tag">{{ ucfirst($salary->salary_type->value) }}</span></td>
                     <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">SG {{ $salary->salary_grade ?? 'N/A' }}</span></td>
                     <td><span class="pay-cell">Step {{ $salary->step ?? 'N/A' }}</span></td>

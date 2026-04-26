@@ -113,8 +113,8 @@ class EmployeeObserver
             return;
         }
 
-        $gsis = DB::table('deductions')->where('name', 'GSIS Contribution')->first();
-        $philhealth = DB::table('deductions')->where('name', 'PhilHealth Personal Share Contribution')->first();
+        $gsis = Deduction::where('name', 'GSIS Contribution')->first();
+        $philhealth = Deduction::where('name', 'PhilHealth Personal Share Contribution')->first();
 
         $amount = $employee->salary->amount ?? 0;
 

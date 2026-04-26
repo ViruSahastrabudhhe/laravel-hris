@@ -3,7 +3,7 @@
 @section('page-content')
 
 <div style="margin-bottom:20px">
-    <a href="{{ route('employee_deductions.index') }}" class="auth-nav-back">
+    <a href="{{ url()->previous() }}" class="auth-nav-back">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Salaries
     </a>
@@ -33,9 +33,8 @@
         <div class="auth-field">
             <label>Salary Type <span style="color:#dc2626">*</span></label>
             <select name="salary_type" required>
-                <option value="monthly" {{ old('salary_type') == 'monthly' ? 'selected' : '' }}>Monthly</option>
-                <option value="hourly" {{ old('salary_type') == 'hourly' ? 'selected' : '' }}>Hourly</option>
-                <option value="contractual" {{ old('salary_type') == 'contractual' ? 'selected' : '' }}>Contractual</option>
+                <option value="{{ \App\Enums\SalaryType::Monthly->value }}" {{ old('salary_type') == \App\Enums\SalaryType::Monthly->value ? 'selected' : '' }}>Monthly</option>
+                <option value="{{ \App\Enums\SalaryType::Hourly->value }}" {{ old('salary_type') == \App\Enums\SalaryType::Hourly->value ? 'selected' : '' }}>Hourly</option>
             </select>
         </div>
 

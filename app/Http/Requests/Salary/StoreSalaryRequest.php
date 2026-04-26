@@ -25,7 +25,7 @@ class StoreSalaryRequest extends FormRequest
             'amount' => 'required|numeric|min:0',
             'salary_grade' => 'nullable|integer|min:1',
             'step' => 'nullable|integer|min:1',
-            'salary_type' => 'required|string|in:monthly,hourly,contractual',
+            'salary_type' => 'required|string',
             'employee_id' => 'required|exists:employees,id',
         ];
     }

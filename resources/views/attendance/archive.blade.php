@@ -32,7 +32,7 @@
                     Restore Selected (<span id="bulk-count">0</span>)
                 </button>
             </form>
-            <a href="{{ route('attendances.index') }}" class="btn-export">
+            <a href="{{ url()->previous() }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Back to Attendance
             </a>
