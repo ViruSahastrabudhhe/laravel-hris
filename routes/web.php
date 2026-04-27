@@ -62,7 +62,12 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     
     // QR Code Routes
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
+    Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');
     Route::post('qr-code/generate', [QrCodeController::class, 'generate'])->name('qr-code.generate');
-    Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
+    Route::get('qr-code/{qrScan}', [QrCodeController::class, 'show'])->name('qr-code.show');
     Route::get('qr-code/history', [QrCodeController::class, 'history'])->name('qr-code.history');
+});
+
+Route::middleware(['auth', 'verified'])->group(function() {
+    Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
 });

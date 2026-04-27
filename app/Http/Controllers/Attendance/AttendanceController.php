@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\WorkSchedule;
+use App\Models\QrAttendanceScan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -22,7 +23,14 @@ class AttendanceController extends Controller
         $attendances = Attendance::findAllWithUserID()->currentMonth()->get();
         $schedules = WorkSchedule::where('user_id', auth()->id())->get();
 
-        return view('attendance.index', compact('attendances', 'schedules'));
+        $employees = Employee::with(['position', 'department', 'employeeWorkSchedule.workSchedule'])->get();
+        $currentMonth = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
+        $qrScans = QrAttendanceScan::whereBetween('created_at', [$currentMonth, $monthEnd])->get()->keyBy('employee_id');
+        $totalQrGenerated = $qrScans->count();
+        $activeQr = $qrScans->where('valid_until', '>', Carbon::now())->count();
+
+        return view('attendance.index', compact('attendances', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
     }
 
     /**

@@ -1,9 +1,30 @@
 @extends('layouts.admin')
 
 @section('page-content')
-<div style="margin-bottom:20px">
-    <h2 style="color:#0b044d;font-size:24px;font-weight:700;margin:0">QR Scan History</h2>
-    <p style="color:#9999bb;font-size:14px;margin:4px 0 0">View all scanned attendance QR codes</p>
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+            <h2>QR Scan History</h2>
+            <p>View all scanned attendance QR codes</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <span class="banner-badge outline">{{ $scans->total() }} Scans</span>
+    </div>
+</div>
+
+<div class="quick-actions-row">
+    <a class="qa-btn modal-btn-primary" href="{{ route('qr-code.scan') }}" target="_blank">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
+        Scan QR Code
+    </a>
+    <a class="qa-btn" href="{{ route('qr-code.index') }}">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to QR Codes
+    </a>
 </div>
 
 <div class="table-section">
@@ -11,14 +32,6 @@
         <div>
             <p class="table-title">Scan History</p>
             <p class="table-sub">{{ $scans->total() }} total scans</p>
-        </div>
-        <div class="table-actions">
-            <a href="{{ route('qr-code.scan') }}">
-                <button class="btn-export">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    Scan QR Code
-                </button>
-            </a>
         </div>
     </div>
 

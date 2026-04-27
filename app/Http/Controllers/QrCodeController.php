@@ -15,6 +15,11 @@ class QrCodeController extends Controller
         return view('qr_code.index', compact('employees'));
     }
 
+    public function create()
+    {
+        return $this->index();
+    }
+
     public function generate(Request $request)
     {
         $request->validate([
@@ -53,6 +58,19 @@ class QrCodeController extends Controller
         ]);
 
         $employee = Employee::find($request->employee_id);
+
+        return view('qr_code.show', compact('qrData', 'qrScan', 'employee'));
+    }
+
+    public function show(QrAttendanceScan $qrScan)
+    {
+        $employee = $qrScan->employee;
+        $qrData = json_encode([
+            'id' => $qrScan->id,
+            'hash' => $qrScan->qr_code_hash,
+            'employee_id' => $qrScan->employee_id,
+            'date' => $qrScan->date,
+        ]);
 
         return view('qr_code.show', compact('qrData', 'qrScan', 'employee'));
     }
