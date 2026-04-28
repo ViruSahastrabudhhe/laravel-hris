@@ -230,13 +230,13 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="leave-search" placeholder="Search requests..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
                 </div>
-                <select id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                     <option value="">All Departments</option>
                     @foreach(\App\Models\Department::all() as $dept)
                         <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                     @endforeach
                 </select>
-                <select id="status-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="status-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                     <option value="">All Status</option>
                     <option value="Approved">Approved</option>
                     <option value="Pending">Pending</option>
@@ -303,7 +303,7 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
                                 <form action="{{ route('employee_leaves.destroy', $leave) }}" method="POST" style="display:inline" onsubmit="return confirm('Archive this leave request?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-view" style="color:#8e1e18;border-color:#f5d0ce">
+                                    <button type="button" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px" onclick="openDenyModal('{{ route('employee_leaves.deny', $leave) }}', '{{ $leave->employee->first_name }} {{ $leave->employee->last_name }}')">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                     </button>
                                 </form>

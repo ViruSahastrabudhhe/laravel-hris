@@ -60,7 +60,6 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);
     
-    // QR Code Routes
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');
     Route::post('qr-code/generate', [QrCodeController::class, 'generate'])->name('qr-code.generate');
@@ -70,4 +69,6 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
 
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
+    Route::get('qr-scanner', [QrScannerController::class, 'index'])->name('qr-scanner.index');
+    Route::post('qr-scanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
 });

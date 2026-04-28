@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 
 class QrAttendanceScan extends Model
 {
@@ -11,22 +13,12 @@ class QrAttendanceScan extends Model
 
     protected $fillable = [
         'employee_id',
-        'date',
-        'time_in',
-        'time_out',
-        'pm_in',
-        'pm_out',
-        'overtime_in',
-        'overtime_out',
-        'user_id',
         'qr_code_hash',
-        'scanned_at',
-        'scanner_ip',
+        'expires_at',
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'scanned_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
     public function employee()
@@ -34,8 +26,14 @@ class QrAttendanceScan extends Model
         return $this->belongsTo(Employee::class);
     }
 
-    public function user()
+    public function isExpired(): bool
     {
-        return $this->belongsTo(User::class);
+        return $this->expires_at && now()->isAfter($this->expires_at);
+    }
+
+    #[Scope]
+    protected function currentMonthBetween(Builder $query): void {
+        $query->whereDate('date', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('date', '<=', Carbon::now()->endOfMonth());
     }
 }

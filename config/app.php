@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Manila'),
 
     /*
     |--------------------------------------------------------------------------
@@ -136,8 +136,8 @@ return [
     |
     */
 
-    'date' => Carbon::now()->format(env('DATE_FORMAT', 'l, F j, Y')),
-    'month' => Carbon::now()->format(env('DATE_MONTH', 'F Y')),
-    'year' => Carbon::now()->format(env('DATE_YEAR', 'Y')),
+    'date' => Carbon::now()->format(env('DATE_FORMAT', 'l, F j, Y'), 'l, F j, Y'),
+    'month' => Carbon::now()->format(env('DATE_MONTH', 'F Y'), 'F Y'),
+    'year' => Carbon::now()->format(env('DATE_YEAR', 'Y'), 'Y'),
 
 ];

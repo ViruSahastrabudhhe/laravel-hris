@@ -87,6 +87,10 @@ class Employee extends Model
         return $this->hasOne(EmployeeWorkSchedule::class, 'employee_id', 'id');
     }
 
+    public function qrAttendanceScans() {
+        return $this->hasMany(QrAttendanceScan::class);
+    }
+
     public function isJobOrder() {
         return $this->employment_type == EmploymentType::JobOrder->value;
     }

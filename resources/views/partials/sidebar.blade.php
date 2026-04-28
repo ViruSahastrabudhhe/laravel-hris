@@ -6,7 +6,6 @@ if (auth()->user()->hasRole('admin')) {
         ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
         ['id' => 'employee_deductions',    'label' => 'Salary Structure',    'route' => 'employee_deductions.index',    'icon' => 'salary', 'section' => null],
         ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
-        ['id' => 'qr_code', 'label' => 'QR Code Generation',      'route' => 'qr-code.index',     'icon' => 'qr_code', 'section' => null],
         ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => null],
         ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
     ];

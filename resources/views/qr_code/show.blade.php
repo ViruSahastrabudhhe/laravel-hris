@@ -2,9 +2,9 @@
 
 @section('page-content')
 <div style="margin-bottom:20px">
-    <a href="{{ route('qr-code.index') }}" class="auth-nav-back">
+    <a href="{{ url()->previous() }}" class="auth-nav-back">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Generator
+        Back to QR Codes
     </a>
 </div>
 
@@ -12,7 +12,7 @@
     <div class="table-header">
         <div>
             <p class="table-title">QR Code Generated</p>
-            <p class="table-sub">{{ $employee->first_name }} {{ $employee->last_name }} - {{ $qrScan->date }}</p>
+            <p class="table-sub">{{ $employee->first_name }} {{ $employee->last_name }} — Valid until {{ $qrScan->expires_at->format('M d, Y') }}</p>
         </div>
         <div class="table-actions">
             <button onclick="printQR()" class="btn-export">
@@ -27,10 +27,10 @@
             <div style="background:#fff;padding:20px;border-radius:12px;margin-bottom:20px">
                 <div id="qrcode"></div>
             </div>
-            
+            <div id="qrcode-print" style="display:none"></div>
+
             <div style="text-align:left;background:#fff;border-radius:12px;padding:20px">
-                <h3 style="color:#0b044d;font-size:18px;font-weight:700;margin:0 0 16px">Attendance Details</h3>
-                
+                <h3 style="color:#0b044d;font-size:18px;font-weight:700;margin:0 0 16px">Employee Details</h3>
                 <div style="display:grid;gap:10px">
                     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
                         <span style="color:#9999bb;font-size:13px;font-weight:600">Employee</span>
@@ -41,45 +41,9 @@
                         <strong style="color:#0b044d;font-size:13px">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</strong>
                     </div>
                     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">Date</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->date }}</strong>
+                        <span style="color:#9999bb;font-size:13px;font-weight:600">Valid Until</span>
+                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->expires_at->format('F d, Y') }}</strong>
                     </div>
-                    @if($qrScan->time_in)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">Time In</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->time_in }}</strong>
-                    </div>
-                    @endif
-                    @if($qrScan->time_out)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">Time Out</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->time_out }}</strong>
-                    </div>
-                    @endif
-                    @if($qrScan->pm_in)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">PM In</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->pm_in }}</strong>
-                    </div>
-                    @endif
-                    @if($qrScan->pm_out)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">PM Out</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->pm_out }}</strong>
-                    </div>
-                    @endif
-                    @if($qrScan->overtime_in)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">Overtime In</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->overtime_in }}</strong>
-                    </div>
-                    @endif
-                    @if($qrScan->overtime_out)
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0effe">
-                        <span style="color:#9999bb;font-size:13px;font-weight:600">Overtime Out</span>
-                        <strong style="color:#0b044d;font-size:13px">{{ $qrScan->overtime_out }}</strong>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -98,27 +62,28 @@ var qrcode = new QRCode(document.getElementById("qrcode"), {
     correctLevel: QRCode.CorrectLevel.H
 });
 
+var qrPrint = new QRCode(document.getElementById("qrcode-print"), {
+    text: @json($qrData),
+    width: 1024,
+    height: 1024,
+    colorDark: "#0b044d",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+});
+
 function printQR() {
-    window.print();
+    setTimeout(function() {
+        var img = document.querySelector('#qrcode-print img') || document.querySelector('#qrcode-print canvas');
+        var src = img.tagName === 'CANVAS' ? img.toDataURL() : img.src;
+        var win = window.open('', '_blank');
+        win.document.write('<html><head><title>QR Code - {{ $employee->first_name }} {{ $employee->last_name }}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff}img{width:90vmin;height:90vmin;image-rendering:pixelated}p{margin-top:16px;font-size:18px;font-weight:700;color:#0b044d}small{color:#666;font-size:13px}@media print{@page{margin:0}}</style></head><body><img src="'+src+'"><p>{{ $employee->first_name }} {{ $employee->last_name }}</p><small>EMP-{{ str_pad($employee->id, 3, "0", STR_PAD_LEFT) }} &mdash; Valid until {{ $qrScan->expires_at->format("M d, Y") }}</small></body></html>');
+        win.document.close();
+        win.focus();
+        win.onload = function() { win.print(); };
+    }, 300);
 }
 </script>
 @endpush
 
-@push('styles')
-<style>
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    #qr-printable, #qr-printable * {
-        visibility: visible;
-    }
-    #qr-printable {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-}
-</style>
-@endpush
+
 @endsection

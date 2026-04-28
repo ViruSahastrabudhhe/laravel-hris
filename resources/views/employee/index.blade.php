@@ -1,60 +1,60 @@
 @extends('layouts.admin')
 
 @push('styles')
-<style>
-.search-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.search-wrap svg {
-    position: absolute;
-    left: 10px;
-    pointer-events: none;
-}
-.search-input {
-    height: 34px;
-    padding: 0 10px 0 30px;
-    border: 1.5px solid #e4e3f0;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-family: 'Poppins', sans-serif;
-    color: #0b044d;
-    background: #fafafe;
-    outline: none;
-    width: 180px;
-    transition: border-color 0.2s;
-}
-.search-input:focus { border-color: #0b044d; }
-</style>
+    <style>
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrap svg {
+            position: absolute;
+            left: 10px;
+            pointer-events: none;
+        }
+        .search-input {
+            height: 34px;
+            padding: 0 10px 0 30px;
+            border: 1.5px solid #e4e3f0;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-family: 'Poppins', sans-serif;
+            color: #0b044d;
+            background: #fafafe;
+            outline: none;
+            width: 180px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: #0b044d; }
+    </style>
 @endpush
 
 @php
-$totalEmployees = 0;
-$activeEmployees = 0;
-$inactiveEmployees = 0;
-$regularEmployees = 0;
+    $totalEmployees = 0;
+    $activeEmployees = 0;
+    $inactiveEmployees = 0;
+    $regularEmployees = 0;
 
-foreach ($employees as $employee) {
-    if ($employee->is_active) {
-        $activeEmployees++;
-    } else {
-        $inactiveEmployees++;
+    foreach ($employees as $employee) {
+        if ($employee->is_active) {
+            $activeEmployees++;
+        } else {
+            $inactiveEmployees++;
+        }
+        if ($employee->employment_type === \App\Enums\EmploymentType::Regular->value) {
+            $regularEmployees++;
+        }
+        $totalEmployees++;
     }
-    if ($employee->employment_type === \App\Enums\EmploymentType::Regular->value) {
-        $regularEmployees++;
-    }
-    $totalEmployees++;
-}
 
-$totalDepartments = $departments->count();
-$activeDepartments = $departments->where('is_active', true)->count();
-$inactiveDepartments = $departments->where('is_active', false)->count();
-$totalEmployeesInDepts = $employees->count();
+    $totalDepartments = $departments->count();
+    $activeDepartments = $departments->where('is_active', true)->count();
+    $inactiveDepartments = $departments->where('is_active', false)->count();
+    $totalEmployeesInDepts = $employees->count();
 
-$totalPositions = $positions->count();
-$filledPositions = $employees->pluck('position_id')->filter()->unique()->count();
-$vacantPositions = max(0, $totalPositions - $filledPositions);
+    $totalPositions = $positions->count();
+    $filledPositions = $employees->pluck('position_id')->filter()->unique()->count();
+    $vacantPositions = max(0, $totalPositions - $filledPositions);
 @endphp
 
 @section('page-content')

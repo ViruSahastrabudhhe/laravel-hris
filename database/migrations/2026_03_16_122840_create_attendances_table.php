@@ -14,12 +14,12 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->time('time_in');
-            $table->time('time_out');
-            $table->time('break_start');
-            $table->time('break_end');
-            $table->time('overtime_in');
-            $table->time('overtime_out');
+            $table->time('time_in')->nullable();
+            $table->time('time_out')->nullable();
+            $table->time('break_start')->nullable();
+            $table->time('break_end')->nullable();
+            $table->time('overtime_in')->nullable();
+            $table->time('overtime_out')->nullable();
             $table->date('date');
             $table->enum('attendance_status', AttendanceStatus::cases())->default(AttendanceStatus::Absent->value);
             $table->integer('total_minutes')->default(0);

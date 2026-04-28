@@ -133,7 +133,7 @@
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
         QR Attendance Scanner
     </h1>
-    <a href="{{ route('attendances.index') }}">
+    <a href="{{ url()->previous() }}">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Attendance
     </a>
@@ -174,34 +174,13 @@
     {{-- RIGHT: History --}}
     <div class="panel-history">
         <div class="history-header">
-            <h2>Scan History</h2>
-            <p>Recent QR code scans</p>
+            <h2>Recent Scans</h2>
+            <p>Today's attendance activity</p>
         </div>
         <div class="history-list" id="history-list">
-            @forelse($scans as $scan)
-            @php $colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed']; @endphp
-            <div class="history-item">
-                <div class="hi-avatar" style="background:{{ $colors[$scan->employee_id % 5] }}">
-                    {{ strtoupper(substr($scan->employee->first_name,0,1).substr($scan->employee->last_name,0,1)) }}
-                </div>
-                <div class="hi-info">
-                    <div class="hi-name">{{ $scan->employee->first_name }} {{ $scan->employee->last_name }}</div>
-                    <div class="hi-meta">
-                        {{ $scan->date->format('M d, Y') }}
-                        @if($scan->time_in) · In: {{ $scan->time_in }} @endif
-                        @if($scan->scanned_at) · {{ $scan->scanned_at->diffForHumans() }} @endif
-                    </div>
-                </div>
-                <span class="hi-badge {{ $scan->scanned_at ? 'scanned' : 'pending' }}">
-                    {{ $scan->scanned_at ? 'Scanned' : 'Pending' }}
-                </span>
-            </div>
-            @empty
-            <div class="history-empty" id="history-empty">No scans yet</div>
-            @endforelse
+            <div class="history-empty" id="history-empty">No scans yet today</div>
         </div>
     </div>
-
 </div>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -232,13 +211,18 @@ function onScanSuccess(decodedText) {
         },
         body: JSON.stringify({ qr_data: decodedText })
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok && r.headers.get('content-type')?.includes('text/html')) {
+            throw new Error('Server error (HTTP ' + r.status + ')');
+        }
+        return r.json();
+    })
     .then(data => {
         if (data.success) {
-            showSuccess(data.data);
-            prependHistory(data.data);
+            showSuccess(data);
+            prependHistory(data);
         } else {
-            showError(data.message);
+            showError(data.message || 'Scan failed');
             setTimeout(() => {
                 hideCards();
                 setStatus('Position QR code within the frame');
