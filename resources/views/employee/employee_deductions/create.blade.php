@@ -3,7 +3,7 @@
 @section('page-content')
 
 <div style="margin-bottom:20px">
-    <a href="{{ url()->previous() }}" class="auth-nav-back">
+    <a href="{{ route('employee_deductions.index') }}" class="auth-nav-back">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Employee Deductions
     </a>
@@ -41,6 +41,9 @@
         <div class="auth-field">
             <label>Amount (₱) <span style="color:#dc2626">*</span></label>
             <input type="number" name="amount" value="{{ old('amount') }}" placeholder="e.g. 500.00" step="0.01" min="0" required>
+            @error('amount')
+                <span style="color:#dc2626;font-size:12px">{{ $message }}</span>
+            @enderror
         </div>
 
         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">

@@ -535,14 +535,17 @@
                                 <span class="badge-status on-hold" data-order="1">Inactive</span>
                             @endif
                         </td>
+                        @php
+                            $employeeCountInPos = $employees->where('position_id', $position->id)->count();
+                        @endphp
                         <td>
-                            @if ($position->status === \App\Enums\PositionStatus::Hiring->value)
-                                <span class="dept-tag" style="background: #e8f9ef; color: #15803d; border-color: #bbf7d0;">
-                                    {{ \App\Enums\PositionStatus::Hiring->value }}
-                                </span>
-                            @else
+                            @if ($employeeCountInPos >= $position->total_employees)
                                 <span class="dept-tag" style="background: #fefce8; color: #a16207; border-color: #fde68a; }}">
                                     {{ \App\Enums\PositionStatus::Closed->value }}
+                                </span>
+                            @else
+                                <span class="dept-tag" style="background: #e8f9ef; color: #15803d; border-color: #bbf7d0;">
+                                    {{ \App\Enums\PositionStatus::Hiring->value }}
                                 </span>
                             @endif
                         </td>
@@ -648,7 +651,7 @@
 
         if ($('#pos-table').length) {
             const posTable = $('#pos-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [3] }],
+                columnDefs: [{ orderable: false, targets: [2] }],
                 pageLength: 25,
                 language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No positions found' },
                 dom: 'rtip',

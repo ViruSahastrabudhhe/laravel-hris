@@ -15,7 +15,7 @@
         </div>
         <div>
             <h2>Payslip</h2>
-            <p>{{ config('app.date') }} &nbsp;·&nbsp; For EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+            <p>{{ config('app.carbon_date') }} &nbsp;·&nbsp; For EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
         </div>
     </div>
     <div class="banner-right">
@@ -125,8 +125,8 @@
                 <div class="payslip-detail-row"><span>Hours Worked</span><strong>{{ $employee->hoursWorked() }} hrs</strong></div>
                 <div class="payslip-detail-row"><span>Overtime Worked</span><strong>{{ $employee->overtimeWorked() }} hrs</strong></div>
                 <div class="payslip-detail-row"><span>Days Worked</span><strong>{{ $employee->daysWorked() }} days</strong></div>
-                <div class="payslip-detail-row"><span>Days Late</span><strong>{{ ucfirst($employee->employment_type) }} days</strong></div>
-                <div class="payslip-detail-row"><span>Days Absent</span><strong>{{ config('app.carbon_month') }} days</strong></div>
+                <div class="payslip-detail-row"><span>Days Late</span><strong>{{ $employee->daysLate() }} days</strong></div>
+                <div class="payslip-detail-row"><span>Days Absent</span><strong>{{ $employee->daysAbsent() }} days</strong></div>
                 <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Total Hours Worked</span><strong style="color:#0b044d">{{ $employee->totalHoursWorked() }} hrs</strong></div>
             </div>
 

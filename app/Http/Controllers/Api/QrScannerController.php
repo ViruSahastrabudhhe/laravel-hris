@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\QrAttendanceScan;
+use App\Enums\EmploymentType;
 use Illuminate\Http\Request;
 use App\Enums\AttendanceStatus;
 use Carbon\Carbon;
@@ -53,7 +54,7 @@ class QrScannerController extends Controller
                 ->where('date', $today)
                 ->first();
 
-            [$scanType, $status, $overtimeMinutes, $totalMinutes] = $this->resolveScan($attendance, $schedule, $now);
+            [$scanType, $status, $overtimeMinutes, $totalMinutes] = $this->resolveScan($attendance, $schedule, $now, $qrScan->employee);
 
             if (!$scanType) {
                 return response()->json(['success' => false, 'message' => 'All scans for today are already completed.'], 400);
@@ -85,39 +86,41 @@ class QrScannerController extends Controller
                 'employee_name' => $qrScan->employee->first_name . ' ' . $qrScan->employee->last_name,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('QR scan error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'An error occurred'], 500);
         }
     }
 
-    private function resolveScan(?Attendance $attendance, $schedule, Carbon $now): array
+    private function resolveScan(?Attendance $attendance, $schedule, Carbon $now, $employee): array
     {
         $grace = $schedule->grace_period_minutes;
+        $date  = today()->toDateString();
+        $isJobOrder = $employee->employment_type === EmploymentType::JobOrder->value;
 
         if (!$attendance?->time_in) {
-            $deadline = Carbon::parse($schedule->start_time)->addMinutes($grace);
+            $deadline = Carbon::parse($schedule->start_time)->setDateFrom(now())->addMinutes($grace);
             $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
             return ['time_in', $status, 0, 0];
         }
 
         if (!$attendance->break_start) {
-            $deadline = Carbon::parse('12:00:00')->addMinutes($grace);
+            $deadline = Carbon::parse("$date 12:00:00")->addMinutes($grace);
             $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
             return ['break_start', $status, 0, 0];
         }
 
         if (!$attendance->break_end) {
-            $deadline = Carbon::parse($schedule->pm_start_time)->addMinutes($grace);
+            $deadline = Carbon::parse($schedule->pm_start_time)->setDateFrom(now())->addMinutes($grace);
             $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
             return ['break_end', $status, 0, 0];
         }
 
         if (!$attendance->time_out) {
-            $endTime = Carbon::parse($schedule->end_time);
-            $timeIn = Carbon::parse($attendance->time_in);
-            $overtimeMinutes = $now->gt($endTime) ? (int) $endTime->diffInMinutes($now) : 0;
-            $totalMinutes = (int) $timeIn->diffInMinutes($now) - $schedule->break_minutes;
+            $endTime = Carbon::parse($schedule->end_time)->setDateFrom(now());
+            $timeIn  = Carbon::parse("$date {$attendance->time_in}");
+            $overtimeMinutes = (!$isJobOrder && $now->gt($endTime)) ? (int) $endTime->diffInMinutes($now) : 0;
+            $totalMinutes    = (int) $timeIn->diffInMinutes($now) - $schedule->break_minutes;
             return ['time_out', AttendanceStatus::Present, $overtimeMinutes, $totalMinutes];
         }
 

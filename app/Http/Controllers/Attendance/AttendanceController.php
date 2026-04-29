@@ -146,4 +146,32 @@ class AttendanceController extends Controller
 
         return view('attendance.archive', ['attendances' => $attendances]);
     }
+
+    public function filterByMonth(Request $request)
+    {
+        $month = $request->integer('month', now()->month);
+        $year  = $request->integer('year', now()->year);
+
+        $employees = Employee::with([
+            'position', 'department',
+            'attendance' => fn($q) => $q->whereYear('created_at', $year)->whereMonth('created_at', $month),
+        ])->get();
+
+        $workingDays = \Carbon\Carbon::create($year, $month)->startOfMonth()
+            ->diffInWeekdays(\Carbon\Carbon::create($year, $month)->endOfMonth()) + 1;
+
+        return response()->json([
+            'employees' => $employees->map(fn($e) => [
+                'id'         => $e->id,
+                'name'       => $e->first_name . ' ' . $e->last_name,
+                'position'   => $e->position->title,
+                'department' => $e->department->name,
+                'present'    => $e->attendance->where('attendance_status', 'Present')->count(),
+                'absent'     => $e->attendance->where('attendance_status', 'Absent')->count(),
+                'late'       => $e->attendance->where('attendance_status', 'Late')->count(),
+                'ot_hours'   => number_format($e->attendance->sum('overtime_minutes') / 60, 1),
+                'complete'   => $e->attendance->count() >= $workingDays,
+            ]),
+        ]);
+    }
 }

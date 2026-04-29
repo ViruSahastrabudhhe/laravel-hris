@@ -101,8 +101,12 @@
                     <select name="position_id" required>
                         <option value="">Select position</option>
                         @foreach($positions as $position)
-                            @if ($position->status === \App\Enums\PositionStatus::Closed->value)
-                                <option value="{{ $position->id }}" disabled style="color:#9999bb">
+                            @php
+                                $employees = \App\Models\Employee::findAllWithUserID()->get();
+                                $employeeCountInPos = $employees->where('position_id', $position->id)->count();
+                            @endphp
+                            @if ($employeeCountInPos >= $position->total_employees)
+                                <option value="{{ $position->id }}" readonly style="color:#9999bb" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>
                                     {{ $position->title }} (Closed)
                                 </option>
                             @else

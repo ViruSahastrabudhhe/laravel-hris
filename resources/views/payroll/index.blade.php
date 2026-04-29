@@ -20,7 +20,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
         </div>
         <div>
             <h2>Payroll Management</h2>
-            <p>{{ config('app.date') }}</p>
+            <p>{{ config('app.carbon_date') }}</p>
         </div>
     </div>
     <div class="banner-right">

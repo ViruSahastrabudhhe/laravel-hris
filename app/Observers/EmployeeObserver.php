@@ -72,9 +72,9 @@ class EmployeeObserver
     }
 
     private function createEmployeeLeaveBalance(Employee $employee) {
-        if ($employee->employment_type == EmploymentType::JobOrder->value) {
+        if ($employee->isJobOrder()) {
             $employeeLeaveBalance = new EmployeeLeaveBalance;
-            $employeeLeaveBalance->leave_balance = 0;
+            $employeeLeaveBalance->leave_balance = 0.0;
             $employeeLeaveBalance->employee_id = $employee->id;
             $employeeLeaveBalance->user_id = auth()->user()->id;
             $employeeLeaveBalance->save();

@@ -204,22 +204,25 @@
         <div class="table-header">
             <div>
                 <p class="table-title">Attendance Summary</p>
-                <p class="table-sub">Track employee time and attendance</p>
+                <p class="table-sub">Overview of employee attendance for {{ config('app.carbon_month') }}</p>
             </div>
             <div class="table-actions">
-                <form id="bulk-archive-form" action="{{ route('attendances.bulkDestroy') }}" method="POST" style="display:inline">
-                    @csrf
-                    @method('DELETE')
-                    <div id="bulk-ids"></div>
-                    <button type="submit" id="bulk-btn" class="btn-danger" style="display:none;" onclick="return confirm('Archive selected records?')">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        (<span id="bulk-count">0</span>)
-                    </button>
-                </form>
                 <div class="search-wrap" style="position:relative;display:flex;align-items:center">
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
                 </div>
+                <select id="month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                    @foreach(range(1,12) as $m)
+                        <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                        </option>
+                    @endforeach
+                </select>
+                <select id="year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                    @foreach(range(now()->year - 2, now()->year) as $y)
+                        <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endforeach
+                </select>
                 <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Departments</option>
                     @foreach($departments as $dept)
@@ -272,7 +275,7 @@
                             $employeeOTHours = $employee->attendance()->sum('overtime_minutes') / 60;
                             $employeeAttendanceIsComplete = $employee->attendance->count();
                         @endphp
-                        <td><span style="color: #0b044d; font-weight: 600;">{{ number_format($employeeOTHours, 1) }} hrs</span></td>
+                        <td><span style="color: #0b044d; font-weight: 600;">{{ number_format($employeeOTHours, 2) }} hrs</span></td>
                         <td>
                             @if ($employeeAttendanceIsComplete >= now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1)
                                 <span class="badge-status processed">Complete</span>
@@ -366,7 +369,7 @@
                         <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                         <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
                         <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
-                        <td><span style="font-size:12px;color:#9999bb">{{ $attendance->overtime_in && $attendance->overtime_out ? $attendance->overtime_in . ' - ' . $attendance->overtime_out : 'N/A' }}</span></td>
+                        <td><span style="font-size:12px;color:#9999bb">{{ $attendance->overtime_minutes > 0 ? number_format(($attendance->overtime_minutes / 60), 1) . ' hrs' : 'N/A' }}</span></td>
                         <td><span class="pay-cell">{{ number_format((($attendance->total_minutes / 60) + ($attendance->overtime_minutes / 60)), 2) }} h</span></td>
                         <td>
                             @if($attendance->attendance_status === 'Present')
@@ -857,6 +860,42 @@
                 $('#bulk-btn').hide();
             }
         }
+
+        const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+
+        function fetchAttendance() {
+            const month = $('#month-filter').val();
+            const year  = $('#year-filter').val();
+
+            $.get('{{ route('attendances.filter') }}', { month, year }, function(res) {
+                attendance_table.clear();
+
+                res.employees.forEach(function(e) {
+                    const initials = e.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                    const color    = colors[e.id % 5];
+                    const empId    = 'EMP-' + String(e.id).padStart(3, '0');
+                    const status   = e.complete
+                        ? '<span class="badge-status processed">Complete</span>'
+                        : '<span class="badge-status pending">Incomplete</span>';
+
+                    attendance_table.row.add([
+                        `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.name}</p><p class="emp-id">${empId}</p></div></div>`,
+                        e.position,
+                        `<span class="dept-tag">${e.department}</span>`,
+                        `<span style="color:#15803d;font-weight:600">${e.present}</span>`,
+                        `<span style="color:#8e1e18;font-weight:600">${e.absent}</span>`,
+                        `<span style="color:#a16207;font-weight:600">${e.late}</span>`,
+                        `<span style="color:#0b044d;font-weight:600">${e.ot_hours} hrs</span>`,
+                        status,
+                        '',
+                    ]);
+                });
+
+                attendance_table.draw();
+            });
+        }
+
+        $('#month-filter, #year-filter').on('change', fetchAttendance);
     });
 </script>
 @endpush

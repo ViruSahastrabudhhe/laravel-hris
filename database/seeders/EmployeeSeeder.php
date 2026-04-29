@@ -48,19 +48,40 @@ class EmployeeSeeder extends Seeder
                 'department_id' => 3,
                 'user_id' => 1,
             ],
+            [
+                'first_name' => 'Job',
+                'last_name' => 'Order',
+                'gender' => 'Female',
+                'email' => 'joborder@example.com',
+                'date_of_birth' => '1997-06-07',
+                'phone_number' => '09123456789',
+                'employment_type' => EmploymentType::JobOrder->value,
+                'address_id' => 1,
+                'is_active' => 1,
+                'position_id' => 4,
+                'department_id' => 4,
+                'user_id' => 1,
+            ],
         ];
 
         $salaries = [
             ['amount' => 14000, 'salary_grade' => 1, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
-            ['amount' => 17000, 'salary_grade' => 6, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
+            ['amount' => 17000, 'salary_grade' => 3, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
+            ['amount' => 16000, 'salary_grade' => 2, 'step' => 1, 'salary_type' => SalaryType::Monthly->value, 'user_id' => 1],
         ];
 
         $workSchedules = [
             ['work_schedule_id' => 1, 'user_id' => 1],
             ['work_schedule_id' => 1, 'user_id' => 1],
+            ['work_schedule_id' => 1, 'user_id' => 1],
         ];
 
         $deductions = [
+            [
+                ['deduction_id' => 1, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 2, 'amount' => 0, 'user_id' => 1],
+                ['deduction_id' => 3, 'amount' => 0, 'user_id' => 1],
+            ],
             [
                 ['deduction_id' => 1, 'amount' => 0, 'user_id' => 1],
                 ['deduction_id' => 2, 'amount' => 0, 'user_id' => 1],

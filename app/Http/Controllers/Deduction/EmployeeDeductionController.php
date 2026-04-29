@@ -43,6 +43,20 @@ class EmployeeDeductionController extends Controller
     {
         $data = $request->validated();
 
+        $employee = Employee::with('salary')->findOrFail($data['employee_id']);
+        $salary = $employee->salary->amount ?? 0;
+
+        // Sum existing deductions excluding the one being updated (same deduction_id)
+        $existingTotal = EmployeeDeduction::where('employee_id', $data['employee_id'])
+            ->where('deduction_id', '!=', $data['deduction_id'])
+            ->sum('amount');
+
+        if (($salary - ($existingTotal + $data['amount'])) < 0) {
+            return back()->withInput()->withErrors([
+                'amount' => "This deduction would reduce the employee's salary to a negative amount. Loan rejected."
+            ]);
+        }
+
         EmployeeDeduction::updateOrCreate(
             ['deduction_id' => $data['deduction_id'], 'employee_id' => $data['employee_id']],
             ['amount' => $data['amount'], 'user_id' => $data['user_id']]

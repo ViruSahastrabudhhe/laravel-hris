@@ -166,6 +166,26 @@ class Employee extends Model
         return $overtimePay;
     }
 
+    public function daysLate() {
+        $lates = Attendance::where('employee_id', $this->id)->findAllWithUserID()
+            ->currentMonthBetween()
+            ->whereNull('deleted_at')
+            ->where('attendance_status', AttendanceStatus::Late->value)
+            ->count();
+
+        return $lates;
+    }
+
+    public function daysAbsent() {
+        $absences = Attendance::where('employee_id', $this->id)->findAllWithUserID()
+            ->currentMonthBetween()
+            ->whereNull('deleted_at')
+            ->where('attendance_status', AttendanceStatus::Absent->value)
+            ->count();
+
+        return $absences;
+    }
+
     public function absentDeductions(): float {
         $leaveBalance = $this->leaveBalance;
 

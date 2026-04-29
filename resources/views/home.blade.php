@@ -29,7 +29,7 @@ if (isset($employees)) {
         </div>
         <div>
             <h2>Welcome back, {{ auth()->user()->name }}!</h2>
-            <p>{{ config('app.date', now()->format('l, F j, Y')) }} &nbsp;·&nbsp; PRIME HRIS Dashboard</p>
+            <p>{{ config('app.carbon_date') }} &nbsp;·&nbsp; PRIME HRIS Dashboard</p>
         </div>
     </div>
     <div class="banner-right">
@@ -37,7 +37,7 @@ if (isset($employees)) {
             <span class="banner-badge-dot"></span>
             System Online
         </span>
-        <span class="banner-badge outline">FY {{ config('app.year', date('Y')) }}</span>
+        <span class="banner-badge outline">FY {{ config('app.carbon_year') }}</span>
     </div>
 </div>
 
@@ -135,7 +135,7 @@ if (isset($employees)) {
             <p class="stat-value" style="font-size:20px">₱{{ number_format($monthlyPayroll, 2) }}</p>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#0b044d"></span>
-                <p class="stat-sub">For {{ config('app.month', date('F')) }}</p>
+                <p class="stat-sub">For {{ config('app.carbon_month', date('F')) }}</p>
             </div>
         </div>
     </div>
