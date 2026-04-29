@@ -34,7 +34,7 @@
         <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->grossPay(), 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
-            <p class="stat-sub">{{ config('app.month') }}</p>
+            <p class="stat-sub">{{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -76,7 +76,7 @@
         <p class="stat-value">{{ $employee->daysWorked() }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">{{ config('app.month') }}</p>
+            <p class="stat-sub">{{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -119,14 +119,14 @@
                 <div class="payslip-detail-row"><span>Position</span><strong>{{ $employee->position->title }}</strong></div>
                 <div class="payslip-detail-row"><span>Department</span><strong>{{ $employee->department->name }}</strong></div>
                 <div class="payslip-detail-row"><span>Employment Type</span><strong>{{ ucfirst($employee->employment_type) }}</strong></div>
-                <div class="payslip-detail-row"><span>Pay Period</span><strong>{{ config('app.month') }}</strong></div>
+                <div class="payslip-detail-row"><span>Pay Period</span><strong>{{ config('app.carbon_month') }}</strong></div>
                 <div class="payslip-info-row"></div>
                 <p class="payslip-block-label">ATTENDANCE INFO</p>
                 <div class="payslip-detail-row"><span>Hours Worked</span><strong>{{ $employee->hoursWorked() }} hrs</strong></div>
                 <div class="payslip-detail-row"><span>Overtime Worked</span><strong>{{ $employee->overtimeWorked() }} hrs</strong></div>
                 <div class="payslip-detail-row"><span>Days Worked</span><strong>{{ $employee->daysWorked() }} days</strong></div>
                 <div class="payslip-detail-row"><span>Days Late</span><strong>{{ ucfirst($employee->employment_type) }} days</strong></div>
-                <div class="payslip-detail-row"><span>Days Absent</span><strong>{{ config('app.month') }} days</strong></div>
+                <div class="payslip-detail-row"><span>Days Absent</span><strong>{{ config('app.carbon_month') }} days</strong></div>
                 <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Total Hours Worked</span><strong style="color:#0b044d">{{ $employee->totalHoursWorked() }} hrs</strong></div>
             </div>
 
@@ -160,7 +160,7 @@
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
-                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(config('app.month')) }}</span>
+                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(config('app.carbon_month')) }}</span>
                 <h3 class="modal-title">{{ $employee->first_name }} {{ $employee->last_name }}</h3>
                 <p class="modal-sub">{{ $employee->position->name }} · {{ $employee->department->name }}</p>
             </div>

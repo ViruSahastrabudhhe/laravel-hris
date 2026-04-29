@@ -64,7 +64,7 @@
     <div class="header-top">
         <div class="header-left">
             <h1>PAYSLIP</h1>
-            <div class="sub">{{ config('app.month') }} &nbsp;·&nbsp; Pay Period</div>
+            <div class="sub">{{ config('app.carbon_month') }} &nbsp;·&nbsp; Pay Period</div>
         </div>
         <div class="header-right">
             <div class="emp-name">{{ $employee->first_name }} {{ $employee->last_name }}</div>
@@ -96,7 +96,7 @@
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Pay Period</span>
-                    <span class="detail-value">{{ config('app.month') }}</span>
+                    <span class="detail-value">{{ config('app.carbon_month') }}</span>
                 </div>
             </div>
 
@@ -237,7 +237,7 @@
 @if($attendances->count() > 0)
 <div class="divider"></div>
 <div class="section">
-    <div class="section-label">Attendance Records — {{ config('app.month') }}</div>
+    <div class="section-label">Attendance Records — {{ config('app.carbon_month') }}</div>
     <table class="attendance-table">
         <thead>
             <tr>

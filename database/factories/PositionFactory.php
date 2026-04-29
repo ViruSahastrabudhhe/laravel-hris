@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Position;
+use App\Enums\PositionStatus;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Position>
@@ -26,6 +27,8 @@ class PositionFactory extends Factory
     {
         return [
             'title' => 'Administrative Aide I',
+            'total_employees' => 15,
+            'status' => PositionStatus::Hiring->value,
             'user_id' => 1,
         ];
     }

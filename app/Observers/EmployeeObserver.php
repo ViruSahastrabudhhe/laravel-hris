@@ -7,9 +7,10 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeDeduction;
 use App\Models\Deduction;
+use App\Models\Position;
 use App\Enums\EmploymentType;
 use App\Enums\DeductionType;
-use Illuminate\Support\Facades\DB;
+use App\Enums\PositionStatus;
 use Illuminate\Support\Facades\Log;
 
 class EmployeeObserver
@@ -30,10 +31,11 @@ class EmployeeObserver
      */
     public function updated(Employee $employee): void
     {
+        $this->updatePositionStatus($employee);
+
         if ($employee->isJobOrder()) {
             foreach ($employee->employeeDeduction as $deduction) {
                 if ($deduction->deduction->type == DeductionType::Mandatory->value) {
-                    Log::info($employee->id .': '.$deduction->amount);
                     $deduction->amount = 0;
                     $deduction->save();
                 }
@@ -42,9 +44,6 @@ class EmployeeObserver
 
         if (!$employee->isJobOrder()) {
             $this->updateEmployeeDeduction($employee);
-            foreach ($employee->employeeDeduction as $deduction) {
-                Log::info($employee->id .': '.$deduction->amount);
-            }
         }
     }
 
@@ -164,4 +163,17 @@ class EmployeeObserver
     // private function deleteEmployeeDeductions(Employee $employee) {
     //     EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_type', DeductionType::Optional->value)->delete();
     // }
+
+    private function updatePositionStatus(Employee $employee) {
+        $employeeCountInPos = Employee::where('position_id', $employee->position->id)->count();
+        $position = Position::find($employee->position_id);
+
+        if ($employeeCountInPos >= $position->total_employees) {
+            $position->status = PositionStatus::Closed->value;
+            $position->saveQuietly();
+        } else {
+            $position->status = PositionStatus::Hiring->value;
+            $position->saveQuietly();
+        }
+    }
 }

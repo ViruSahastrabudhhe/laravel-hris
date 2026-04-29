@@ -23,6 +23,9 @@ class StorePositionRequest extends FormRequest
     {
         return [
             'title' => 'required',
+            'status' => 'required',
+            'is_active' => 'required',
+            'total_employees' => 'required',
             'user_id' => 'required',
         ];
     }

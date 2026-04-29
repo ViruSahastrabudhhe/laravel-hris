@@ -74,13 +74,13 @@ class PayrollController extends Controller
             'employee', 'attendances', 'absentLateAttendances', 'lateCount', 'absentCount'
         ))->setPaper('a4', 'portrait');
 
-        return $pdf->download('payslip-' . $employee->first_name . '-' . $employee->last_name . '-' . config('app.month') . '.pdf');
+        return $pdf->download('payslip-' . $employee->first_name . '-' . $employee->last_name . '-' . config('app.carbon_month') . '.pdf');
     }
 
     public function exportPayroll()
     {
         $employees = Employee::findAllWithUserID()->get();
-        $filename = 'payroll-' . config('app.month') . '.csv';
+        $filename = 'payroll-' . config('app.carbon_month') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -90,7 +90,7 @@ class PayrollController extends Controller
         $callback = function () use ($employees) {
             $out = fopen('php://output', 'w');
 
-            fputcsv($out, ['PAYROLL SUMMARY - ' . config('app.month')]);
+            fputcsv($out, ['PAYROLL SUMMARY - ' . config('app.carbon_month')]);
             fputcsv($out, ['Generated', now()->format('F d, Y h:i A')]);
             fputcsv($out, []);
 

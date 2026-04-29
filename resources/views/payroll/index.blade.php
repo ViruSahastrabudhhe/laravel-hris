@@ -40,7 +40,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
         <p class="stat-value">₱{{ number_format($grossPayroll, 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ config('app.month') }}</p>
+            <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
         </div>
     </div>
 

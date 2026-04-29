@@ -53,29 +53,32 @@
 
 <div class="view-tabs">
     <button class="view-tab active" onclick="switchView('attendances',this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
         Attendances
     </button>
+    <button class="view-tab" onclick="switchView('scan-history',this)">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+            <rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+            <rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+            <line x1="14" y1="14" x2="14" y2="14.01"/>
+            <line x1="17" y1="14" x2="17" y2="14.01"/>
+            <line x1="21" y1="14" x2="21" y2="14.01"/>
+            <line x1="14" y1="17" x2="14" y2="17.01"/>
+            <line x1="21" y1="17" x2="21" y2="17.01"/>
+            <line x1="14" y1="21" x2="14" y2="21.01"/>
+            <line x1="17" y1="21" x2="21" y2="21"/>
+            <line x1="2" y1="12" x2="22" y2="12" stroke-dasharray="3 1"/>
+        </svg>        
+        Scan History
+    </button>
     <button class="view-tab" onclick="switchView('qr-codes',this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
         QR Codes
     </button>
-</div>
-
-<div id="quick-actions-attendances" class="quick-actions-row" hidden>
-    <a class="qa-btn modal-btn-primary" href="{{ route('qr-code.scan') }}" target="_blank">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
-        Scan QR Codes
-    </a>
-    <a class="qa-btn" id="add-attendance-btn" href="#attendance">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Import Attendance CSV
-    </a>    
-    <a class="qa-btn" href="{{ route('attendances.archive') }}">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        View Archive
-    </a>
-    <a class="qa-btn"></a>
 </div>
 
 <div id="stats-attendances" class="stats-grid stats-grid-4">
@@ -90,7 +93,7 @@
         <p class="stat-value">{{ now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1 }} days</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ config('app.month') }}</p>
+            <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -104,7 +107,7 @@
         <p class="stat-value">{{ $totalPresent }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ config('app.month') }}</p>
+            <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -200,7 +203,7 @@
     <div class="table-section">
         <div class="table-header">
             <div>
-                <p class="table-title">Attendance Records</p>
+                <p class="table-title">Attendance Summary</p>
                 <p class="table-sub">Track employee time and attendance</p>
             </div>
             <div class="table-actions">
@@ -225,6 +228,90 @@
                 </select>
                 <select class="filter-select" id="status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Status</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Incomplete">Incomplete</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="payroll-table" id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Late</th>
+                        <th>OT Hours</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($employees as $employee)
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
+                                    {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="emp-name">{{ $employee->first_name }} {{ $employee->last_name }}</p>
+                                    <p class="emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span>{{ $employee->position->title }}</span></td>
+                        <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
+                        <td><span style="color: #15803d; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count(); }}</span></td>
+                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count(); }}</span></td>
+                        <td><span style="color: #a16207; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count(); }}</span></td>
+                        @php
+                            $employeeOTHours = $employee->attendance()->sum('overtime_minutes') / 60;
+                            $employeeAttendanceIsComplete = $employee->attendance->count();
+                        @endphp
+                        <td><span style="color: #0b044d; font-weight: 600;">{{ number_format($employeeOTHours, 1) }} hrs</span></td>
+                        <td>
+                            @if ($employeeAttendanceIsComplete >= now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1)
+                                <span class="badge-status processed">Complete</span>
+                            @else
+                                <span class="badge-status pending">Incomplete</span>
+                            @endif
+                        </td>
+                        <td></td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="view-scan-history" class="tab-pane">
+    <div class="table-section">
+        <div class="table-header">
+            <div>
+                <p class="table-title">Scan History</p>
+                <p class="table-sub">View employee attendances thru QR Code scans</p>
+            </div>
+            <div class="table-actions">
+                <form id="bulk-archive-form" action="{{ route('attendances.bulkDestroy') }}" method="POST" style="display:inline">
+                    @csrf
+                    @method('DELETE')
+                    <div id="bulk-ids"></div>
+                    <button type="submit" id="bulk-btn" class="btn-danger" style="display:none;" onclick="return confirm('Archive selected records?')">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        (<span id="bulk-count">0</span>)
+                    </button>
+                </form>
+                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
+                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="scan-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
+                </div>
+                <select class="filter-select" id="scan-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                    <option value="">All Status</option>
                     <option value="Present">Present</option>
                     <option value="Late">Late</option>
                     <option value="Absent">Absent</option>
@@ -233,6 +320,10 @@
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     View Archive
                 </a>
+                <a class="modal-btn-primary" id="add-attendance-btn" href="#attendance">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Import Attendance CSV
+                </a>  
                 <a class="modal-btn-primary" href="{{ route('qr-code.scan') }}" target="_blank">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
                     Scan QR Code
@@ -241,12 +332,11 @@
         </div>
 
         <div class="table-wrapper">
-            <table class="payroll-table" id="attendance-table">
+            <table class="payroll-table" id="scan-table">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="select-all" title="Select all"></th>
                         <th>Employee</th>
-                        <th style="display:none">Department</th>
                         <th>Date</th>
                         <th>Time In</th>
                         <th>Time Out</th>
@@ -272,8 +362,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="display:none">{{ $attendance->employee->department->name }}</td>
-                        <td>{{ $attendance->date }}</td>
+                        <td>{{ \Carbon\Carbon::parse($attendance->date)->format(config('app.day_month')) }}</td>
                         <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                         <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
                         <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
@@ -281,11 +370,11 @@
                         <td><span class="pay-cell">{{ number_format((($attendance->total_minutes / 60) + ($attendance->overtime_minutes / 60)), 2) }} h</span></td>
                         <td>
                             @if($attendance->attendance_status === 'Present')
-                                <span class="badge-status processed">Present</span>
+                                <span class="badge-status processed">{{ App\Enums\AttendanceStatus::Present->value }}</span>
                             @elseif($attendance->attendance_status === 'Late')
-                                <span class="badge-status pending">Late</span>
+                                <span class="badge-status pending">{{ App\Enums\AttendanceStatus::Late->value }}</span>
                             @else
-                                <span class="badge-status on-hold">{{ $attendance->attendance_status }}</span>
+                                <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Absent->value }}</span>
                             @endif
                         </td>
                         <td>
@@ -373,7 +462,7 @@
                             @if(isset($qrScans[$employee->id]) && $qrScans[$employee->id]->expires_at)
                                 @php $expired = $qrScans[$employee->id]->isExpired(); @endphp
                                 <span style="color:{{ $expired ? '#dc2626' : '#15803d' }}">
-                                    {{ $qrScans[$employee->id]->expires_at->format('F d, Y') }}
+                                    {{ $qrScans[$employee->id]->expires_at->format(config('app.day_month')) }}
                                 </span>
                             @else
                                 <span style="color:#9ca3af">—</span>
@@ -518,6 +607,53 @@
         <div id="view-qrcode-print" style="display:none"></div>
     </div>
 </div>
+
+<div class="modal-overlay" id="view-attendance-modal" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow" id="modal-period">DTR · </span>
+                <h3 class="modal-title" id="modal-name">Employee Name</h3>
+                <p class="modal-sub" id="modal-position">Position · Department</p>
+            </div>
+            <button class="modal-close" onclick="closeModal('view-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 16px; background: #f7f6ff; border-radius: 12px;">
+                <div class="emp-avatar" id="modal-avatar" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: #0b044d;">MS</div>
+                <div>
+                    <p id="modal-emp-id" style="font-size: 11px; color: #9999bb; margin: 0 0 4px;">PGS-0000</p>
+                    <span class="badge-status" id="modal-status-badge">Complete</span>
+                </div>
+            </div>
+
+            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin-bottom: 12px;">ATTENDANCE SUMMARY</p>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Working Days</span><strong style="font-size:13px;color:#0b044d" id="modal-working-days">22 days</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Present</span><strong style="font-size:13px;color:#15803d" id="modal-present">22 days</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Absent</span><strong style="font-size:13px;color:#8e1e18" id="modal-absent">0 days</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Late Arrivals</span><strong style="font-size:13px;color:#a16207" id="modal-late">1 times</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Half Days</span><strong style="font-size:13px;color:#a16207" id="modal-halfday">0 days</strong></div>
+
+            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin: 16px 0 12px;">OVERTIME</p>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Total OT Hours</span><strong style="font-size:13px;color:#0b044d" id="modal-overtime">3.5 hrs</strong></div>
+
+            <div style="margin-top: 16px; padding: 12px; background: #f7f6ff; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; font-weight: 700; color: #9999bb; letter-spacing: 1px;">ATTENDANCE RATE</span>
+                <strong style="font-size: 18px; color: #15803d;" id="modal-rate">100%</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn-ghost" onclick="closeModal('view-modal')">Close</button>
+            <button class="btn-export">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download DTR
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -593,7 +729,7 @@
         document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
         document.getElementById('view-' + viewId).classList.add('active');
         btn.classList.add('active');
-        document.getElementById('stats-attendances').style.display  = viewId === 'attendances'   ? 'grid' : 'none';
+        document.getElementById('stats-attendances').style.display  = viewId === 'attendances' || viewId === 'scan-history'   ? 'grid' : 'none';
         document.getElementById('stats-qr-codes').style.display = viewId === 'qr-codes' ? 'grid' : 'none';
         document.getElementById('quick-actions-attendances').style.display  = viewId === 'attendances'   ? 'flex' : 'none';
         document.getElementById('quick-actions-qr-codes').style.display = viewId === 'qr-codes' ? 'flex' : 'none';
@@ -640,30 +776,50 @@
     });
 
     $(function () {
-        const table = $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [0, 10] }, { visible: false, targets: [2] }],
+        const attendance_table = $('#attendance-table').DataTable({
+            columnDefs: [{ orderable: false, targets: [7] }],
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
+            dom: 'rtip',
+        });    
+    
+        const scan_table = $('#scan-table').DataTable({
+            columnDefs: [{ orderable: false, targets: [0, 9] }],
+            pageLength: 25,
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No scan records found', },
             dom: 'rtip',
         });
 
         const qr_table = $('#qr-table').DataTable({
             columnDefs: [{ orderable: false, targets: [0, 4] }],
             pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR records found', },
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR codes found', },
             dom: 'rtip',
         });
 
         $('#attendance-search').on('keyup', function() {
-            table.search(this.value).draw();
+            attendance_table.search(this.value).draw();
         });
 
         $('#dept-filter').on('change', function() {
-            table.column(2).search(this.value).draw();
+            attendance_table.column(2).search(this.value).draw();
         });
 
         $('#status-filter').on('change', function() {
-            table.column(9).search(this.value).draw();
+            const val = this.value ? '^' + this.value + '$' : '';
+            attendance_table.column(7).search(val, true, false).draw();
+        });
+
+        $('#scan-search').on('keyup', function() {
+            scan_table.search(this.value).draw();
+        });
+
+        $('#scan-dept-filter').on('change', function() {
+            scan_table.column(2).search(this.value).draw();
+        });
+
+        $('#scan-status-filter').on('change', function() {
+            scan_table.column(8).search(this.value).draw();
         });
 
         $('#qr-search').on('keyup', function() {
@@ -675,7 +831,8 @@
         });
 
         $('#qr-status-filter').on('change', function() {
-            qr_table.column(3).search(this.value).draw();
+            const val = this.value ? '^' + this.value + '$' : '';
+            qr_table.column(4).search(val, true, false).draw();
         });
 
         $('#select-all').on('change', function () {

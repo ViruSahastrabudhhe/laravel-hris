@@ -136,8 +136,14 @@ return [
     |
     */
 
-    'date' => Carbon::now()->format(env('DATE_FORMAT', 'l, F j, Y'), 'l, F j, Y'),
-    'month' => Carbon::now()->format(env('DATE_MONTH', 'F Y'), 'F Y'),
-    'year' => Carbon::now()->format(env('DATE_YEAR', 'Y'), 'Y'),
+    'date' => env('DATE_FORMAT', 'l, F j, Y'),
+    'day_month' => env('DATE_DAY_MONTH', 'F j, Y'),
+    'month' => env('DATE_MONTH', 'F Y'),
+    'year' => env('DATE_YEAR', 'Y'),
+
+    'carbon_date' => Carbon::now()->format(env('DATE_FORMAT', 'l, F j, Y'), 'l, F j, Y'),
+    'carbon_day_month' => Carbon::now()->format(env('DATE_DAY_MONTH', 'F j, Y'), 'F j, Y'),
+    'carbon_month' => Carbon::now()->format(env('DATE_MONTH', 'F Y'), 'F Y'),
+    'carbon_year' => Carbon::now()->format(env('DATE_YEAR', 'Y'), 'Y'),
 
 ];

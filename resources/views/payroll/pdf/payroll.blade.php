@@ -51,7 +51,7 @@
     <div class="header-top">
         <div class="header-left">
             <h1>PAYROLL SUMMARY</h1>
-            <div class="sub">{{ config('app.month') }} &nbsp;·&nbsp; All Employees</div>
+            <div class="sub">{{ config('app.carbon_month') }} &nbsp;·&nbsp; All Employees</div>
         </div>
         <div class="header-right">
             <div class="meta">Generated: {{ now()->format('F d, Y') }}</div>

@@ -34,7 +34,7 @@
     $activeEmployees = 0;
     $inactiveEmployees = 0;
     $regularEmployees = 0;
-
+    
     foreach ($employees as $employee) {
         if ($employee->is_active) {
             $activeEmployees++;
@@ -323,7 +323,7 @@
                         <td><span class="position-cell">{{ $employee->position->title }}</span></td>
                         <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
                         <td>
-                            <span class="dept-tag" style="background:{{ $employee->employment_type === 'Permanent' ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === 'Permanent' ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === 'Permanent' ? '#bbf7d0' : '#fde68a' }}">
+                            <span class="dept-tag" style="background:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#bbf7d0' : '#fde68a' }}">
                                 {{ $employee->employment_type }}
                             </span>
                         </td>
@@ -451,11 +451,11 @@
                             </span>
                         </td>
                         @php
-                            $employeeCount = $employees->where('department_id', $department->id)->count();
+                            $employeeCountInDept = $employees->where('department_id', $department->id)->count();
                         @endphp
                         <td>
                             <span class="dept-tag" style="background:#f0effe;color:#0b044d">
-                                {{ $employeeCount }} employees
+                                {{ $employeeCountInDept }} employees
                             </span>
                         </td>
                         <td>
@@ -511,6 +511,9 @@
                 <thead>
                     <tr>
                         <th>Position Title</th>
+                        <th>Status</th>
+                        <th>Vacancy</th>
+                        <th>Employees</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -524,6 +527,32 @@
                                 </div>
                                 <span style="font-size:13px;font-weight:600;color:#0b044d">{{ $position->title }}</span>
                             </div>
+                        </td>
+                        <td>
+                            @if ($position->is_active)
+                                <span class="badge-status processed" data-order="0">Active</span>
+                            @else
+                                <span class="badge-status on-hold" data-order="1">Inactive</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($position->status === \App\Enums\PositionStatus::Hiring->value)
+                                <span class="dept-tag" style="background: #e8f9ef; color: #15803d; border-color: #bbf7d0;">
+                                    {{ \App\Enums\PositionStatus::Hiring->value }}
+                                </span>
+                            @else
+                                <span class="dept-tag" style="background: #fefce8; color: #a16207; border-color: #fde68a; }}">
+                                    {{ \App\Enums\PositionStatus::Closed->value }}
+                                </span>
+                            @endif
+                        </td>
+                        @php
+                            $employeeCountInPos = $employees->where('position_id', $position->id)->count();
+                        @endphp
+                        <td>
+                            <span class="dept-tag" style="background:#f0effe;color:#0b044d">
+                                {{ $employeeCountInPos }} / {{ $position->total_employees }} {{ $employeeCountInPos == 1 ? ' employee' : ' employees' }}
+                            </span>
                         </td>
                         <td>
                             <div class="row-actions">
@@ -556,80 +585,80 @@
 
 @push('scripts')
 <script>
-function switchView(viewId, btn) {
-    if (btn.classList.contains('active')) {
-        return;
+    function switchView(viewId, btn) {
+        if (btn.classList.contains('active')) {
+            return;
+        }
+
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + viewId).classList.add('active');
+        btn.classList.add('active');
+
+        document.getElementById('stats-employees').style.display  = viewId === 'employees'   ? 'grid' : 'none';
+        document.getElementById('stats-departments').style.display = viewId === 'departments' ? 'grid' : 'none';
+        document.getElementById('stats-positions').style.display   = viewId === 'positions'   ? 'grid' : 'none';
     }
 
-    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('view-' + viewId).classList.add('active');
-    btn.classList.add('active');
+    $(function () {
+        function escapeRegex(value) {
+            return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        }
 
-    document.getElementById('stats-employees').style.display  = viewId === 'employees'   ? 'grid' : 'none';
-    document.getElementById('stats-departments').style.display = viewId === 'departments' ? 'grid' : 'none';
-    document.getElementById('stats-positions').style.display   = viewId === 'positions'   ? 'grid' : 'none';
-}
+        if ($('#attendance-table').length) {
+            const employeeTable = $('#attendance-table').DataTable({
+                columnDefs: [{ orderable: false, targets: [0, 6] }],
+                pageLength: 25,
+                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found' },
+                dom: 'rtip',
+            });
 
-$(function () {
-    function escapeRegex(value) {
-        return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    }
+            $('#employee-search').on('keyup', function() {
+                employeeTable.search(this.value).draw();
+            });
 
-    if ($('#attendance-table').length) {
-        const employeeTable = $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [0, 6] }],
-            pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found' },
-            dom: 'rtip',
-        });
+            $('#dept-filter').on('change', function() {
+                const value = $(this).val();
+                employeeTable.column(2).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+            });
 
-        $('#employee-search').on('keyup', function() {
-            employeeTable.search(this.value).draw();
-        });
+            $('#position-filter').on('change', function() {
+                const value = $(this).val();
+                employeeTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+            });
 
-        $('#dept-filter').on('change', function() {
-            const value = $(this).val();
-            employeeTable.column(2).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
+            $('#status-filter').on('change', function() {
+                const value = $(this).val();
+                employeeTable.column(5).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+            });
+        }
 
-        $('#position-filter').on('change', function() {
-            const value = $(this).val();
-            employeeTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
+        if ($('#dept-table').length) {
+            const deptTable = $('#dept-table').DataTable({
+                columnDefs: [{ orderable: false, targets: [5] }],
+                pageLength: 25,
+                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No departments found' },
+                dom: 'rtip',
+            });
 
-        $('#status-filter').on('change', function() {
-            const value = $(this).val();
-            employeeTable.column(5).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
-    }
+            $('#dept-search').on('keyup', function() {
+                deptTable.search(this.value).draw();
+            });
+        }
 
-    if ($('#dept-table').length) {
-        const deptTable = $('#dept-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [5] }],
-            pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No departments found' },
-            dom: 'rtip',
-        });
+        if ($('#pos-table').length) {
+            const posTable = $('#pos-table').DataTable({
+                columnDefs: [{ orderable: false, targets: [3] }],
+                pageLength: 25,
+                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No positions found' },
+                dom: 'rtip',
+            });
 
-        $('#dept-search').on('keyup', function() {
-            deptTable.search(this.value).draw();
-        });
-    }
-
-    if ($('#pos-table').length) {
-        const posTable = $('#pos-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [1] }],
-            pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No positions found' },
-            dom: 'rtip',
-        });
-
-        $('#position-search').on('keyup', function() {
-            posTable.search(this.value).draw();
-        });
-    }
-});
+            $('#position-search').on('keyup', function() {
+                posTable.search(this.value).draw();
+            });
+        }
+    });
 </script>
 @endpush
 

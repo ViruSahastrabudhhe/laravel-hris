@@ -157,16 +157,20 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         $employee->delete();
+        $employee->is_active = false;
+        $employee->save();
 
         return redirect()->route('employees.index')->with('success', __('employee.success_deleting'));
     }
         
     public function restore($employeeId)
     {
-        Employee::onlyTrashed()->find($employeeId)->restore();
+        $employee = Employee::onlyTrashed()->findOrFail($employeeId);
+        $employee->restore();
+        $employee->is_active = true;
+        $employee->save();
 
         return redirect()->route('employees.archive')->with('success', __('employee.success_restoring'));
-        
     }
 
     public function activate($employeeId) {
@@ -195,7 +199,9 @@ class EmployeeController extends Controller
 
     public function archive() {
         $employees = Employee::findAllWithUserID()->onlyTrashed()->get();
+        $positions = Position::findAllWithUserID()->get();
+        $departments = Department::findAllWithUserID()->get();
 
-        return view('employee.archive', ['employees' => $employees]);
+        return view('employee.archive', compact('employees', 'positions', 'departments'));
     }
 }

@@ -101,7 +101,13 @@
                     <select name="position_id" required>
                         <option value="">Select position</option>
                         @foreach($positions as $position)
-                        <option value="{{ $position->id }}" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>{{ $position->title }}</option>
+                            @if ($position->status === \App\Enums\PositionStatus::Closed->value)
+                                <option value="{{ $position->id }}" disabled style="color:#9999bb">
+                                    {{ $position->title }} (Closed)
+                                </option>
+                            @else
+                                <option value="{{ $position->id }}" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>{{ $position->title }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
