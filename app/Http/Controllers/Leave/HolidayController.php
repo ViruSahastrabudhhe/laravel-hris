@@ -14,9 +14,7 @@ class HolidayController extends Controller
      */
     public function index()
     {
-        $holidays = Holiday::findAllWithUserID()->get();
-
-        return view('holiday.index', ['holidays' => $holidays]);
+        return redirect()->route('employee_leaves.index');
     }
 
     /**

@@ -15,9 +15,6 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::findAllWithUserID()->get();
-        $employees = Employee::findAllWithUserID()->get();
-
         return redirect()->route('employees.index');
     }
 

@@ -413,10 +413,10 @@
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="dept-search" placeholder="Search departments..." class="search-input">
                 </div>
-                <a href="{{ route('departments.create') }}" class="modal-btn-primary">
+                <button onclick="openDeptCreateModal()" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Add Department
-                </a>
+                </button>
             </div>
         </div>
 
@@ -460,9 +460,9 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <a href="{{ route('departments.edit', $department) }}" class="btn-edit">
+                                <button onclick="openDeptEditModal({{ $department->id }}, '{{ addslashes($department->name) }}', '{{ addslashes($department->department_code) }}', '{{ addslashes($department->department_head ?? '') }}', '{{ addslashes($department->description ?? '') }}', {{ $department->is_active ? 'true' : 'false' }})" class="btn-edit">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
+                                </button>
                                 <form action="{{ route('departments.destroy', $department) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this department?')">
                                     @csrf   
                                     @method('DELETE')
@@ -499,10 +499,10 @@
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="position-search" placeholder="Search positions..." class="search-input">
                 </div>
-                <a href="{{ route('positions.create') }}" class="modal-btn-primary">
+                <button onclick="openPosCreateModal()" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Add Position
-                </a>
+                </button>
             </div>
         </div>
 
@@ -559,9 +559,9 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <a href="{{ route('positions.edit', $position) }}" class="btn-edit">
+                                <button onclick="openPosEditModal({{ $position->id }}, '{{ addslashes($position->title) }}', {{ $position->total_employees }}, {{ $position->is_active ? 'true' : 'false' }})" class="btn-edit">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
+                                </button>
                                 <form action="{{ route('positions.destroy', $position) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this position?')">
                                     @csrf
                                     @method('DELETE')
@@ -585,6 +585,193 @@
         </div>
     </div>
 </div>
+
+{{-- Department Create Modal --}}
+<div class="modal-overlay" id="dept-create-modal" style="display:none" onclick="closeDeptCreateModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">DEPARTMENTS</span>
+                <h3 class="modal-title">Add New Department</h3>
+            </div>
+            <button class="modal-close" onclick="closeDeptCreateModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('departments.store') }}" method="POST">
+            @csrf
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Department Name <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="name" placeholder="e.g. Human Resources" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Code <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="department_code" placeholder="e.g. HR-001" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Head</label>
+                    <input type="text" name="department_head" placeholder="e.g. John Smith">
+                </div>
+                <div class="form-field">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Brief description"></textarea>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" value="1" checked style="width:auto">
+                        <span>Active Department</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeDeptCreateModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Create Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Department Edit Modal --}}
+<div class="modal-overlay" id="dept-edit-modal" style="display:none" onclick="closeDeptEditModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">DEPARTMENTS</span>
+                <h3 class="modal-title">Edit Department</h3>
+            </div>
+            <button class="modal-close" onclick="closeDeptEditModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="dept-edit-form" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Department Name <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="name" id="dept-edit-name" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Code <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="department_code" id="dept-edit-code" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Head</label>
+                    <input type="text" name="department_head" id="dept-edit-head">
+                </div>
+                <div class="form-field">
+                    <label>Description</label>
+                    <textarea name="description" id="dept-edit-desc" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical"></textarea>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" id="dept-edit-active" value="1" style="width:auto">
+                        <span>Active Department</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeDeptEditModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Update Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Position Create Modal --}}
+<div class="modal-overlay" id="pos-create-modal" style="display:none" onclick="closePosCreateModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">POSITIONS</span>
+                <h3 class="modal-title">Add New Position</h3>
+            </div>
+            <button class="modal-close" onclick="closePosCreateModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('positions.store') }}" method="POST">
+            @csrf
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Position Title <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="title" placeholder="e.g. Administrative Officer" required>
+                </div>
+                <div class="form-field">
+                    <label>Total Employees <span style="color:#dc2626">*</span></label>
+                    <input type="number" name="total_employees" min="1" placeholder="e.g. 5" required>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" value="1" checked style="width:auto">
+                        <span>Active Position</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closePosCreateModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Create Position
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Position Edit Modal --}}
+<div class="modal-overlay" id="pos-edit-modal" style="display:none" onclick="closePosEditModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">POSITIONS</span>
+                <h3 class="modal-title">Edit Position</h3>
+            </div>
+            <button class="modal-close" onclick="closePosEditModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="pos-edit-form" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Position Title <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="title" id="pos-edit-title" required>
+                </div>
+                <div class="form-field">
+                    <label>Total Employees <span style="color:#dc2626">*</span></label>
+                    <input type="number" name="total_employees" id="pos-edit-total" min="1" required>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" id="pos-edit-active" value="1" style="width:auto">
+                        <span>Active Position</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closePosEditModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Update Position
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
 
 @push('scripts')
 <script>
@@ -663,6 +850,35 @@
         }
     });
 </script>
-@endpush
 
-@endsection
+<script>
+        // Department modals
+    function openDeptCreateModal() { document.getElementById('dept-create-modal').style.display = 'flex'; }
+    function closeDeptCreateModal() { document.getElementById('dept-create-modal').style.display = 'none'; }
+
+    function openDeptEditModal(id, name, code, head, desc, isActive) {
+        document.getElementById('dept-edit-form').action = '/departments/' + id;
+        document.getElementById('dept-edit-name').value = name;
+        document.getElementById('dept-edit-code').value = code;
+        document.getElementById('dept-edit-head').value = head;
+        document.getElementById('dept-edit-desc').value = desc;
+        document.getElementById('dept-edit-active').checked = isActive;
+        document.getElementById('dept-edit-modal').style.display = 'flex';
+    }
+    function closeDeptEditModal() { document.getElementById('dept-edit-modal').style.display = 'none'; }
+
+    // Position modals
+    function openPosCreateModal() { document.getElementById('pos-create-modal').style.display = 'flex'; }
+    function closePosCreateModal() { document.getElementById('pos-create-modal').style.display = 'none'; }
+
+    function openPosEditModal(id, title, total, isActive) {
+        document.getElementById('pos-edit-form').action = '/positions/' + id;
+        document.getElementById('pos-edit-title').value = title;
+        document.getElementById('pos-edit-total').value = total;
+        document.getElementById('pos-edit-active').checked = isActive;
+        document.getElementById('pos-edit-modal').style.display = 'flex';
+    }
+    function closePosEditModal() { document.getElementById('pos-edit-modal').style.display = 'none'; }
+
+</script>
+@endpush

@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Employee;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeDeduction;
 use App\Models\Salary;
@@ -94,12 +97,33 @@ class EmployeeSeeder extends Seeder
             ],
         ];
 
+        $passwords = [
+            'password',
+            'password',
+            'password',
+        ];
+
         foreach ($employees as $index => $employeeData) {
             $employee = Employee::factory()
                 ->has(EmployeeWorkSchedule::factory()->state($workSchedules[$index]))
                 ->has(Salary::factory()->state($salaries[$index]))
                 ->has(EmployeeDeduction::factory()->count(3)->state(new Sequence(...$deductions[$index])))
                 ->create($employeeData);
+
+            $this->createEmployeeUserAccount($employee, $passwords[$index]);
         }
+    }
+
+    private function createEmployeeUserAccount(Employee $employee, string $password): void
+    {
+        $user = User::factory()->create([
+            'name' => $employee->first_name . ' ' . $employee->last_name,
+            'email' => $employee->email,
+            'email_verified_at' => now(),
+            'password' => Hash::make($password),
+            'remember_token' => Str::random(10),
+        ]);
+
+        $user->assignRole('employee');
     }
 }

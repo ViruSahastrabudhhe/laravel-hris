@@ -15,10 +15,7 @@ class EmployeeLeaveBalanceController extends Controller
      */
     public function index()
     {
-        $leaveBalances = EmployeeLeaveBalance::findAllWithUserID()->get();
-        $employees = Employee::findAllWithUserID()->get();
-
-        return view('employee.employee_leave_balance.index', ['leaveBalances' => $leaveBalances, 'employees' => $employees]);
+        //
     }
 
     /**

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\QrCode;
 
+use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\QrAttendanceScan;
 use Carbon\Carbon;

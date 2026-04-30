@@ -23,7 +23,7 @@ class EmployeeLeaveController extends Controller
         $leaveTypes = LeaveType::findAllWithUserID()->get();
         $holidays = Holiday::findAllWithUserID()->get();
 
-        return view('employee.employee_leave.index', compact('employeeLeaves', 'leaveTypes', 'holidays'));
+        return view('admin.leaves.index', compact('employeeLeaves', 'leaveTypes', 'holidays'));
     }
 
     /**
@@ -35,7 +35,7 @@ class EmployeeLeaveController extends Controller
         $leaveStatuses = LeaveStatus::cases();
         $employees = Employee::findAllWithUserID()->get();
 
-        return view('employee.employee_leave.create', ['leaveTypes' => $leaveTypes, 'leaveStatuses' => $leaveStatuses, 'employees' => $employees]);
+        return view('admin.leaves.create', ['leaveTypes' => $leaveTypes, 'leaveStatuses' => $leaveStatuses, 'employees' => $employees]);
     }
 
     /**
@@ -66,7 +66,7 @@ class EmployeeLeaveController extends Controller
         $leaveTypes = LeaveType::findAllWithUserID()->get();
         $leaveStatuses = LeaveStatus::cases();
 
-        return view('employee.employee_leave.edit', ['employeeLeave' => $employee_leafe, 'leaveTypes' => $leaveTypes, 'leaveStatuses' => $leaveStatuses]);
+        return view('admin.leaves.edit', ['employeeLeave' => $employee_leafe, 'leaveTypes' => $leaveTypes, 'leaveStatuses' => $leaveStatuses]);
     }
 
     /**

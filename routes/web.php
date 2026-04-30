@@ -56,7 +56,6 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('deductions', DeductionController::class);
     Route::resource('employee_deductions', EmployeeDeductionController::class);
     Route::resource('leave_types', LeaveTypeController::class);
-    Route::resource('holidays', HolidayController::class);
     Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
     Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);

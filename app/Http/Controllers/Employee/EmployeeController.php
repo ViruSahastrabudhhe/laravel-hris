@@ -32,7 +32,7 @@ class EmployeeController extends Controller
         $positions = Position::findAllWithUserID()->get();
         $departments = Department::findAllWithUserID()->get();
 
-        return view('employee.index', compact('employees', 'positions', 'departments'));
+        return view('admin.personnel.index', compact('employees', 'positions', 'departments'));
     }   
 
     /**
@@ -45,7 +45,7 @@ class EmployeeController extends Controller
         $employmentTypes = EmploymentType::cases();
         $workSchedules = WorkSchedule::findAllWithUserID()->get();
 
-        return view('employee.create', ['positions' => $positions, 'departments' => $departments, 'workSchedules' => $workSchedules, 'employmentTypes' => $employmentTypes, 'salaryTypes' => SalaryType::cases()]);
+        return view('admin.personnel.create', ['positions' => $positions, 'departments' => $departments, 'workSchedules' => $workSchedules, 'employmentTypes' => $employmentTypes, 'salaryTypes' => SalaryType::cases()]);
     }
 
     /**
@@ -105,7 +105,7 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        return view('employee.show', ['employee' => $employee]);
+        return view('admin.personnel.show', ['employee' => $employee]);
     }
 
     /**
@@ -118,7 +118,7 @@ class EmployeeController extends Controller
         $workSchedules = WorkSchedule::findAllWithUserID()->get();
         $employmentTypes = EmploymentType::cases();
 
-        return view('employee.edit', 
+        return view('admin.personnel.edit', 
             [
                 'employee' => $employee,
                 'positions' => $positions,
@@ -202,6 +202,6 @@ class EmployeeController extends Controller
         $positions = Position::findAllWithUserID()->get();
         $departments = Department::findAllWithUserID()->get();
 
-        return view('employee.archive', compact('employees', 'positions', 'departments'));
+        return view('admin.personnel.archive', compact('employees', 'positions', 'departments'));
     }
 }

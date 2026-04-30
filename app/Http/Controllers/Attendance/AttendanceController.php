@@ -30,7 +30,7 @@ class AttendanceController extends Controller
         $totalQrGenerated = $qrScans->count();
         $activeQr = $qrScans->where('valid_until', '>', Carbon::now())->count();
 
-        return view('attendance.index', compact('attendances', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
+        return view('admin.attendance.index', compact('attendances', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
     }
 
     /**
@@ -38,7 +38,7 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        return view('attendance.create');
+        return view('admin.attendance.create');
     }
 
     /**
@@ -144,7 +144,7 @@ class AttendanceController extends Controller
     {
         $attendances = Attendance::findAllWithUserID()->onlyTrashed()->get();
 
-        return view('attendance.archive', ['attendances' => $attendances]);
+        return view('admin.attendance.archive', ['attendances' => $attendances]);
     }
 
     public function filterByMonth(Request $request)

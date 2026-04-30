@@ -23,7 +23,7 @@ class PayrollController extends Controller
         $employees = Employee::findAllWithUserID()->get();
         $currentMonth = Carbon::now();
         
-        return view('payroll.index', ['employees' => $employees, 'calendar' => $currentMonth]);
+        return view('admin.payroll.index', ['employees' => $employees, 'calendar' => $currentMonth]);
     }
 
     /**
@@ -48,7 +48,7 @@ class PayrollController extends Controller
     public function show(int $employeeID)
     {
         $employee = Employee::findAllWithUserID()->findOrFail($employeeID);
-        return view('payroll.payslip', ['employee' => $employee]);
+        return view('admin.payroll.payslip', ['employee' => $employee]);
     }
 
     public function exportPayslip(int $employeeID)
@@ -70,7 +70,7 @@ class PayrollController extends Controller
         $lateCount = $attendances->where('attendance_status', AttendanceStatus::Late->value)->count();
         $absentCount = $attendances->where('attendance_status', AttendanceStatus::Absent->value)->count();
 
-        $pdf = Pdf::loadView('payroll.pdf.payslip', compact(
+        $pdf = Pdf::loadView('admin.payroll.pdf.payslip', compact(
             'employee', 'attendances', 'absentLateAttendances', 'lateCount', 'absentCount'
         ))->setPaper('a4', 'portrait');
 

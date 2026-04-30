@@ -39,9 +39,9 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             DeductionSeeder::class,
             WorkScheduleSeeder::class,
+            PermissionSeeder::class,
             EmployeeSeeder::class,
             EmployeeLeaveBalanceSeeder::class,
-            PermissionSeeder::class,
         ]);
 
         $admin = Role::findByName('admin');

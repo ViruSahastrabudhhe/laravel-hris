@@ -14,9 +14,7 @@ class WorkScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = WorkSchedule::findAllWithUserID()->get();
-
-        return view('work_schedule.index', compact('schedules'));
+        //
     }
 
     /**

@@ -119,10 +119,6 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                     <th>Employee</th>
                     <th>Department</th>
                     <th>Gross Pay</th>
-                    <th>GSIS</th>
-                    <th>PhilHealth</th>
-                    <th>Pag-Ibig</th>
-                    <th>Tax</th>
                     <th>Deductions</th>
                     <th>Net Pay</th>
                     <th>Action</th>
@@ -144,13 +140,9 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
                     </td>
                     <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
                     <td><span class="pay-cell">₱{{ number_format($employee->grossPay(), 2) }}</span></td>
-                    <td><span class="deduction">₱{{ number_format($employee->gsisContribution(), 2) }}</span></td>
-                    <td><span class="deduction">₱{{ number_format($employee->philHealthContribution(), 2) }}</span></td>
-                    <td><span class="deduction">₱{{ number_format($employee->pagIbigContribution(), 2) }}</span></td>
-                    <td><span class="deduction">₱{{ number_format($employee->withholdingTax(), 2) }}</span></td>
                     <td>
-                        <span class="deduction">₱{{ number_format($employee->optionalDeductions(), 2) }}</span>
-                        <a href="{{ route('employee_deductions.index') }}" style="font-size:10px;color:#8e1e18;display:block;margin-top:2px">View</a>
+                        <span class="deduction">₱{{ number_format($employee->totalDeductions(), 2) }}</span>
+                        <a href="{{ route('employees.show', $employee) }}" style="font-size:10px;color:#8e1e18;display:block;margin-top:2px">View</a>
                     </td>
                     <td><span class="net-pay">₱{{ number_format($employee->netPay(), 2) }}</span></td>
                     <td>
@@ -172,7 +164,7 @@ $departments = \App\Models\Department::findAllWithUserID()->get();
 <script>
 $(function () {
     const table = $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [9] }],
+        columnDefs: [{ orderable: false, targets: [5] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll records found', },
         dom: 'rtip',

@@ -14,9 +14,7 @@ class LeaveTypeController extends Controller
      */
     public function index()
     {
-        $leaveTypes = LeaveType::findAllWithUserID()->get();
-
-        return view('leave_type.index', ['leaveTypes' => $leaveTypes]);
+        return redirect()->route('employee_leaves.index');
     }
 
     /**

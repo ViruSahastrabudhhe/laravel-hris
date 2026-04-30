@@ -3,17 +3,24 @@
 if (auth()->user()->hasRole('admin')) {
     $navItems = [
         ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
+        ['id' => 'recruitment',   'label' => 'Recruitment',       'route' => 'employees.index',       'icon' => 'recruitment', 'section' => null],
         ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
-        ['id' => 'employee_deductions',    'label' => 'Salary Structure',    'route' => 'employee_deductions.index',    'icon' => 'salary', 'section' => null],
-        ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
+        ['id' => 'training',   'label' => 'Training & Development',       'route' => 'employees.index',       'icon' => 'training', 'section' => null],
+        ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
         ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => null],
+        ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'employees.index',       'icon' => 'performance', 'section' => null],
         ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
+        ['id' => 'reports',   'label' => 'Reports',       'route' => 'employees.index',       'icon' => 'reports', 'section' => null],
     ];
 } else {
     $navItems = [
         ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
-        ['id' => 'leaves',      'label' => 'Leave Management','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => 'LEAVES & BENEFITS'],
-        ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => 'PAYROLL'],
+        ['id' => 'profile',        'label' => 'Profile',       'route' => 'home',                  'icon' => 'profile', 'section' => null],
+        ['id' => 'leaves',        'label' => 'Requests',       'route' => 'home',                  'icon' => 'leave', 'section' => null],
+        ['id' => 'training',        'label' => 'Trainings',       'route' => 'home',                  'icon' => 'training', 'section' => null],
+        ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'home',                  'icon' => 'attendance', 'section' => null],
+        ['id' => 'performance',        'label' => 'Performance',       'route' => 'home',                  'icon' => 'performance', 'section' => null],
+        ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'home',                  'icon' => 'payslip', 'section' => null],
     ];
 }
 
@@ -62,17 +69,22 @@ $userRole = auth()->check() ? ucfirst(auth()->user()->getRoleNames()[0]) : 'Gues
                     <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
                 @elseif($item['icon'] === 'leave')
                     <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                @elseif($item['icon'] === 'salary')
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 @elseif($item['icon'] === 'payroll')
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none"><text x="7" y="19" font-size="21" font-weight="bold" font-family="Arial, sans-serif">₱</text></svg>
-                @elseif($item['icon'] === 'departments')
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 @elseif($item['icon'] === 'settings')
                     <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                @elseif($item['icon'] === 'qr_code')
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
-                @endif
+                @elseif($item['id'] === 'recruitment')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                @elseif($item['id'] === 'training')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                @elseif($item['id'] === 'performance')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                @elseif($item['id'] === 'reports')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                @elseif($item['id'] === 'payslip')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                @elseif($item['id'] === 'profile')
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>                @endif
             </span>
             <span class="nav-label">{{ $item['label'] }}</span>
             @if($isActive)

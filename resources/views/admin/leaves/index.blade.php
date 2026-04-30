@@ -47,10 +47,6 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
         Leave Types
     </button>
-    <button class="view-tab" onclick="switchView('holidays', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Holidays
-    </button>
 </div>
 
 <div id="stats-leaves" class="stats-grid stats-grid-4">
@@ -159,61 +155,6 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
             <p class="stat-sub">Total leave allowance</p>
-        </div>
-    </div>
-</div>
-
-<div id="stats-holidays" class="stats-grid stats-grid-4" style="display:none">
-    <div class="stat-card">
-        <div class="stat-top">
-            <p class="stat-label">Total Holidays</p>
-            <div class="stat-icon-wrap" style="background:#f0effe">
-                <svg width="17" height="17" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-        </div>
-        <p class="stat-value">{{ $totalHolidays }}</p>
-        <div class="stat-footer">
-            <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">Holiday entries</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-top">
-            <p class="stat-label">Total Holiday Days</p>
-            <div class="stat-icon-wrap" style="background:#e8f9ef">
-                <svg width="17" height="17" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-        </div>
-        <p class="stat-value">{{ $totalHolidayDays }} days</p>
-        <div class="stat-footer">
-            <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">Total holiday duration</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-top">
-            <p class="stat-label">Average Holiday</p>
-            <div class="stat-icon-wrap" style="background:#fefce8">
-                <svg width="17" height="17" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-            </div>
-        </div>
-        <p class="stat-value">{{ $averageHolidayDuration }} days</p>
-        <div class="stat-footer">
-            <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">Average duration</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-top">
-            <p class="stat-label">Open Holiday Records</p>
-            <div class="stat-icon-wrap" style="background:#fdf0ef">
-                <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-        </div>
-        <p class="stat-value">{{ $totalHolidays }}</p>
-        <div class="stat-footer">
-            <span class="stat-dot" style="background:#0b044d"></span>
-            <p class="stat-sub">Holiday schedule</p>
         </div>
     </div>
 </div>
@@ -380,69 +321,6 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </a>
                                 <form action="{{ route('leave_types.destroy', $leaveType) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this leave type?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="view-holidays" class="tab-pane">
-    <div class="table-section">
-        <div class="table-header">
-            <div>
-                <p class="table-title">Holidays</p>
-                <p class="table-sub">Manage government and company holidays</p>
-            </div>
-            <div class="table-actions">
-                <a href="{{ route('holidays.create') }}" class="modal-btn-primary">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add Holiday
-                </a>
-            </div>
-        </div>
-
-        <div class="table-wrapper">
-            <table class="payroll-table" id="holidays-table">
-                <thead>
-                    <tr>
-                        <th>Holiday Name</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Duration</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($holidays as $holiday)
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:10px">
-                                <div style="width:36px;height:36px;background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($holiday->id % 5)] }};border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                                    <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                </div>
-                                <span style="font-size:13px;font-weight:600;color:#0b044d">{{ $holiday->name }}</span>
-                            </div>
-                        </td>
-                        <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($holiday->start_date)->format('M d, Y') }}</span></td>
-                        <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($holiday->end_date)->format('M d, Y') }}</span></td>
-                        <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">{{ $holiday->holiday_duration }} {{ $holiday->holiday_duration <= 1 ? 'day' : 'days' }}</span></td>
-                        <td>
-                            <div class="row-actions">
-                                <a href="{{ route('holidays.edit', $holiday) }}" class="btn-edit">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
-                                <form action="{{ route('holidays.destroy', $holiday) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this holiday?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
