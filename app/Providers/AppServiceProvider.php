@@ -89,6 +89,27 @@ class AppServiceProvider extends ServiceProvider
             $view->with('pageTitle', $title);
         });
 
+        View::composer('layouts.admin', function ($view) {
+            $route = Route::currentRouteName();
+            $header = match(true) {
+                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'employee_leaves') => __('common.app_leave'),
+                str_contains($route, 'qr') => __('qr_code.title'),
+                str_contains($route, 'department') => __('department.title'),
+                str_contains($route, 'position') => __('position.title'),
+                str_contains($route, 'employee') => __('common.app_personnel'),
+                str_contains($route, 'schedule') => __('schedule.title'),
+                str_contains($route, 'attendance') => __('common.app_attendance'),
+                str_contains($route, 'leave') => __('common.app_leave'),
+                str_contains($route, 'salaries') => __('salary.title'),
+                str_contains($route, 'deduction') => __('deduction.title'),
+                str_contains($route, 'payroll') => __('common.app_payroll'),
+                str_contains($route, 'holiday') => __('holiday.title'),
+                default => null
+            };
+            $view->with('pageHeader', $header);
+        });
+
         Gate::before(function ($user, $ability) {
             if ($user->hasRole('Super-Admin')) {
                 return true;

@@ -1,54 +1,95 @@
 @extends('layouts.admin')
 
 @php
-$totalLeaves = $employeeLeaves->count();
-$totalApproved = $employeeLeaves->where('leave_status', \App\Enums\LeaveStatus::Approved->value)->count();
-$totalPending = $employeeLeaves->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
-$totalLeaveDays = 0;
+    $totalLeaves = $employeeLeaves->count();
+    $totalApproved = $employeeLeaves->where('leave_status', \App\Enums\LeaveStatus::Approved->value)->count();
+    $totalPending = $employeeLeaves->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
+    $totalLeaveDays = 0;
 
-foreach ($employeeLeaves as $leave) {
-    $totalLeaveDays += $leave->leave_duration;
-}
+    foreach ($employeeLeaves as $leave) {
+        $totalLeaveDays += $leave->leave_duration;
+    }
 
-$leaveTypes = \App\Models\LeaveType::all();
-$totalLeaveTypes = $leaveTypes->count();
-$activeLeaveTypes = $leaveTypes->where('is_active', true)->count();
-$inactiveLeaveTypes = $totalLeaveTypes - $activeLeaveTypes;
-$totalLeaveTypeDays = $leaveTypes->sum('days_of_leave');
+    $leaveTypes = \App\Models\LeaveType::all();
+    $totalLeaveTypes = $leaveTypes->count();
+    $activeLeaveTypes = $leaveTypes->where('is_active', true)->count();
+    $inactiveLeaveTypes = $totalLeaveTypes - $activeLeaveTypes;
+    $totalLeaveTypeDays = $leaveTypes->sum('days_of_leave');
 
-$holidays = \App\Models\Holiday::all();
-$totalHolidays = $holidays->count();
-$totalHolidayDays = $holidays->sum('holiday_duration');
-$averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolidays, 1) : 0;
+    $holidays = \App\Models\Holiday::all();
+    $totalHolidays = $holidays->count();
+    $totalHolidayDays = $holidays->sum('holiday_duration');
+    $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolidays, 1) : 0;
 @endphp
 
+@push('styles')
+    <style>
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrap svg {
+            position: absolute;
+            left: 10px;
+            pointer-events: none;
+        }
+        .search-input {
+            height: 34px;
+            padding: 0 10px 0 30px;
+            border: 1.5px solid #e4e3f0;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-family: 'Poppins', sans-serif;
+            color: #0b044d;
+            background: #fafafe;
+            outline: none;
+            width: 180px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: #0b044d; }
+
+        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
+        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
+        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
+        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
+        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
+        .modal-sub { font-size:13px; color:#6b6a8a; margin:0; }
+        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
+        .modal-close:hover { color:#0b044d; }
+        .modal-body { padding:20px 24px; }
+        .modal-emp-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
+        .modal-emp-id { font-size:11px; color:#9999bb; margin:0 0 4px; }
+        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
+        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
+        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
+        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
+        .modal-row.total { border-bottom:2px solid #e5e4f0; padding-top:14px; margin-top:6px; }
+        .modal-deduct { color:#8e1e18 !important; }
+        .modal-net-row { display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-radius:10px; padding:14px 16px; margin-top:10px; }
+        .modal-net-row span { font-size:13px; color:#15803d; font-weight:700; }
+        .modal-net-row strong { font-size:18px; color:#15803d; }
+        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
+        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
+        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
+        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
+
+        @media (max-width: 768px) {
+            .payslip-grid { grid-template-columns:1fr; }
+            .modal-box { border-radius:12px; }
+            .modal-header { padding:16px 16px 0; }
+            .modal-body { padding:14px 16px; }
+            .modal-footer { padding:12px 16px 16px; }
+        }
+        @media (max-width: 400px) {
+            .modal-overlay { padding:0; align-items:flex-end; }
+            .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
+        }
+    </style>
+@endpush
+
 @section('page-content')
-<div class="welcome-banner">
-    <div class="banner-left">
-        <div class="banner-icon">
-            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <div>
-            <h2>Leave Management</h2>
-            <p>Track and manage employee leave requests</p>
-        </div>
-    </div>
-    <div class="banner-right">
-        <span class="banner-badge outline">{{ $employeeLeaves->count() }} Records</span>
-    </div>
-</div>
-
-<div class="view-tabs">
-    <button class="view-tab active" onclick="switchView('leaves', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Leave Management
-    </button>
-    <button class="view-tab" onclick="switchView('leave-types', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
-        Leave Types
-    </button>
-</div>
-
 <div id="stats-leaves" class="stats-grid stats-grid-4">
     <div class="stat-card">
         <div class="stat-top">
@@ -159,6 +200,17 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
     </div>
 </div>
 
+<div class="view-tabs">
+    <button class="view-tab active" onclick="switchView('leaves', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Leaves
+    </button>
+    <button class="view-tab" onclick="switchView('leave-types', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Loans
+    </button>
+</div>
+
 <div id="view-leaves" class="tab-pane active">
     <div class="table-section">
         <div class="table-header">
@@ -186,10 +238,10 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Export
                 </button>
-                <a href="{{ route('employee_leaves.create') }}" class="modal-btn-primary">
+                <button onclick="openLeaveCreateModal()" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add Leave Request
-                </a>
+                    File New Leave
+                </button>
             </div>
         </div>
 
@@ -371,84 +423,204 @@ $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolid
     </div>
 </div>
 
+{{-- Leave Create Modal --}}
+<div class="modal-overlay" id="leave-create-modal" style="display:none" onclick="closeLeaveCreateModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">LEAVE REQUESTS</span>
+                <h3 class="modal-title">File New Leave</h3>
+            </div>
+            <button class="modal-close" onclick="closeLeaveCreateModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('employee_leaves.store') }}" method="POST">
+            @csrf
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Employee <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="employee_id" placeholder="e.g. Human Resources" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Code <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="department_code" placeholder="e.g. HR-001" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Head</label>
+                    <input type="text" name="department_head" placeholder="e.g. John Smith">
+                </div>
+                <div class="form-field">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Brief description"></textarea>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" value="1" checked style="width:auto">
+                        <span>Active Department</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeDeptCreateModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Create Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Leave Edit Modal --}}
+<div class="modal-overlay" id="dept-edit-modal" style="display:none" onclick="closeDeptEditModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">DEPARTMENTS</span>
+                <h3 class="modal-title">Edit Department</h3>
+            </div>
+            <button class="modal-close" onclick="closeDeptEditModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="dept-edit-form" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>Department Name <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="name" id="dept-edit-name" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Code <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="department_code" id="dept-edit-code" required>
+                </div>
+                <div class="form-field">
+                    <label>Department Head</label>
+                    <input type="text" name="department_head" id="dept-edit-head">
+                </div>
+                <div class="form-field">
+                    <label>Description</label>
+                    <textarea name="description" id="dept-edit-desc" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical"></textarea>
+                </div>
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px">
+                        <input type="checkbox" name="is_active" id="dept-edit-active" value="1" style="width:auto">
+                        <span>Active Department</span>
+                    </label>
+                </div>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeDeptEditModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Update Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@endsection
+
 @push('scripts')
 <script>
-let leaveTable;
-let leaveTypeTable;
-let holidayTable;
+    let leaveTable;
+    let leaveTypeTable;
+    let holidayTable;
 
-$(function () {
-    leaveTable = $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 7] }],
-        pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employee leave requests found', },
-        dom: 'rtip',
+    $(function () {
+        leaveTable = $('#attendance-table').DataTable({
+            columnDefs: [{ orderable: false, targets: [0, 7] }],
+            pageLength: 25,
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employee leave requests found', },
+            dom: 'rtip',
+        });
+
+        leaveTypeTable = $('#leave-types-table').DataTable({
+            pageLength: 25,
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No leave types found', },
+            dom: 'rtip',
+        });
+
+        holidayTable = $('#holidays-table').DataTable({
+            pageLength: 25,
+            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No holidays found', },
+            dom: 'rtip',
+        });
+
+        $('#leave-search').on('keyup', function() {
+            leaveTable.search(this.value).draw();
+        });
+
+        $('#dept-filter').on('change', function() {
+            leaveTable.column(1).search(this.value).draw();
+        });
+
+        $('#status-filter').on('change', function() {
+            leaveTable.column(6).search(this.value).draw();
+        });
     });
 
-    leaveTypeTable = $('#leave-types-table').DataTable({
-        pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No leave types found', },
-        dom: 'rtip',
-    });
+    function switchView(viewId, btn) {
+        if (btn.classList.contains('active')) {
+            return;
+        }
 
-    holidayTable = $('#holidays-table').DataTable({
-        pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No holidays found', },
-        dom: 'rtip',
-    });
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + viewId).classList.add('active');
+        btn.classList.add('active');
 
-    $('#leave-search').on('keyup', function() {
-        leaveTable.search(this.value).draw();
-    });
+        document.getElementById('stats-leaves').style.display = viewId === 'leaves' ? 'grid' : 'none';
+        document.getElementById('stats-leave-types').style.display = viewId === 'leave-types' ? 'grid' : 'none';
+        document.getElementById('stats-holidays').style.display = viewId === 'holidays' ? 'grid' : 'none';
 
-    $('#dept-filter').on('change', function() {
-        leaveTable.column(1).search(this.value).draw();
-    });
-
-    $('#status-filter').on('change', function() {
-        leaveTable.column(6).search(this.value).draw();
-    });
-});
-
-function switchView(viewId, btn) {
-    if (btn.classList.contains('active')) {
-        return;
+        if (viewId === 'leave-types' && leaveTypeTable) {
+            leaveTypeTable.columns.adjust().draw();
+        }
+        if (viewId === 'holidays' && holidayTable) {
+            holidayTable.columns.adjust().draw();
+        }
+        if (viewId === 'leaves' && leaveTable) {
+            leaveTable.columns.adjust().draw();
+        }
     }
 
-    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('view-' + viewId).classList.add('active');
-    btn.classList.add('active');
-
-    document.getElementById('stats-leaves').style.display = viewId === 'leaves' ? 'grid' : 'none';
-    document.getElementById('stats-leave-types').style.display = viewId === 'leave-types' ? 'grid' : 'none';
-    document.getElementById('stats-holidays').style.display = viewId === 'holidays' ? 'grid' : 'none';
-
-    if (viewId === 'leave-types' && leaveTypeTable) {
-        leaveTypeTable.columns.adjust().draw();
+    function openDenyModal(action, employeeName) {
+        document.getElementById('deny-form').action = action;
+        document.getElementById('deny-modal-sub').textContent = 'Provide a reason for declining ' + employeeName + '\'s request';
+        document.getElementById('deny-modal').style.display = 'flex';
     }
-    if (viewId === 'holidays' && holidayTable) {
-        holidayTable.columns.adjust().draw();
+
+    function closeDenyModal() {
+        document.getElementById('deny-modal').style.display = 'none';
+        document.getElementById('deny-form').reset();
     }
-    if (viewId === 'leaves' && leaveTable) {
-        leaveTable.columns.adjust().draw();
+
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') closeDenyModal();
+    });
+</script>
+
+<script>
+    function openLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'flex'; }
+    function closeLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'none'; }
+
+    function openDeptEditModal(id, name, code, head, desc, isActive) {
+        var url = "{{ route('departments.update', ':id') }}";
+        url = url.replace(':id', id);
+        document.getElementById('dept-edit-form').action = url;
+        document.getElementById('dept-edit-name').value = name;
+        document.getElementById('dept-edit-code').value = code;
+        document.getElementById('dept-edit-head').value = head;
+        document.getElementById('dept-edit-desc').value = desc;
+        document.getElementById('dept-edit-active').checked = isActive;
+        document.getElementById('dept-edit-modal').style.display = 'flex';
     }
-}
-
-function openDenyModal(action, employeeName) {
-    document.getElementById('deny-form').action = action;
-    document.getElementById('deny-modal-sub').textContent = 'Provide a reason for declining ' + employeeName + '\'s request';
-    document.getElementById('deny-modal').style.display = 'flex';
-}
-
-function closeDenyModal() {
-    document.getElementById('deny-modal').style.display = 'none';
-    document.getElementById('deny-form').reset();
-}
-
-$(document).on('keydown', function(e) {
-    if (e.key === 'Escape') closeDenyModal();
-});
+    function closeDeptEditModal() { document.getElementById('dept-edit-modal').style.display = 'none'; }
 </script>
 @endpush
-@endsection

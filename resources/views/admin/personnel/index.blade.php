@@ -1,34 +1,5 @@
 @extends('layouts.admin')
 
-@push('styles')
-    <style>
-        .search-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search-wrap svg {
-            position: absolute;
-            left: 10px;
-            pointer-events: none;
-        }
-        .search-input {
-            height: 34px;
-            padding: 0 10px 0 30px;
-            border: 1.5px solid #e4e3f0;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-family: 'Poppins', sans-serif;
-            color: #0b044d;
-            background: #fafafe;
-            outline: none;
-            width: 180px;
-            transition: border-color 0.2s;
-        }
-        .search-input:focus { border-color: #0b044d; }
-    </style>
-@endpush
-
 @php
     $totalEmployees = 0;
     $activeEmployees = 0;
@@ -57,37 +28,74 @@
     $vacantPositions = max(0, $totalPositions - $filledPositions);
 @endphp
 
+@push('styles')
+    <style>
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrap svg {
+            position: absolute;
+            left: 10px;
+            pointer-events: none;
+        }
+        .search-input {
+            height: 34px;
+            padding: 0 10px 0 30px;
+            border: 1.5px solid #e4e3f0;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-family: 'Poppins', sans-serif;
+            color: #0b044d;
+            background: #fafafe;
+            outline: none;
+            width: 180px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: #0b044d; }
+
+        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
+        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
+        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
+        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
+        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
+        .modal-sub { font-size:13px; color:#6b6a8a; margin:0; }
+        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
+        .modal-close:hover { color:#0b044d; }
+        .modal-body { padding:20px 24px; }
+        .modal-emp-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
+        .modal-emp-id { font-size:11px; color:#9999bb; margin:0 0 4px; }
+        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
+        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
+        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
+        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
+        .modal-row.total { border-bottom:2px solid #e5e4f0; padding-top:14px; margin-top:6px; }
+        .modal-deduct { color:#8e1e18 !important; }
+        .modal-net-row { display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-radius:10px; padding:14px 16px; margin-top:10px; }
+        .modal-net-row span { font-size:13px; color:#15803d; font-weight:700; }
+        .modal-net-row strong { font-size:18px; color:#15803d; }
+        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
+        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
+        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
+        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
+
+        @media (max-width: 768px) {
+            .payslip-grid { grid-template-columns:1fr; }
+            .modal-box { border-radius:12px; }
+            .modal-header { padding:16px 16px 0; }
+            .modal-body { padding:14px 16px; }
+            .modal-footer { padding:12px 16px 16px; }
+        }
+        @media (max-width: 400px) {
+            .modal-overlay { padding:0; align-items:flex-end; }
+            .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
+        }
+    </style>
+@endpush
+
 @section('page-content')
-<div class="welcome-banner">
-    <div class="banner-left">
-        <div class="banner-icon">
-            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div>
-            <h2>Employee Directory</h2>
-            <p>Quickly switch between employees, departments, and positions</p>
-        </div>
-    </div>
-    <div class="banner-right">
-        <span class="banner-badge outline">{{ $employees->count() }} Employees</span>
-    </div>
-</div>
-
-<div class="view-tabs">
-    <button class="view-tab active" onclick="switchView('employees', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        Employees
-    </button>
-    <button class="view-tab" onclick="switchView('departments', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Departments
-    </button>
-    <button class="view-tab" onclick="switchView('positions', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Positions
-    </button>
-</div>
-
 <div id="stats-employees" class="stats-grid stats-grid-4">
     <div class="stat-card">
         <div class="stat-top">
@@ -251,6 +259,21 @@
             <p class="stat-sub">Employees assigned</p>
         </div>
     </div>
+</div>
+
+<div class="view-tabs">
+    <button class="view-tab active" onclick="switchView('employees', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Employees
+    </button>
+    <button class="view-tab" onclick="switchView('departments', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Departments
+    </button>
+    <button class="view-tab" onclick="switchView('positions', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Positions
+    </button>
 </div>
 
 <div id="view-employees" class="tab-pane active">
@@ -607,7 +630,7 @@
                 </div>
                 <div class="form-field">
                     <label>Department Code <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="department_code" placeholder="e.g. HR-001" required>
+                    <input type="text" name="department_code" placeholder="e.g. OM" required>
                 </div>
                 <div class="form-field">
                     <label>Department Head</label>
@@ -705,6 +728,15 @@
                 <div class="form-field">
                     <label>Position Title <span style="color:#dc2626">*</span></label>
                     <input type="text" name="title" placeholder="e.g. Administrative Officer" required>
+                </div>
+                <div class="form-field">
+                    <label id="position_status">Status <span style="color:#dc2626">*</span></label>
+                    <select name="status" id="position_status" required>
+                        <option value="">Select status</option>
+                        @foreach (\App\Enums\PositionStatus::cases() as $status)
+                            <option value="{{ $status->value }}">{{ $status->value }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-field">
                     <label>Total Employees <span style="color:#dc2626">*</span></label>
@@ -852,12 +884,14 @@
 </script>
 
 <script>
-        // Department modals
+    // Department modals
     function openDeptCreateModal() { document.getElementById('dept-create-modal').style.display = 'flex'; }
     function closeDeptCreateModal() { document.getElementById('dept-create-modal').style.display = 'none'; }
 
     function openDeptEditModal(id, name, code, head, desc, isActive) {
-        document.getElementById('dept-edit-form').action = '/departments/' + id;
+        var url = "{{ route('departments.update', ':id') }}";
+        url = url.replace(':id', id);
+        document.getElementById('dept-edit-form').action = url;
         document.getElementById('dept-edit-name').value = name;
         document.getElementById('dept-edit-code').value = code;
         document.getElementById('dept-edit-head').value = head;
@@ -872,7 +906,9 @@
     function closePosCreateModal() { document.getElementById('pos-create-modal').style.display = 'none'; }
 
     function openPosEditModal(id, title, total, isActive) {
-        document.getElementById('pos-edit-form').action = '/positions/' + id;
+        var url = "{{ route('positions.update', ':id') }}";
+        url = url.replace(':id', id);
+        document.getElementById('pos-edit-form').action = url;
         document.getElementById('pos-edit-title').value = title;
         document.getElementById('pos-edit-total').value = total;
         document.getElementById('pos-edit-active').checked = isActive;

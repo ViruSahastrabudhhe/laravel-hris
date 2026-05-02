@@ -34,6 +34,7 @@
         </div>
         @endif
 
+        <h1 class="page-header">{{ $pageHeader }}</h1>
         @yield('page-content')
     </main>
 

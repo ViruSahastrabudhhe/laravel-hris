@@ -17,7 +17,8 @@ use App\Http\Controllers\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Leave\HolidayController;
 use App\Http\Controllers\Leave\LeaveTypeController;
 use App\Http\Controllers\Salary\SalaryController;
-use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\QrCode\QrCodeController;
+use App\Http\Controllers\Api\QrScannerController;
 
 Auth::routes(['verify' => true]);
 

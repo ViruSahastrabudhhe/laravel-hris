@@ -23,7 +23,7 @@ class UpdatePositionRequest extends FormRequest
     {
         return [
             'title' => 'required',
-            'status' => 'required',
+            'status' => 'nullable',
             'is_active' => 'required',
             'total_employees' => 'required',
             'user_id' => 'required',

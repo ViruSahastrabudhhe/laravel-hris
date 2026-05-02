@@ -95,9 +95,11 @@
                     Back to Payroll
                 </button>
             </a> -->
-            <a href="{{ route('payroll.exportPayslip', $employee->id) }}" class="btn-export">
+            <button class="btn-export" id="export-payslip" onclick="openModal('payslipModal')">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export Payslip to PDF
+            </button>
+            <a href="{{ route('payroll.exportPayslip', $employee->id) }}" class="btn-export" hidden>
             </a>
         </div>
     </div>
@@ -255,6 +257,8 @@
 </style>
 @endpush
 
+@endsection
+
 @push('scripts')
 <script>
 function openModal() { document.getElementById('payslipModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
@@ -262,5 +266,3 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; do
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('payslipModal'); });
 </script>
 @endpush
-
-@endsection
