@@ -234,10 +234,10 @@
                     <option value="Approved">Approved</option>
                     <option value="Pending">Pending</option>
                 </select>
-                <button class="btn-export">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Export
-                </button>
+                <a href="#" class="btn-export">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    View Archive
+                </a>
                 <button onclick="openLeaveCreateModal()" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     File New Leave
@@ -277,7 +277,7 @@
                         <td>{{ $leave->leaveType->leave_type }}</td>
                         <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}</span></td>
                         <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}</span></td>
-                        <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">{{ $leave->leave_duration }} days</span></td>
+                        <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">{{ $leave->leave_duration }} {{ $leave->leave_duration == 1 ? ' day' : ' days' }}</span></td>
                         <td>
                             @if($leave->leave_status === 'Approved')
                                 <span class="badge-status processed">Approved</span>
@@ -289,14 +289,23 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <a href="{{ route('employee_leaves.edit', $leave) }}" class="btn-edit">
+                                <button type="button" class="btn-edit" onclick="openLeaveEditModal(
+                                    '{{ $leave->id }}',
+                                    '{{ $leave->employee_id }}',
+                                    '{{ $leave->leave_type_id }}',
+                                    '{{ $leave->start_date }}',
+                                    '{{ $leave->end_date }}',
+                                    '{{ addslashes($leave->leave_reason) }}',
+                                    '{{ $leave->leave_status }}',
+                                    '{{ addslashes($leave->decline_reason) }}'
+                                )">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
-                                @if ($leave->leave_status != \App\Enums\LeaveStatus::Pending->value)
+                                </button>
+                                @if ($leave->leave_status == \App\Enums\LeaveStatus::Approved->value || $leave->leave_status == \App\Enums\LeaveStatus::Declined->value)
                                 <form action="{{ route('employee_leaves.destroy', $leave) }}" method="POST" style="display:inline" onsubmit="return confirm('Archive this leave request?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px" onclick="openDenyModal('{{ route('employee_leaves.deny', $leave) }}', '{{ $leave->employee->first_name }} {{ $leave->employee->last_name }}')">
+                                    <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                     </button>
                                 </form>
@@ -359,7 +368,7 @@
                                 <span style="font-size:13px;font-weight:600;color:#0b044d">{{ $leaveType->leave_type }}</span>
                             </div>
                         </td>
-                        <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">{{ $leaveType->days_of_leave }} days</span></td>
+                        <td><span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">{{ $leaveType->days_of_leave }} {{ $leaveType->days_of_leave == 1 ? ' day' : ' days' }}</span></td>
                         <td>
                             @if($leaveType->is_active)
                                 <span class="badge-status processed">Active</span>
@@ -440,33 +449,65 @@
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
                 <div class="form-field">
                     <label>Employee <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="employee_id" placeholder="e.g. Human Resources" required>
+                    <select name="employee_id" id="employee" required>
+                        <option value="" selected>Select an employee</option>
+                        @foreach ($employees as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->department->name }})</option>
+                        @endforeach
+                    </select>    
                 </div>
                 <div class="form-field">
-                    <label>Department Code <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="department_code" placeholder="e.g. HR-001" required>
+                    <label>Leave Type <span style="color:#dc2626">*</span></label>
+                    <select name="leave_type_id" required>
+                        <option value="">Select leave type</option>
+                        @forelse($leaveTypes as $leaveType)
+                        <option value="{{ $leaveType->id }}" {{ old('leave_type_id') == $leaveType->id ? 'selected' : '' }}>{{ $leaveType->leave_type }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                    @if($leaveTypes->isEmpty())
+                    <span style="font-size:11.5px;color:#8e1e18">No leave types available. <a href="{{ route('leave_types.create') }}" style="color:#8e1e18;font-weight:600">Add one here.</a></span>
+                    @endif
                 </div>
                 <div class="form-field">
-                    <label>Department Head</label>
-                    <input type="text" name="department_head" placeholder="e.g. John Smith">
+                    <div class="auth-field">
+                        <label>Start Date <span style="color:#dc2626">*</span></label>
+                        <input type="date" name="start_date" value="{{ old('start_date') }}" required>
+                    </div>
+                    <div class="auth-field">
+                        <label>End Date <span style="color:#dc2626">*</span></label>
+                        <input type="date" name="end_date" value="{{ old('end_date') }}" required>
+                    </div>
                 </div>
                 <div class="form-field">
-                    <label>Description</label>
-                    <textarea name="description" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Brief description"></textarea>
+                    <label>Reason <span style="color:#dc2626">*</span></label>
+                    <textarea name="leave_reason" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Reason for leave" required>{{ old('leave_reason') }}</textarea>
                 </div>
                 <div class="form-field">
-                    <label style="display:flex;align-items:center;gap:8px">
-                        <input type="checkbox" name="is_active" value="1" checked style="width:auto">
-                        <span>Active Department</span>
-                    </label>
+                    <label>Status <span style="color:#dc2626">*</span></label>
+                    <select name="leave_status" id="leave_status" required>
+                        <option value="">Select status</option>
+                        @foreach($leaveStatuses as $leaveStatus)
+                        <option value="{{ $leaveStatus->name }}" {{ old('leave_status') == $leaveStatus->name ? 'selected' : '' }}>{{ $leaveStatus->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
+                <div class="form-field">
+                    <div id="decline_reason_wrap" style="display:none">
+                        <div class="auth-field">
+                            <label>Decline Reason</label>
+                            <textarea name="decline_reason" id="decline_reason_input" rows="2" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" placeholder="Reason for declining">{{ old('decline_reason') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
                 <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeDeptCreateModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeLeaveCreateModal()">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Create Department
+                    File Leave Request
                 </button>
             </div>
         </form>
@@ -474,50 +515,76 @@
 </div>
 
 {{-- Leave Edit Modal --}}
-<div class="modal-overlay" id="dept-edit-modal" style="display:none" onclick="closeDeptEditModal()">
+<div class="modal-overlay" id="leave-edit-modal" style="display:none" onclick="closeLeaveEditModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
-                <span class="modal-eyebrow">DEPARTMENTS</span>
-                <h3 class="modal-title">Edit Department</h3>
+                <span class="modal-eyebrow">LEAVE REQUESTS</span>
+                <h3 class="modal-title">Edit Leave Request</h3>
             </div>
-            <button class="modal-close" onclick="closeDeptEditModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+            <button class="modal-close" onclick="closeLeaveEditModal()">...</button>
         </div>
-        <form id="dept-edit-form" method="POST">
+        <form id="leave-edit-form" method="POST">
             @csrf
             @method('PUT')
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
                 <div class="form-field">
-                    <label>Department Name <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="name" id="dept-edit-name" required>
+                    <label>Employee <span style="color:#dc2626">*</span></label>
+                    <select name="employee_id" id="edit-employee" required>
+                        <option value="">Select an employee</option>
+                        @foreach ($employees as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->department->name }})</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-field">
-                    <label>Department Code <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="department_code" id="dept-edit-code" required>
+                    <label>Leave Type <span style="color:#dc2626">*</span></label>
+                    <select name="leave_type_id" id="edit-leave-type" required>
+                        <option value="">Select leave type</option>
+                        @forelse($leaveTypes as $leaveType)
+                            <option value="{{ $leaveType->id }}">{{ $leaveType->leave_type }}</option>
+                        @empty
+                        @endforelse
+                    </select>
                 </div>
                 <div class="form-field">
-                    <label>Department Head</label>
-                    <input type="text" name="department_head" id="dept-edit-head">
+                    <div class="auth-field">
+                        <label>Start Date <span style="color:#dc2626">*</span></label>
+                        <input type="date" name="start_date" id="edit-start-date" required>
+                    </div>
+                    <div class="auth-field">
+                        <label>End Date <span style="color:#dc2626">*</span></label>
+                        <input type="date" name="end_date" id="edit-end-date" required>
+                    </div>
                 </div>
                 <div class="form-field">
-                    <label>Description</label>
-                    <textarea name="description" id="dept-edit-desc" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical"></textarea>
+                    <label>Reason <span style="color:#dc2626">*</span></label>
+                    <textarea name="leave_reason" id="edit-leave-reason" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" required></textarea>
                 </div>
                 <div class="form-field">
-                    <label style="display:flex;align-items:center;gap:8px">
-                        <input type="checkbox" name="is_active" id="dept-edit-active" value="1" style="width:auto">
-                        <span>Active Department</span>
-                    </label>
+                    <label>Status <span style="color:#dc2626">*</span></label>
+                    <select name="leave_status" id="edit-leave-status" required>
+                        <option value="">Select status</option>
+                        @foreach($leaveStatuses as $leaveStatus)
+                            <option value="{{ $leaveStatus->name }}">{{ $leaveStatus->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-field">
+                    <div id="edit-decline-reason-wrap" style="display:none">
+                        <div class="auth-field">
+                            <label>Decline Reason</label>
+                            <textarea name="decline_reason" id="edit-decline-reason" rows="2" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical"></textarea>
+                        </div>
+                    </div>
                 </div>
                 <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeDeptEditModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeLeaveEditModal()">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Update Department
+                    Update Leave Request
                 </button>
             </div>
         </form>
@@ -610,17 +677,23 @@
     function openLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'flex'; }
     function closeLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'none'; }
 
-    function openDeptEditModal(id, name, code, head, desc, isActive) {
-        var url = "{{ route('departments.update', ':id') }}";
-        url = url.replace(':id', id);
-        document.getElementById('dept-edit-form').action = url;
-        document.getElementById('dept-edit-name').value = name;
-        document.getElementById('dept-edit-code').value = code;
-        document.getElementById('dept-edit-head').value = head;
-        document.getElementById('dept-edit-desc').value = desc;
-        document.getElementById('dept-edit-active').checked = isActive;
-        document.getElementById('dept-edit-modal').style.display = 'flex';
+    function openLeaveEditModal(id, employeeId, leaveTypeId, startDate, endDate, reason, status, declineReason) {
+        var url = "{{ route('employee_leaves.update', ':id') }}".replace(':id', id);
+        document.getElementById('leave-edit-form').action = url;
+        document.getElementById('edit-employee').value = employeeId;
+        document.getElementById('edit-leave-type').value = leaveTypeId;
+        document.getElementById('edit-start-date').value = startDate;
+        document.getElementById('edit-end-date').value = endDate;
+        document.getElementById('edit-leave-reason').value = reason;
+        document.getElementById('edit-leave-status').value = status;
+        document.getElementById('edit-decline-reason').value = declineReason || '';
+        document.getElementById('edit-decline-reason-wrap').style.display = status === 'Declined' ? 'block' : 'none';
+        document.getElementById('leave-edit-modal').style.display = 'flex';
     }
-    function closeDeptEditModal() { document.getElementById('dept-edit-modal').style.display = 'none'; }
+    function closeLeaveEditModal() { document.getElementById('leave-edit-modal').style.display = 'none'; }
+
+    document.getElementById('edit-leave-status').addEventListener('change', function() {
+        document.getElementById('edit-decline-reason-wrap').style.display = this.value === 'Declined' ? 'block' : 'none';
+    });
 </script>
 @endpush

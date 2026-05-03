@@ -19,7 +19,7 @@ class QrCodeController extends Controller
     public function create(Employee $employee)
     {
         $employees = Employee::findAllWithUserID()->get();
-        return view('qr_code.create', compact('employee', 'employees'));
+        return view('admin.qr_code.create', compact('employee', 'employees'));
     }
 
     public function generate(Request $request)
@@ -50,7 +50,7 @@ class QrCodeController extends Controller
             'employee_id' => $employee->id,
         ]);
 
-        return view('qr_code.show', compact('qrData', 'qrScan', 'employee'));
+        return view('admin.qr_code.show', compact('qrData', 'qrScan', 'employee'));
     }
 
     public function show(QrAttendanceScan $qrScan)
@@ -62,7 +62,7 @@ class QrCodeController extends Controller
             'employee_id' => $qrScan->employee_id,
         ]);
 
-        return view('qr_code.show', compact('qrData', 'qrScan', 'employee'));
+        return view('admin.qr_code.show', compact('qrData', 'qrScan', 'employee'));
     }
 
     public function scan()
@@ -71,7 +71,7 @@ class QrCodeController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(20)
             ->get();
-        return view('qr_code.scan', compact('scans'));
+        return view('admin.qr_code.scan', compact('scans'));
     }
 
     public function history()
@@ -80,6 +80,6 @@ class QrCodeController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('qr_code.history', compact('scans'));
+        return view('admin.qr_code.history', compact('scans'));
     }
 }

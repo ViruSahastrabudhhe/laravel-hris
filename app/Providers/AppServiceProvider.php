@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         Salary::observe(SalaryObserver::class);
         Position::observe(PositionObserver::class);
         
-        View::composer('layouts.app', function ($view) {
+        View::composer('layouts.employee', function ($view) {
             $route = Route::currentRouteName();
             $header = match(true) {
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
@@ -48,9 +48,11 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'position') => __('position.title'),
+                str_contains($route, 'training') => __('training.title'),
                 str_contains($route, 'employee') => __('employee.title'),
                 str_contains($route, 'schedule') => __('schedule.title'),
                 str_contains($route, 'attendance') => __('attendance.title'),
+                str_contains($route, 'training') => __('training.title'),
                 str_contains($route, 'leave') => __('leave_type.title'),
                 str_contains($route, 'salaries') => __('salary.title'),
                 str_contains($route, 'deduction') => __('deduction.title'),
@@ -75,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'employee_leaves') => __('employee_leave.title'),
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'qr') => __('qr_code.title'),
+                str_contains($route, 'training') => __('training.title'),
                 str_contains($route, 'position') => __('position.title'),
                 str_contains($route, 'employee') => __('employee.title'),
                 str_contains($route, 'salaries') => __('salary.title'),
@@ -98,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'position') => __('position.title'),
                 str_contains($route, 'employee') => __('common.app_personnel'),
+                str_contains($route, 'training') => __('common.app_training'),
                 str_contains($route, 'schedule') => __('schedule.title'),
                 str_contains($route, 'attendance') => __('common.app_attendance'),
                 str_contains($route, 'leave') => __('common.app_leave'),

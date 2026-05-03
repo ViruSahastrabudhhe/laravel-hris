@@ -18,6 +18,7 @@ use App\Http\Controllers\Leave\HolidayController;
 use App\Http\Controllers\Leave\LeaveTypeController;
 use App\Http\Controllers\Salary\SalaryController;
 use App\Http\Controllers\QrCode\QrCodeController;
+use App\Http\Controllers\Training\TrainingController;
 use App\Http\Controllers\Api\QrScannerController;
 
 Auth::routes(['verify' => true]);
@@ -60,6 +61,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
     Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
     Route::resource('employee_leaves', EmployeeLeaveController::class);
+    Route::resource('trainings', TrainingController::class);
     
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');

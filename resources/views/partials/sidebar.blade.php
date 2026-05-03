@@ -1,33 +1,32 @@
 @php
+    if (auth()->user()->hasRole('admin')) {
+        $navItems = [
+            ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
+            ['id' => 'recruitment',   'label' => 'Recruitment',       'route' => 'employees.index',       'icon' => 'recruitment', 'section' => null],
+            ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
+            ['id' => 'training',   'label' => 'Training & Development',       'route' => 'trainings.index',       'icon' => 'training', 'section' => null],
+            ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
+            ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => null],
+            ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'employees.index',       'icon' => 'performance', 'section' => null],
+            ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
+            ['id' => 'reports',   'label' => 'Reports',       'route' => 'employees.index',       'icon' => 'reports', 'section' => null],
+        ];
+    } else {
+        $navItems = [
+            ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
+            ['id' => 'profile',        'label' => 'Profile',       'route' => 'home',                  'icon' => 'profile', 'section' => null],
+            ['id' => 'leaves',        'label' => 'Requests',       'route' => 'home',                  'icon' => 'leave', 'section' => null],
+            ['id' => 'training',        'label' => 'Trainings',       'route' => 'home',                  'icon' => 'training', 'section' => null],
+            ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'home',                  'icon' => 'attendance', 'section' => null],
+            ['id' => 'performance',        'label' => 'Performance',       'route' => 'home',                  'icon' => 'performance', 'section' => null],
+            ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'home',                  'icon' => 'payslip', 'section' => null],
+        ];
+    }
 
-if (auth()->user()->hasRole('admin')) {
-    $navItems = [
-        ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
-        ['id' => 'recruitment',   'label' => 'Recruitment',       'route' => 'employees.index',       'icon' => 'recruitment', 'section' => null],
-        ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
-        ['id' => 'training',   'label' => 'Training & Development',       'route' => 'employees.index',       'icon' => 'training', 'section' => null],
-        ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
-        ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => null],
-        ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'employees.index',       'icon' => 'performance', 'section' => null],
-        ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
-        ['id' => 'reports',   'label' => 'Reports',       'route' => 'employees.index',       'icon' => 'reports', 'section' => null],
-    ];
-} else {
-    $navItems = [
-        ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => null],
-        ['id' => 'profile',        'label' => 'Profile',       'route' => 'home',                  'icon' => 'profile', 'section' => null],
-        ['id' => 'leaves',        'label' => 'Requests',       'route' => 'home',                  'icon' => 'leave', 'section' => null],
-        ['id' => 'training',        'label' => 'Trainings',       'route' => 'home',                  'icon' => 'training', 'section' => null],
-        ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'home',                  'icon' => 'attendance', 'section' => null],
-        ['id' => 'performance',        'label' => 'Performance',       'route' => 'home',                  'icon' => 'performance', 'section' => null],
-        ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'home',                  'icon' => 'payslip', 'section' => null],
-    ];
-}
-
-$currentRoute = Route::currentRouteName();
-$userName = auth()->check() ? auth()->user()->name : 'User';
-$userInitials = auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'U';
-$userRole = auth()->check() ? ucfirst(auth()->user()->getRoleNames()[0]) : 'Guest';
+    $currentRoute = Route::currentRouteName();
+    $userName = auth()->check() ? auth()->user()->name : 'User';
+    $userInitials = auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'U';
+    $userRole = auth()->check() ? ucfirst(auth()->user()->getRoleNames()[0]) : 'Guest';
 @endphp
 
 <aside class="sidebar" id="sidebar">

@@ -20,10 +20,12 @@ class EmployeeLeaveController extends Controller
     public function index()
     {
         $employeeLeaves = EmployeeLeave::findAllWithUserID()->get();
+        $employees = Employee::findAllWithUserID()->get();
         $leaveTypes = LeaveType::findAllWithUserID()->get();
+        $leaveStatuses = LeaveStatus::cases();
         $holidays = Holiday::findAllWithUserID()->get();
 
-        return view('admin.leaves.index', compact('employeeLeaves', 'leaveTypes', 'holidays'));
+        return view('admin.leaves.index', compact('employees', 'employeeLeaves', 'leaveTypes', 'holidays', 'leaveStatuses'));
     }
 
     /**

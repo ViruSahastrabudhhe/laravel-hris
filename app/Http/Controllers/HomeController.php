@@ -26,12 +26,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::findAllWithUserID()->with(['department', 'position'])->get();
-        $employeeLeaves = EmployeeLeave::findAllWithUserID()->with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
-
-        return view('home', [
-            'employees' => $employees,
-            'employeeLeaves' => $employeeLeaves,
-        ]);
+        if (auth()->user()->hasRole('admin')) {
+            $employees = Employee::findAllWithUserID()->with(['department', 'position'])->get();
+            $employeeLeaves = EmployeeLeave::findAllWithUserID()->with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
+    
+            return view('admin.home', [
+                'employees' => $employees,
+                'employeeLeaves' => $employeeLeaves,
+            ]);
+        }
+        
+        if (auth()->user()->hasRole('employee')) {
+            return view('employee.home');
+        }
     }
 }

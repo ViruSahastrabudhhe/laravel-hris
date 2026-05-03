@@ -829,7 +829,7 @@
 
         if ($('#attendance-table').length) {
             const employeeTable = $('#attendance-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [0, 6] }],
+                columnDefs: [{ orderable: false, targets: [6] }],
                 pageLength: 25,
                 language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found' },
                 dom: 'rtip',
@@ -915,6 +915,5 @@
         document.getElementById('pos-edit-modal').style.display = 'flex';
     }
     function closePosEditModal() { document.getElementById('pos-edit-modal').style.display = 'none'; }
-
 </script>
 @endpush

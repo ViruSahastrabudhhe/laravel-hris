@@ -185,65 +185,65 @@
                     </td>
                     <td><span class="net-pay">₱{{ number_format($employee->netPay(), 2) }}</span></td>
                     <td>
-                        <button class="btn-export" id="export-payslip" onclick="openModal('payslipModal')">
+                        <button type="button" class="btn-export" onclick="openModal('payslipModal-{{ $employee->id }}')">
                             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </td>
                 </tr>
+
+                {{-- Payslip Modal --}}
+                <div class="modal-overlay" id="payslipModal-{{ $employee->id }}" style="display:none" onclick="closeModal('payslipModal-{{ $employee->id }}')">
+                    <div class="modal-box" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <div>
+                                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(config('app.carbon_month')) }}</span>
+                                <h3 class="modal-title">{{ $employee->first_name }} {{ $employee->last_name }}</h3>
+                                <p class="modal-sub">{{ $employee->position->title }} · {{ $employee->department->name }}</p>
+                            </div>
+                            <button class="modal-close" onclick="closeModal('payslipModal-{{ $employee->id }}')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="modal-emp-row">
+                                <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }};width:48px;height:48px;border-radius:12px;font-size:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">
+                                    {{ strtoupper(substr($employee->first_name,0,1).substr($employee->last_name,0,1)) }}
+                                </div>
+                                <div>
+                                    <p class="modal-emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+                                    <span class="badge-status processed">{{ ucfirst($employee->employment_type) }}</span>
+                                </div>
+                            </div>
+                            <div class="modal-section-label">EARNINGS</div>
+                            <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
+                            <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
+                            <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
+                            <div class="modal-section-label" style="margin-top:16px">DEDUCTIONS</div>
+                            <div class="modal-row"><span>GSIS</span><span class="modal-deduct">₱{{ number_format($employee->gsisContribution(), 2) }}</span></div>
+                            <div class="modal-row"><span>PhilHealth</span><span class="modal-deduct">₱{{ number_format($employee->philHealthContribution(), 2) }}</span></div>
+                            <div class="modal-row"><span>Pag-Ibig</span><span class="modal-deduct">₱{{ number_format($employee->pagIbigContribution(), 2) }}</span></div>
+                            <div class="modal-row"><span>Withholding Tax</span><span class="modal-deduct">₱{{ number_format($employee->withholdingTax(), 2) }}</span></div>
+                            <div class="modal-row"><span>Optional Deductions</span><span class="modal-deduct">₱{{ number_format($employee->optionalDeductions(), 2) }}</span></div>
+                            <div class="modal-row"><span>Absent/Late</span><span class="modal-deduct">₱{{ number_format($employee->absentDeductions(), 2) }}</span></div>
+                            <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱{{ number_format($employee->totalDeductions(), 2) }}</span></div>
+                            <div class="modal-net-row">
+                                <span>NET PAY</span>
+                                <strong>₱{{ number_format($employee->netPay(), 2) }}</strong>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-btn-ghost" onclick="closeModal('payslipModal-{{ $employee->id }}')">Close</button>
+                            <a href="{{ route('payroll.exportPayslip', $employee->id) }}" class="modal-btn-primary">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
             @empty
             @endforelse
             </tbody>
         </table>
-    </div>
-</div>
-
-{{-- Payslip Modal --}}
-<div class="modal-overlay" id="payslipModal" style="display:none" onclick="closeModal('payslipModal')">
-    <div class="modal-box" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <div>
-                <span class="modal-eyebrow">PAYSLIP · {{ strtoupper(config('app.carbon_month')) }}</span>
-                <h3 class="modal-title">{{ $employee->first_name }} {{ $employee->last_name }}</h3>
-                <p class="modal-sub">{{ $employee->position->name }} · {{ $employee->department->name }}</p>
-            </div>
-            <button class="modal-close" onclick="closeModal('payslipModal')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="modal-emp-row">
-                <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }};width:48px;height:48px;border-radius:12px;font-size:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">
-                    {{ strtoupper(substr($employee->first_name,0,1).substr($employee->last_name,0,1)) }}
-                </div>
-                <div>
-                    <p class="modal-emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
-                    <span class="badge-status processed">{{ ucfirst($employee->employment_type) }}</span>
-                </div>
-            </div>
-            <div class="modal-section-label">EARNINGS</div>
-            <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
-            <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
-            <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
-            <div class="modal-section-label" style="margin-top:16px">DEDUCTIONS</div>
-            <div class="modal-row"><span>GSIS</span><span class="modal-deduct">₱{{ number_format($employee->gsisContribution(), 2) }}</span></div>
-            <div class="modal-row"><span>PhilHealth</span><span class="modal-deduct">₱{{ number_format($employee->philHealthContribution(), 2) }}</span></div>
-            <div class="modal-row"><span>Pag-Ibig</span><span class="modal-deduct">₱{{ number_format($employee->pagIbigContribution(), 2) }}</span></div>
-            <div class="modal-row"><span>Withholding Tax</span><span class="modal-deduct">₱{{ number_format($employee->withholdingTax(), 2) }}</span></div>
-            <div class="modal-row"><span>Optional Deductions</span><span class="modal-deduct">₱{{ number_format($employee->optionalDeductions(), 2) }}</span></div>
-            <div class="modal-row"><span>Absent/Late</span><span class="modal-deduct">₱{{ number_format($employee->absentDeductions(), 2) }}</span></div>
-            <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱{{ number_format($employee->totalDeductions(), 2) }}</span></div>
-            <div class="modal-net-row">
-                <span>NET PAY</span>
-                <strong>₱{{ number_format($employee->netPay(), 2) }}</strong>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="modal-btn-ghost" onclick="closeModal('payslipModal')">Close</button>
-            <a href="{{ route('payroll.exportPayslip', $employee->id) }}" class="modal-btn-primary">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download PDF
-            </a>
-        </div>
     </div>
 </div>
 
@@ -270,8 +270,7 @@ $(function () {
 </script>
 
 <script>
-function openModal() { document.getElementById('payslipModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function openModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = ''; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('payslipModal'); });
 </script>
 @endpush

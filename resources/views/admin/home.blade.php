@@ -1,24 +1,24 @@
 @extends('layouts.admin')
 
 @php
-$monthlyPayroll = 0;
-$employeesOnLeave = 0;
-$employeesPendingLeave = 0;
-$totalEmployees = isset($employees) ? $employees->count() : 0;
+    $monthlyPayroll = 0;
+    $employeesOnLeave = 0;
+    $employeesPendingLeave = 0;
+    $totalEmployees = isset($employees) ? $employees->count() : 0;
 
-if (isset($employees)) {
-    foreach ($employees as $employee) {
-        $monthlyPayroll += method_exists($employee, 'netPay') ? $employee->netPay() : 0;
-        $employeesOnLeave += $employee->leaves()->where('leave_status', 'Approved')->count();
-        $employeesPendingLeave += $employee->leaves()->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
+    if (isset($employees)) {
+        foreach ($employees as $employee) {
+            $monthlyPayroll += method_exists($employee, 'netPay') ? $employee->netPay() : 0;
+            $employeesOnLeave += $employee->leaves()->where('leave_status', 'Approved')->count();
+            $employeesPendingLeave += $employee->leaves()->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
+        }
+
+        $presentToday = $employees->filter(function($employee) {
+            return $employee->attendance()->whereDate('date', now()->toDateString())->where('attendance_status', 'Present')->exists();
+        })->count();
+    } else {
+        $presentToday = 0;
     }
-
-    $presentToday = $employees->filter(function($employee) {
-        return $employee->attendance()->whereDate('date', now()->toDateString())->where('attendance_status', 'Present')->exists();
-    })->count();
-} else {
-    $presentToday = 0;
-}
 @endphp
 
 @section('page-content')
@@ -308,36 +308,35 @@ if (isset($employees)) {
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
-<script>
-function switchView(viewId, btn) {
-    if (btn.classList.contains('active')) {
-        return;
-    }
+    <script>
+        function switchView(viewId, btn) {
+            if (btn.classList.contains('active')) {
+                return;
+            }
 
-    // Hide all tab panes
-    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-    // Remove active class from all buttons
-    document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-    
-    // Show active tab
-    document.getElementById('view-' + viewId).classList.add('active');
-    // Set active button
-    btn.classList.add('active');
-}
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            // Remove active class from all buttons
+            document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
+            
+            // Show active tab
+            document.getElementById('view-' + viewId).classList.add('active');
+            // Set active button
+            btn.classList.add('active');
+        }
 
-$(function () {
-    if ($.fn.DataTable) {
-        $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [0, 6] }],
-            pageLength: 5,
-            lengthMenu: [5, 10],
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ Entries', emptyTable: 'No employees found' },
+        $(function () {
+            if ($.fn.DataTable) {
+                $('#attendance-table').DataTable({
+                    columnDefs: [{ orderable: false, targets: [0, 6] }],
+                    pageLength: 5,
+                    lengthMenu: [5, 10],
+                    language: { search: 'Search:', lengthMenu: 'Show _MENU_ Entries', emptyTable: 'No employees found' },
+                });
+            }
         });
-    }
-});
-</script>
+    </script>
 @endpush
-
-@endsection

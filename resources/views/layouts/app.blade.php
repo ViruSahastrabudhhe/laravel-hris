@@ -30,6 +30,20 @@
 
     <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('/js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(m => {
+                    m.style.display = 'none';
+                });
+                document.body.style.overflow = '';
+            }
+        });
+
+        function escapeRegex(value) {
+            return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>
