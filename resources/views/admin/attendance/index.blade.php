@@ -11,8 +11,8 @@
     }
 
     $totalOT = round($totalOT / 60, 2);
-    $departments = \App\Models\Department::findAllWithUserID()->get();
-    $positions = \App\Models\Position::findAllWithUserID()->get();
+    $departments = \App\Models\Department::paginate(25);
+    $positions = \App\Models\Position::paginate(25);
 @endphp
 
 @push('styles')
@@ -472,7 +472,7 @@
                                         data-employee-id="{{ $employee->id }}"
                                         data-employee-name="{{ $employee->first_name }} {{ $employee->last_name }}"
                                         data-expires="{{ $qrScans[$employee->id]->expires_at->format('F d, Y') }}">
-                                        <svg width="12" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     </button>
                                 @else
                                 <!-- <a href="{{ route('qr-code.create', $employee) }}" class="btn-success" style="display: inline-flex; align-items: center; gap: 4px;">
@@ -779,7 +779,7 @@
         });
 
         const qr_table = $('#qr-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [0, 4] }],
+            columnDefs: [{ orderable: false, targets: [5] }],
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR codes found', },
             dom: 'rtip',

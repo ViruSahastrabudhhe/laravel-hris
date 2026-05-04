@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\TrainingStatus;
+use App\Models\EmployeeTraining;
 
 class Training extends Model
 {
@@ -23,7 +25,6 @@ class Training extends Model
         'end_date',
         'venue',
         'status',
-        'user_id',
     ];
 
     public function employeeTrainings()
@@ -35,5 +36,11 @@ class Training extends Model
     protected function findAllWithUserID(Builder $query): void
     {
         $query->where('user_id', '=', auth()->user()->id);
+    }
+
+    #[Scope]
+    protected function isAvailable(Builder $query): void
+    {
+        $query->where('status', '!=', TrainingStatus::Completed->value);
     }
 }

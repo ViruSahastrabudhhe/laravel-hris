@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string('address');
             $table->string('city');
             $table->string('province');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            $table->foreign('employee_id')
+                ->references('id')->on('employees')
+                ->onUpdate('set null')
+                ->onDelete('set null');
         });
     }
 

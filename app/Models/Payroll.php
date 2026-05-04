@@ -14,15 +14,6 @@ class Payroll extends Model
     protected $table = 'payrolls';
 
     protected $fillable = [
-        'employee_id',
-        'deductions_id',
-        'gross_pay',
-        'tax_deduction',
-        'cash_advance',
-        'adjustment',
-        'total_deductions',
-        'net_pay',
-        'user_id',
     ];
 
     public function employee() {

@@ -31,16 +31,10 @@ class Attendance extends Model
         'total_minutes',
         'overtime_minutes',
         'employee_id',
-        'user_id',
     ];
 
     public function employee() {
         return $this->belongsTo(Employee::class, 'employee_id', 'id');
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 
     #[Scope]

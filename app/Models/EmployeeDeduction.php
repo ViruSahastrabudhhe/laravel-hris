@@ -22,7 +22,6 @@ class EmployeeDeduction extends Model
         'employee_id',
         'deduction_id',
         'amount',
-        'user_id',
     ];
 
     public function employee() {
@@ -31,10 +30,5 @@ class EmployeeDeduction extends Model
 
     public function deduction() {
         return $this->belongsTo(Deduction::class);
-    }
-    
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

@@ -22,7 +22,6 @@ class Position extends Model
         'status',
         'total_employees',
         'description',
-        'user_id',
     ];
 
     #[Scope]

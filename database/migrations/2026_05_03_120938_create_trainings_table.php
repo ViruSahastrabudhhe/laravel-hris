@@ -23,12 +23,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->string('venue');
             $table->enum('status', TrainingStatus::cases())->default(TrainingStatus::Scheduled->value);
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
         });
     }
 

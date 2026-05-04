@@ -21,7 +21,6 @@ class EmployeeDeductionFactory extends Factory
             'employee_id' => 1,
             'deduction_id' => 1,
             'amount' => 100,
-            'user_id' => 1,
         ];
     }
 

@@ -18,12 +18,7 @@ return new class extends Migration
             $table->double('rate')->nullable();
             $table->enum('type', DeductionType::cases())->default(DeductionType::Optional->value);
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
         });
     }
 

@@ -11,7 +11,7 @@ class UpdateEmployeeLeaveBalanceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -23,7 +23,6 @@ class UpdateEmployeeLeaveBalanceRequest extends FormRequest
     {
         return [
             'employee_id' => 'required',
-            'user_id' => 'required',
             'leave_balance' => 'required|numeric',
         ];
     }

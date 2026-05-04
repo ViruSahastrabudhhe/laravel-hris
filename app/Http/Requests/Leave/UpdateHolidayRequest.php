@@ -11,7 +11,7 @@ class UpdateHolidayRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -26,7 +26,6 @@ class UpdateHolidayRequest extends FormRequest
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'holiday_duration' => 'required|integer',
-            'user_id' => 'required',
         ];
     }
 }

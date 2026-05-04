@@ -11,7 +11,7 @@ class UpdatePositionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -26,7 +26,6 @@ class UpdatePositionRequest extends FormRequest
             'status' => 'nullable',
             'is_active' => 'required',
             'total_employees' => 'required',
-            'user_id' => 'required',
         ];
     }
 }

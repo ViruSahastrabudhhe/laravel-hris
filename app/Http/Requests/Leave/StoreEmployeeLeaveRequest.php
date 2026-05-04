@@ -11,7 +11,7 @@ class StoreEmployeeLeaveRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('employee');
     }
 
     /**
@@ -23,13 +23,11 @@ class StoreEmployeeLeaveRequest extends FormRequest
     {
         return [
             'leave_type_id' => 'required|integer',
+            'employee_id' => 'required|integer',
+            'user_id' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'leave_reason' => 'required|string',
-            'leave_status' => 'required|string',
-            'decline_reason' => 'nullable|string',
-            'employee_id' => 'required|integer',
-            'user_id' => 'required',
         ];
     }
 }

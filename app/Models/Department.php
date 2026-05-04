@@ -22,11 +22,5 @@ class Department extends Model
         'department_head',
         'is_active',
         'description',
-        'user_id',
     ];
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
-    }
 }

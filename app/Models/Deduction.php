@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\DeductionType;
 
 class Deduction extends Model
 {
@@ -19,16 +20,10 @@ class Deduction extends Model
         'rate',
         'type',
         'description',
-        'user_id',
     ];
 
     #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
-    }
-
-    #[Scope]
     protected function otherDeductions(Builder $query): void {
-        $query->where('id', '>', 3);
+        $query->where('type', '!=', DeductionType::Mandatory);
     }
 }

@@ -29,7 +29,6 @@ class DepartmentFactory extends Factory
             'department_code' => 'HR',
             'department_head' => fake()->name(),
             'is_active' => true,
-            'user_id' => 1,
         ];
     }
 }

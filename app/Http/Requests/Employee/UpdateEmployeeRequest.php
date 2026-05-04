@@ -11,7 +11,7 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -32,14 +32,12 @@ class UpdateEmployeeRequest extends FormRequest
             'address.city' => 'required',
             'address.address' => 'required',
             'address.province' => 'required',
-            'address.user_id' => 'required',
             'phone_number' => 'required',
             'employment_type' => 'required',
             'is_active' => 'required',
             'position_id' => 'required',
             'department_id' => 'required',
             'work_schedule_id' => 'required',
-            'user_id' => 'required',
             'salary.amount' => 'required|numeric|min:0',
             'salary.salary_type' => 'required',
             'salary.salary_grade' => 'required|integer|min:1',

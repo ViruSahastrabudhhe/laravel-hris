@@ -25,17 +25,11 @@ return new class extends Migration
             $table->integer('total_minutes')->default(0);
             $table->integer('overtime_minutes')->default(0);
             $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('employee_id')
                     ->references('id')->on('employees')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->foreign('user_id')
-                    ->references('id')->on('users')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
+                    ->onDelete('set null');
         });
     }
 

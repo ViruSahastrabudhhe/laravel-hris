@@ -6,8 +6,8 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\Attendance;
 use App\Models\EmployeeDeduction;
-use App\Models\EmployeeAttendance;
-use App\Models\EmployeeLeave;
+use App\Models\EmployeeTraining;
+use App\Models\LeaveRequest;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeWorkSchedule;
 use Carbon\Carbon;
@@ -41,7 +41,6 @@ class Employee extends Model
         'phone_number',
         'employment_type',
         'is_active',
-        'address_id',
         'position_id',  
         'department_id',
         'user_id',
@@ -63,20 +62,20 @@ class Employee extends Model
         return $this->hasMany(Attendance::class);
     }
 
-    public function employeeAttendance() {
-        return $this->hasOne(EmployeeAttendance::class);
-    }
-
     public function employeeDeduction() {
         return $this->hasMany(EmployeeDeduction::class);
     }
 
+    public function employeeTraining() {
+        return $this->hasMany(EmployeeTraining::class);
+    }
+
     public function address() {
-        return $this->hasOne(Address::class, 'id', 'address_id');
+        return $this->hasOne(Address::class);
     }
 
     public function leaves() {
-        return $this->hasMany(EmployeeLeave::class);
+        return $this->hasMany(LeaveRequest::class);
     }
 
     public function leaveBalance() {
@@ -84,7 +83,7 @@ class Employee extends Model
     }
 
     public function employeeWorkSchedule() {
-        return $this->hasOne(EmployeeWorkSchedule::class, 'employee_id', 'id');
+        return $this->hasOne(EmployeeWorkSchedule::class);
     }
 
     public function qrAttendanceScans() {
@@ -97,7 +96,6 @@ class Employee extends Model
 
     public function hoursWorked() {
         $total_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
             ->currentMonthBetween()           
             ->whereNull('attendances.deleted_at')
@@ -108,7 +106,6 @@ class Employee extends Model
 
     public function daysWorked() {
         $entries = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
             ->currentMonthBetween()
             ->whereNull('attendances.deleted_at')
@@ -119,7 +116,6 @@ class Employee extends Model
 
     public function overtimeWorked() {
         $overtime_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.user_id', '=', auth()->user()->id)
             ->where('attendances.employee_id', '=', $this->id)
             ->currentMonthBetween()
             ->whereNull('attendances.deleted_at')
@@ -167,7 +163,7 @@ class Employee extends Model
     }
 
     public function daysLate() {
-        $lates = Attendance::where('employee_id', $this->id)->findAllWithUserID()
+        $lates = Attendance::where('employee_id', $this->id)
             ->currentMonthBetween()
             ->whereNull('deleted_at')
             ->where('attendance_status', AttendanceStatus::Late->value)
@@ -177,7 +173,7 @@ class Employee extends Model
     }
 
     public function daysAbsent() {
-        $absences = Attendance::where('employee_id', $this->id)->findAllWithUserID()
+        $absences = Attendance::where('employee_id', $this->id)
             ->currentMonthBetween()
             ->whereNull('deleted_at')
             ->where('attendance_status', AttendanceStatus::Absent->value)
@@ -221,7 +217,6 @@ class Employee extends Model
 
         $gsis = DB::table('employee_deductions')
             ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.user_id', '=', auth()->user()->id)
             ->where('employee_deductions.employee_id', '=', $this->id)
             ->where('deductions.id', '=', 1)
             ->first();
@@ -240,7 +235,6 @@ class Employee extends Model
         
         $philHealth = DB::table('employee_deductions')
             ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.user_id', '=', auth()->user()->id)
             ->where('employee_deductions.employee_id', '=', $this->id)
             ->where('deductions.id', '=', 2)
             ->first();
@@ -259,7 +253,6 @@ class Employee extends Model
 
         $pagibig = DB::table('employee_deductions')
             ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.user_id', '=', auth()->user()->id)
             ->where('employee_deductions.employee_id', '=', $this->id)
             ->where('deductions.id', '=', 3)
             ->first();
@@ -274,7 +267,6 @@ class Employee extends Model
     public function optionalDeductions(): float {
         $optionalDeductions = DB::table('employee_deductions')
             ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.user_id', '=', auth()->user()->id)
             ->where('employee_deductions.employee_id', '=', $this->id)
             ->where('deductions.type', '=', DeductionType::Optional->value)
             ->get();
@@ -341,10 +333,5 @@ class Employee extends Model
         $sum = $grossPay - $totalDeductions;
 
         return round($sum, 2);
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

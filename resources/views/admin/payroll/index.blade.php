@@ -9,7 +9,7 @@
         $totalNetPay += $employee->netPay();
         $totalDeductions += $employee->totalDeductions();
     }
-    $departments = \App\Models\Department::findAllWithUserID()->get();
+    $departments = \App\Models\Department::paginate(25);
 @endphp
 
 @push('styles')
@@ -185,8 +185,8 @@
                     </td>
                     <td><span class="net-pay">₱{{ number_format($employee->netPay(), 2) }}</span></td>
                     <td>
-                        <button type="button" class="btn-export" onclick="openModal('payslipModal-{{ $employee->id }}')">
-                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <button type="button" class="btn-view" onclick="openModal('payslipModal-{{ $employee->id }}')">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </td>
                 </tr>

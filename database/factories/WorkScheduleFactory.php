@@ -33,7 +33,6 @@ class WorkScheduleFactory extends Factory
             'break_minutes' => 60,
             'work_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
             'grace_period_minutes' => 15,
-            'user_id' => 1,
         ];
     }
 }

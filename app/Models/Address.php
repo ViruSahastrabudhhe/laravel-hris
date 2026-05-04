@@ -19,15 +19,10 @@ class Address extends Model
         'city',
         'address',
         'province',
-        'user_id',
+        'employee_id',
     ];
 
     public function employee() {
         return $this->belongsTo(Employee::class);
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

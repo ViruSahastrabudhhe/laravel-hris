@@ -19,12 +19,7 @@ return new class extends Migration
             $table->enum('status', PositionStatus::cases())->default(PositionStatus::Hiring->value);
             $table->boolean('is_active')->default(true);
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
         });
     }
 

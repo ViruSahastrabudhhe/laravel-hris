@@ -19,7 +19,6 @@ class LeaveType extends Model
         'leave_type',
         'days_of_leave',
         'is_active',
-        'user_id',
     ];
 
     public function employee() {

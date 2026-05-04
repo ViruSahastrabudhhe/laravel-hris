@@ -15,20 +15,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('work_schedule_id');
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('employee_id')
                     ->references('id')->on('employees')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
+                    ->onUpdate('set null')
+                    ->onDelete('set null');
             $table->foreign('work_schedule_id')
                     ->references('id')->on('work_schedules')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->foreign('user_id')
-                    ->references('id')->on('users')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
+                    ->onUpdate('set null')
+                    ->onDelete('set null');
         });
     }
 

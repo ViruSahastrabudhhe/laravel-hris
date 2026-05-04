@@ -24,16 +24,16 @@ return new class extends Migration
         //     $table->timestamps();
         //     $table->foreign('employee_id')
         //             ->references('id')->on('employees')
-        //             ->onUpdate('cascade')
-        //             ->onDelete('cascade');
+        //             ->onUpdate('set null')
+        //             ->onDelete('set null');
         //     $table->foreign('deductions_id')
         //             ->references('id')->on('deductions')
-        //             ->onUpdate('cascade')
-        //             ->onDelete('cascade');
+        //             ->onUpdate('set null')
+        //             ->onDelete('set null');
         //     $table->foreign('user_id')
         //             ->references('id')->on('users')
-        //             ->onUpdate('cascade')
-        //             ->onDelete('cascade');
+        //             ->onUpdate('set null')
+        //             ->onDelete('set null');
         // });
     }
 

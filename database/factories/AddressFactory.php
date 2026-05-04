@@ -22,7 +22,7 @@ class AddressFactory extends Factory
             'address' => 'Pinagbayanan',
             'city' => 'Pagsanjan',
             'province' => 'Laguna',
-            'user_id' => 1,
+            'employee_id' => 1,
         ];
     }
 }

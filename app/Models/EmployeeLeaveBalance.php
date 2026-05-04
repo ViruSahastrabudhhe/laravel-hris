@@ -18,15 +18,9 @@ class EmployeeLeaveBalance extends Model
     protected $fillable = [
         'leave_balance',
         'employee_id',
-        'user_id',
     ];
 
     public function employee() {
         return $this->belongsTo(Employee::class);
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

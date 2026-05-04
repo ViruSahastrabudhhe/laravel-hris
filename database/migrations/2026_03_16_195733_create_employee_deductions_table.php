@@ -15,21 +15,16 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('deduction_id');
-            $table->unsignedBigInteger('user_id');
             $table->float('amount');
             $table->timestamps();
             $table->foreign('employee_id')
                 ->references('id')->on('employees')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->onUpdate('set null')
+                ->onDelete('set null');
             $table->foreign('deduction_id')
                 ->references('id')->on('deductions')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->onUpdate('set null')
+                ->onDelete('set null');
         });
     }
 

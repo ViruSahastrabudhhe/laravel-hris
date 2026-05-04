@@ -4,22 +4,25 @@ use Illuminate\Support\Facades\Route;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Employee\EmployeeController;
-use App\Http\Controllers\Position\PositionController;
-use App\Http\Controllers\Department\DepartmentController;
-use App\Http\Controllers\Deduction\DeductionController;
-use App\Http\Controllers\WorkSchedule\WorkScheduleController;
-use App\Http\Controllers\Attendance\AttendanceController;
-use App\Http\Controllers\Payroll\PayrollController;
-use App\Http\Controllers\Deduction\EmployeeDeductionController;
-use App\Http\Controllers\Leave\EmployeeLeaveController;
-use App\Http\Controllers\Leave\EmployeeLeaveBalanceController;
-use App\Http\Controllers\Leave\HolidayController;
-use App\Http\Controllers\Leave\LeaveTypeController;
-use App\Http\Controllers\Salary\SalaryController;
-use App\Http\Controllers\QrCode\QrCodeController;
-use App\Http\Controllers\Training\TrainingController;
-use App\Http\Controllers\Api\QrScannerController;
+use App\Http\Controllers\Admin\Employee\EmployeeController;
+use App\Http\Controllers\Admin\Position\PositionController;
+use App\Http\Controllers\Admin\Department\DepartmentController;
+use App\Http\Controllers\Admin\Deduction\DeductionController;
+use App\Http\Controllers\Admin\WorkSchedule\WorkScheduleController;
+use App\Http\Controllers\Admin\Attendance\AttendanceController;
+use App\Http\Controllers\Admin\Payroll\PayrollController;
+use App\Http\Controllers\Admin\Deduction\EmployeeDeductionController;
+use App\Http\Controllers\Admin\Leave\LeaveRequestController;
+use App\Http\Controllers\Admin\Leave\LeaveBalanceController;
+use App\Http\Controllers\Admin\Leave\HolidayController;
+use App\Http\Controllers\Admin\Leave\LeaveTypeController;
+use App\Http\Controllers\Admin\Salary\SalaryController;
+use App\Http\Controllers\Admin\QrCode\QrCodeController;
+use App\Http\Controllers\Admin\Training\TrainingController;
+use App\Http\Controllers\Admin\Api\QrScannerController;
+use App\Http\Controllers\Employee\Training\EmployeeTrainingController;
+use App\Http\Controllers\Employee\Profile\EmployeeProfileController;
+use App\Http\Controllers\Employee\Leave\EmployeeLeaveRequestController;
 
 Auth::routes(['verify' => true]);
 
@@ -58,9 +61,12 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('deductions', DeductionController::class);
     Route::resource('employee_deductions', EmployeeDeductionController::class);
     Route::resource('leave_types', LeaveTypeController::class);
-    Route::put('employee_leaves/{employee_leafe}/approve', [EmployeeLeaveController::class, 'approve'])->name('employee_leaves.approve');
-    Route::put('employee_leaves/{employee_leafe}/deny', [EmployeeLeaveController::class, 'deny'])->name('employee_leaves.deny');
-    Route::resource('employee_leaves', EmployeeLeaveController::class);
+    Route::put('leave_requests/{leave_request}/approve', [LeaveRequestController::class, 'approve'])->name('leave_requests.approve');
+    Route::put('leave_requests/{leave_request}/deny', [LeaveRequestController::class, 'deny'])->name('leave_requests.deny');
+    Route::resource('leave_requests', LeaveRequestController::class);
+    Route::get('trainings/{training}/participants', [TrainingController::class, 'participants'])->name('trainings.participants');
+    Route::patch('trainings/{employeeTraining}/approve', [TrainingController::class, 'approveParticipant'])->name('trainings.approve');
+    Route::patch('trainings/{employeeTraining}/decline', [TrainingController::class, 'declineParticipant'])->name('trainings.decline');
     Route::resource('trainings', TrainingController::class);
     
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
@@ -74,4 +80,11 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
     Route::get('qr-scanner', [QrScannerController::class, 'index'])->name('qr-scanner.index');
     Route::post('qr-scanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
+});
+
+Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee'])->group(function() {
+    Route::resource('profile', EmployeeProfileController::class);
+    Route::get('employee_trainings/{employeeTraining}/certificate', [EmployeeTrainingController::class, 'downloadCertificate'])->name('employee_trainings.certificate');
+    Route::resource('employee_trainings', EmployeeTrainingController::class);
+    Route::resource('employee_leaves', EmployeeLeaveRequestController::class);
 });

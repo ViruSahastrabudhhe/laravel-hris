@@ -17,12 +17,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('holiday_duration');
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
         });
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\EmployeeTrainingStatus;
 
 class EmployeeTraining extends Model
 {
@@ -17,10 +18,10 @@ class EmployeeTraining extends Model
     protected $fillable = [
         'employee_id',
         'training_id',
-        'user_id',
         'status',
         'completion_date',
         'remarks',
+        'user_id',
     ];
 
     public function employee()
@@ -31,11 +32,5 @@ class EmployeeTraining extends Model
     public function training()
     {
         return $this->belongsTo(Training::class);
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void
-    {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

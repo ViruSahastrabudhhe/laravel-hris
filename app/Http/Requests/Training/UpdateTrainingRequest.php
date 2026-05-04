@@ -12,7 +12,7 @@ class UpdateTrainingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -31,7 +31,6 @@ class UpdateTrainingRequest extends FormRequest
             'end_date'      => 'required|date|after_or_equal:start_date',
             'venue'         => 'required|string|max:255',
             'status'        => 'required|string',
-            'user_id'       => 'required',
         ];
     }
 }

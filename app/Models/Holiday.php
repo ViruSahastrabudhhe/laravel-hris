@@ -19,7 +19,6 @@ class Holiday extends Model
         'start_date',
         'end_date',
         'holiday_duration',
-        'user_id',
     ];
 
     #[Scope]

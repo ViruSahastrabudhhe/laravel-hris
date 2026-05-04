@@ -21,7 +21,7 @@ class EmployeeTrainingPolicy
      */
     public function view(User $user, EmployeeTraining $employeeTraining): bool
     {
-        return false;
+        return $user->hasRole('employee');
     }
 
     /**

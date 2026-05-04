@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
-use App\Models\EmployeeLeave;
+use App\Models\LeaveRequest;
 use App\Enums\LeaveStatus;
 
 class HomeController extends Controller
@@ -27,12 +27,12 @@ class HomeController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('admin')) {
-            $employees = Employee::findAllWithUserID()->with(['department', 'position'])->get();
-            $employeeLeaves = EmployeeLeave::findAllWithUserID()->with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
+            $employees = Employee::with(['department', 'position'])->get();
+            $leaveRequests = LeaveRequest::with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
     
             return view('admin.home', [
                 'employees' => $employees,
-                'employeeLeaves' => $employeeLeaves,
+                'leaveRequests' => $leaveRequests,
             ]);
         }
         

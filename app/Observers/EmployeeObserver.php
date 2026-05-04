@@ -76,7 +76,6 @@ class EmployeeObserver
             $employeeLeaveBalance = new EmployeeLeaveBalance;
             $employeeLeaveBalance->leave_balance = 0.0;
             $employeeLeaveBalance->employee_id = $employee->id;
-            $employeeLeaveBalance->user_id = auth()->user()->id;
             $employeeLeaveBalance->save();
             return;
         }
@@ -84,7 +83,6 @@ class EmployeeObserver
         $employeeLeaveBalance = new EmployeeLeaveBalance;
         $employeeLeaveBalance->leave_balance = 15;
         $employeeLeaveBalance->employee_id = $employee->id;
-        $employeeLeaveBalance->user_id = auth()->user()->id;
         $employeeLeaveBalance->save();
     }
 
@@ -98,7 +96,6 @@ class EmployeeObserver
         $employeeDeduction->employee_id = $employee->id;
         $employeeDeduction->deduction_id = 1;
         $employeeDeduction->amount = $amount * $gsis->rate;
-        $employeeDeduction->user_id = auth()->user()->id;
         
         $employeePhilhealth = new EmployeeDeduction;
         $employeePhilhealth->employee_id = $employee->id;
@@ -107,7 +104,6 @@ class EmployeeObserver
         if ($employeePhilhealth->amount >= 2500) {
             $employeePhilhealth->amount = 2500;
         }
-        $employeePhilhealth->user_id = auth()->user()->id;
         
         $employeePagibig = new EmployeeDeduction;
         $employeePagibig->employee_id = $employee->id;
@@ -117,7 +113,6 @@ class EmployeeObserver
         } else {
             $employeePagibig->amount = 100;
         }
-        $employeePagibig->user_id = auth()->user()->id;
         
         $employeeDeduction->save();
         $employeePhilhealth->save();

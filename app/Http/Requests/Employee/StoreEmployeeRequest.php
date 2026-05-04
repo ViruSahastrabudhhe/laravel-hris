@@ -11,7 +11,7 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -32,7 +32,6 @@ class StoreEmployeeRequest extends FormRequest
             'address.city' => 'required',
             'address.address' => 'required',
             'address.province' => 'required',
-            'address.user_id' => 'required',
             'phone_number' => 'required',
             'employment_type' => 'required',
             'is_active' => 'required',
@@ -40,7 +39,6 @@ class StoreEmployeeRequest extends FormRequest
             'department_id' => 'required',
             'work_schedule_id' => 'required',
             'password' => 'required|min:8|confirmed|string',
-            'user_id' => 'required',
             'salary.salary_type' => 'required',
             'salary.amount' => 'required|numeric|min:0',
             'salary.salary_grade' => 'required|integer',

@@ -18,19 +18,13 @@ class EmployeeWorkSchedule extends Model
     protected $fillable = [
         'employee_id',
         'work_schedule_id',
-        'user_id',
     ];
 
     public function employee() {
-        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+        return $this->belongsTo(Employee::class);
     }
 
     public function workSchedule() {
         return $this->belongsTo(WorkSchedule::class, 'work_schedule_id', 'id');
-    }
-
-    #[Scope]
-    protected function findAllWithUserID(Builder $query): void {
-        $query->where('user_id', '=', auth()->user()->id);
     }
 }

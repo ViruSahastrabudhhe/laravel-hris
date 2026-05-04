@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            AddressSeeder::class,
             LeaveTypeSeeder::class,
             PositionSeeder::class,
             DepartmentSeeder::class,

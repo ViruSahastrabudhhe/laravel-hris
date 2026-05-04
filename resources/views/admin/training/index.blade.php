@@ -267,7 +267,7 @@
 </div>
 
 {{-- Training View Modal --}}
-<div class="modal-overlay" id="training-view-modal" style="display: none;" onclick="closeTrainingViewModal()">
+<div class="modal-overlay" id="training-view-modal" style="display: none;" onclick="closeModal('training-view-modal')">
     <div class="modal-box modal-lg" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="pmodal-hero" style="display: flex; gap: 16px; align-items: flex-start;">
@@ -284,7 +284,7 @@
                     </div>
                 </div>
             </div>
-            <button class="modal-close" onclick="closeTrainingViewModal()">
+            <button class="modal-close" onclick="closeModal('training-view-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -324,14 +324,36 @@
             <div class="modal-row"><span>Venue</span><strong id="modal-venue">Municipal Hall Conference Room</strong></div>
         </div>
         <div class="modal-footer">
-            <button class="modal-btn-ghost" onclick="closeTrainingViewModal()">Close</button>
-            <button class="modal-btn-primary">View Participants</button>
+            <button class="modal-btn-ghost" onclick="closeModal('training-view-modal')">Close</button>
+            <button class="modal-btn-primary" onclick="openParticipantsModal(currentTrainingId)">View Participants</button>
+        </div>
+    </div>
+</div>
+
+{{-- View Participants Modal --}}
+<div class="modal-overlay" id="training-participants-modal" style="display:none" onclick="closeModal('training-participants-modal')">
+    <div class="modal-box" style="width:min(600px,100%)" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">TRAINING PROGRAM</span>
+                <h3 class="modal-title">Participants</h3>
+                <p class="modal-sub" id="participants-modal-sub">—</p>
+            </div>
+            <button class="modal-close" onclick="closeModal('training-participants-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" style="max-height:65vh;overflow-y:auto;">
+            <div id="participants-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn-ghost" onclick="closeModal('training-participants-modal')">Close</button>
         </div>
     </div>
 </div>
 
 {{-- Training Create Modal --}}
-<div class="modal-overlay" id="training-create-modal" style="display:none" onclick="closeTrainingCreateModal()">
+<div class="modal-overlay" id="training-create-modal" style="display:none" onclick="closeModal('training-create-modal')">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
@@ -339,7 +361,7 @@
                 <h3 class="modal-title">Add Training Program</h3>
                 <p class="modal-sub">Create a new training record</p>
             </div>
-            <button class="modal-close" onclick="closeTrainingCreateModal()">
+            <button class="modal-close" onclick="closeModal('training-create-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -384,10 +406,9 @@
                         @endforeach
                     </select>
                 </div>
-                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeTrainingCreateModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('training-create-modal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Create Training
@@ -398,7 +419,7 @@
 </div>
 
 {{-- Training Edit Modal --}}
-<div class="modal-overlay" id="training-edit-modal" style="display:none" onclick="closeTrainingEditModal()">
+<div class="modal-overlay" id="training-edit-modal" style="display:none" onclick="closeModal('training-edit-modal')">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
@@ -406,7 +427,7 @@
                 <h3 class="modal-title">Edit Training</h3>
                 <p class="modal-sub">Update training record</p>
             </div>
-            <button class="modal-close" onclick="closeTrainingEditModal()">
+            <button class="modal-close" onclick="closeModal('training-edit-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -453,10 +474,9 @@
                     </select>
                     <input type="hidden" name="status" id="training-edit-status-hidden">
                 </div>
-                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeTrainingEditModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('training-edit-modal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Update Training
@@ -469,92 +489,190 @@
 @endsection
 
 @push('scripts')
-<script>
-    if ($('#training-table').length) {
-        const trainingTable = $('#training-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [7] }],
-            pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No trainings found' },
-            dom: 'rtip',
-        });
+    <script>
+        if ($('#training-table').length) {
+            const trainingTable = $('#training-table').DataTable({
+                columnDefs: [{ orderable: false, targets: [7] }],
+                pageLength: 25,
+                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No trainings found' },
+                dom: 'rtip',
+            });
 
-        $('#training-search').on('keyup', function() {
-            trainingTable.search(this.value).draw();
-        });
+            $('#training-search').on('keyup', function() {
+                trainingTable.search(this.value).draw();
+            });
 
-        $('#type-filter').on('change', function() {
-            const value = $(this).val();
-            trainingTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
+            $('#type-filter').on('change', function() {
+                const value = $(this).val();
+                trainingTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+            });
 
-        $('#status-filter').on('change', function() {
-            const value = $(this).val();
-            trainingTable.column(6).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
-    }
-</script>
+            $('#status-filter').on('change', function() {
+                const value = $(this).val();
+                trainingTable.column(6).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+            });
+        }
+    </script>
 
-<script>
-    function openTrainingViewModal(id, title, type, participants, capacity, startDate, endDate, venue, status, accent) {
-        const fillPct = capacity > 0 ? Math.round((participants / capacity) * 100) : 0;
+    <script>
+        let currentTrainingId = null;
 
-        document.getElementById('modal-training-id').textContent = 'TRAINING PROGRAM · TRN-' + String(id).padStart(3, '0');
-        document.getElementById('modal-training-title').textContent = title;
-        document.getElementById('modal-training-sub').textContent = type + ' · ' + venue;
-        const statusClasses = {
-            '{{ \App\Enums\TrainingStatus::Ongoing->value }}':   'processed',
-            '{{ \App\Enums\TrainingStatus::Completed->value }}': 'on-hold',
-            '{{ \App\Enums\TrainingStatus::Canceled->value }}':  'pending',
-            '{{ \App\Enums\TrainingStatus::Scheduled->value }}': 'pending',
+        const statusColors = {
+            'Pending':   { bg: '#fefce8', color: '#d9bb00' },
+            'Enrolled':  { bg: '#f0fdf4', color: '#15803d' },
+            'Completed': { bg: '#f0effe', color: '#0b044d' },
+            'Declined':  { bg: '#fff1f2', color: '#8e1e18' },
+            'Failed':    { bg: '#fff1f2', color: '#8e1e18' },
+            'Canceled':  { bg: '#fefce8', color: '#d9bb00' },
         };
-        const statusBadge = document.getElementById('modal-status-badge');
-        statusBadge.textContent = status;
-        statusBadge.className = 'badge-status ' + (statusClasses[status] ?? 'pending');
-        document.getElementById('modal-type-badge').textContent = type;
-        document.getElementById('modal-type-badge').style.color = accent;
-        document.getElementById('modal-type-badge').style.background = accent + '18';
-        document.getElementById('modal-type-badge').style.borderColor = accent + '40';
-        document.getElementById('modal-icon').style.background = accent;
-        document.getElementById('capacity-icon').style.background = accent;
-        document.getElementById('modal-participants').textContent = participants;
-        document.getElementById('modal-capacity').textContent = capacity;
-        document.getElementById('modal-fill-pct').textContent = fillPct + '%';
-        document.getElementById('modal-fill-pct').style.color = accent;
-        document.getElementById('modal-progress-pct').textContent = fillPct + '%';
-        document.getElementById('modal-progress-bar').style.width = fillPct + '%';
-        document.getElementById('modal-progress-bar').style.background = accent;
-        document.getElementById('modal-start-date').textContent = startDate;
-        document.getElementById('modal-end-date').textContent = endDate;
-        document.getElementById('modal-venue').textContent = venue;
-        document.getElementById('training-view-modal').style.display = 'flex';
-    }
-    function closeTrainingViewModal() { document.getElementById('training-view-modal').style.display = 'none'; }
 
-    function openTrainingCreateModal() { document.getElementById('training-create-modal').style.display = 'flex'; }
-    function closeTrainingCreateModal() { document.getElementById('training-create-modal').style.display = 'none'; }
+        function openTrainingViewModal(id, title, type, participants, capacity, startDate, endDate, venue, status, accent) {
+            currentTrainingId = id;
+            const fillPct = capacity > 0 ? Math.round((participants / capacity) * 100) : 0;
 
-    function openTrainingEditModal(id, title, type, capacity, startDate, endDate, venue, status) {
-        var url = "{{ route('trainings.update', ':id') }}";
-        url = url.replace(':id', id);
-        document.getElementById('training-edit-form').action = url;
-        document.getElementById('training-edit-title').value = title;
-        document.getElementById('training-edit-type').value = type;
-        document.getElementById('training-edit-capacity').value = capacity;
-        document.getElementById('training-edit-start').value = startDate;
-        document.getElementById('training-edit-end').value = endDate;
-        document.getElementById('training-edit-venue').value = venue;
-        document.getElementById('training-edit-status').value = status;
-        document.getElementById('training-edit-modal').style.display = 'flex';
+            document.getElementById('modal-training-id').textContent = 'TRAINING PROGRAM · TRN-' + String(id).padStart(3, '0');
+            document.getElementById('modal-training-title').textContent = title;
+            document.getElementById('modal-training-sub').textContent = type + ' · ' + venue;
+            const statusClasses = {
+                '{{ \App\Enums\TrainingStatus::Ongoing->value }}':   'processed',
+                '{{ \App\Enums\TrainingStatus::Completed->value }}': 'on-hold',
+                '{{ \App\Enums\TrainingStatus::Canceled->value }}':  'pending',
+                '{{ \App\Enums\TrainingStatus::Scheduled->value }}': 'pending',
+            };
+            const statusBadge = document.getElementById('modal-status-badge');
+            statusBadge.textContent = status;
+            statusBadge.className = 'badge-status ' + (statusClasses[status] ?? 'pending');
+            document.getElementById('modal-type-badge').textContent = type;
+            document.getElementById('modal-type-badge').style.color = accent;
+            document.getElementById('modal-type-badge').style.background = accent + '18';
+            document.getElementById('modal-type-badge').style.borderColor = accent + '40';
+            document.getElementById('modal-icon').style.background = accent;
+            document.getElementById('capacity-icon').style.background = accent;
+            document.getElementById('modal-participants').textContent = participants;
+            document.getElementById('modal-capacity').textContent = capacity;
+            document.getElementById('modal-fill-pct').textContent = fillPct + '%';
+            document.getElementById('modal-fill-pct').style.color = accent;
+            document.getElementById('modal-progress-pct').textContent = fillPct + '%';
+            document.getElementById('modal-progress-bar').style.width = fillPct + '%';
+            document.getElementById('modal-progress-bar').style.background = accent;
+            document.getElementById('modal-start-date').textContent = startDate;
+            document.getElementById('modal-end-date').textContent = endDate;
+            document.getElementById('modal-venue').textContent = venue;
+            document.getElementById('training-view-modal').style.display = 'flex';
+        }
 
-        const statusSelect = document.getElementById('training-edit-status');
-        const isCompleted = status === '{{ \App\Enums\TrainingStatus::Completed->value }}';
-        statusSelect.disabled = isCompleted;
-        statusSelect.style.opacity = isCompleted ? '0.5' : '1';
-        statusSelect.style.cursor = isCompleted ? 'not-allowed' : '';
-        document.getElementById('training-edit-status-hidden').disabled = !isCompleted;
-        document.getElementById('training-edit-status-hidden').value = isCompleted ? status : '';
-    }
-    function closeTrainingEditModal() { document.getElementById('training-edit-modal').style.display = 'none'; }
+        function openTrainingCreateModal() { document.getElementById('training-create-modal').style.display = 'flex'; }
 
-</script>
+        function openTrainingEditModal(id, title, type, capacity, startDate, endDate, venue, status) {
+            var url = "{{ route('trainings.update', ':id') }}";
+            url = url.replace(':id', id);
+            document.getElementById('training-edit-form').action = url;
+            document.getElementById('training-edit-title').value = title;
+            document.getElementById('training-edit-type').value = type;
+            document.getElementById('training-edit-capacity').value = capacity;
+            document.getElementById('training-edit-start').value = startDate;
+            document.getElementById('training-edit-end').value = endDate;
+            document.getElementById('training-edit-venue').value = venue;
+            document.getElementById('training-edit-status').value = status;
+            document.getElementById('training-edit-modal').style.display = 'flex';
+
+            const statusSelect = document.getElementById('training-edit-status');
+            const isCompleted = status === '{{ \App\Enums\TrainingStatus::Completed->value }}';
+            statusSelect.disabled = isCompleted;
+            statusSelect.style.opacity = isCompleted ? '0.5' : '1';
+            statusSelect.style.cursor = isCompleted ? 'not-allowed' : '';
+            document.getElementById('training-edit-status-hidden').disabled = !isCompleted;
+            document.getElementById('training-edit-status-hidden').value = isCompleted ? status : '';
+        }
+
+        function openParticipantsModal(trainingId) {
+            const list = document.getElementById('participants-list');
+            const sub  = document.getElementById('participants-modal-sub');
+            list.innerHTML = '<p style="text-align:center;color:#9999bb;padding:24px 0;">Loading...</p>';
+            sub.textContent = document.getElementById('modal-training-title').textContent;
+            document.getElementById('training-participants-modal').style.display = 'flex';
+
+            fetch(`/admin/trainings/${trainingId}/participants`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.length) {
+                        list.innerHTML = '<p style="text-align:center;color:#9999bb;padding:24px 0;">No participants enrolled.</p>';
+                        return;
+                    }
+                    list.innerHTML = data.map(p => {
+                        const sc = statusColors[p.status] ?? { bg: '#f7f6ff', color: '#6b6a8a' };
+                        const isPending = p.status === 'Pending';
+                        return `<div id="participant-row-${p.id}" style="padding:12px 0;border-bottom:1px solid #f0effe;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <p style="font-size:13px;font-weight:600;color:#0b044d;margin:0">${p.name}</p>
+                                    <p id="participant-remarks-${p.id}" style="font-size:11px;color:#9999bb;margin:2px 0 0">${p.remarks ?? ''}</p>
+                                </div>
+                                <div id="participant-actions-${p.id}" style="display:flex;align-items:center;gap:8px;">
+                                    <span id="participant-badge-${p.id}" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:${sc.bg};color:${sc.color}">${p.status}</span>
+                                    ${isPending ? `
+                                        <button onclick="submitApprove(${p.id})" style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;border:1.5px solid #86efac;background:#f0fdf4;color:#15803d;cursor:pointer;">Approve</button>
+                                        <button onclick="toggleDeclineForm(${p.id})" style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;border:1.5px solid #fca5a5;background:#fff1f2;color:#8e1e18;cursor:pointer;">Decline</button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            ${isPending ? `
+                            <div id="decline-form-${p.id}" style="display:none;margin-top:10px;background:#fff8f8;border-radius:8px;padding:10px 12px;border:1px solid #fca5a5;">
+                                <p style="font-size:11px;font-weight:700;color:#8e1e18;margin:0 0 6px;letter-spacing:0.5px;">DECLINE REASON</p>
+                                <textarea id="decline-remarks-${p.id}" placeholder="Enter reason for declining..." style="width:100%;font-size:12px;padding:7px 10px;border:1.5px solid #fca5a5;border-radius:7px;resize:none;outline:none;font-family:inherit;color:#0b044d;box-sizing:border-box;" rows="2"></textarea>
+                                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+                                    <button onclick="toggleDeclineForm(${p.id})" style="font-size:12px;font-weight:600;padding:5px 12px;border-radius:7px;border:1.5px solid #dddcf0;background:#fff;color:#6b6a8a;cursor:pointer;">Cancel</button>
+                                    <button onclick="submitDecline(${p.id})" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:7px;border:none;background:#8e1e18;color:#fff;cursor:pointer;">Confirm Decline</button>
+                                </div>
+                            </div>` : ''}
+                        </div>`;
+                    }).join('');
+                });
+        }
+
+        function toggleDeclineForm(id) {
+            const form = document.getElementById(`decline-form-${id}`);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function submitApprove(id) {
+            fetch(`/admin/trainings/${id}/approve`, {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const sc = statusColors['Enrolled'];
+                document.getElementById(`participant-badge-${id}`).textContent = 'Enrolled';
+                document.getElementById(`participant-badge-${id}`).style.background = sc.bg;
+                document.getElementById(`participant-badge-${id}`).style.color = sc.color;
+                document.getElementById(`participant-actions-${id}`).querySelectorAll('button').forEach(b => b.remove());
+                document.getElementById(`decline-form-${id}`)?.remove();
+            });
+        }
+
+        function submitDecline(id) {
+            const remarks = document.getElementById(`decline-remarks-${id}`).value;
+            fetch(`/admin/trainings/${id}/decline`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({ remarks }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const sc = statusColors['Declined'];
+                document.getElementById(`participant-badge-${id}`).textContent = 'Declined';
+                document.getElementById(`participant-badge-${id}`).style.background = sc.bg;
+                document.getElementById(`participant-badge-${id}`).style.color = sc.color;
+                document.getElementById(`participant-remarks-${id}`).textContent = remarks;
+                document.getElementById(`participant-actions-${id}`).querySelectorAll('button').forEach(b => b.remove());
+                document.getElementById(`decline-form-${id}`).remove();
+            });
+        }
+    </script>
 @endpush

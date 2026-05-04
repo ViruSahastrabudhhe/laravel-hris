@@ -21,7 +21,6 @@ class DeductionFactory extends Factory
             'name' => 'GSIS Contribution',
             'type' => DeductionType::Optional->value,
             'description' => '',
-            'user_id' => 1,
         ];
     }
 }

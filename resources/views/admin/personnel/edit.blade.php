@@ -102,7 +102,7 @@
                         <option value="">Select position</option>
                         @foreach($positions as $position)
                             @php
-                                $employees = \App\Models\Employee::findAllWithUserID()->get();
+                                $employees = \App\Models\Employee::paginate(25);
                                 $employeeCountInPos = $employees->where('position_id', $position->id)->count();
                             @endphp
                             @if ($employeeCountInPos >= $position->total_employees)

@@ -11,7 +11,7 @@ class StoreDepartmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -27,7 +27,6 @@ class StoreDepartmentRequest extends FormRequest
             'department_head' => 'nullable|string',
             'is_active' => 'boolean',
             'description' => 'nullable',
-            'user_id' => 'required',
         ];
     }
 }

@@ -49,7 +49,7 @@
 
             <p style="font-size:10px;font-weight:700;color:#9999bb;letter-spacing:1.5px;margin:18px 0 10px">ADDRESS</p>
             <div style="font-size:13px;color:#5a5888;line-height:1.7">
-                {{ $employee->address->address }}, {{ $employee->address->city }}, {{ $employee->address->province }}, {{ $employee->address->country }} {{ $employee->address->zip_code }}
+                {{ $address->address }}, {{ $address->city }}, {{ $address->province }}, {{ $address->country }} {{ $address->zip_code }}
             </div>
         </div>
 

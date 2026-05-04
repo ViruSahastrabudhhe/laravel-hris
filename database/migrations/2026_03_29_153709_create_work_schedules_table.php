@@ -20,11 +20,6 @@ return new class extends Migration
             $table->integer('break_minutes');
             $table->json('work_days');
             $table->integer('grace_period_minutes');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
             $table->timestamps();
         });
     }

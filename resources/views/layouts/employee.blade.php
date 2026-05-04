@@ -34,7 +34,10 @@
         </div>
         @endif
 
+        @if (str_contains(Route::currentRouteName(), 'employee_profile'))
+        @else
         <h1 class="page-header">{{ $pageHeader }}</h1>
+        @endif
         @yield('page-content')
     </main>
 
@@ -42,36 +45,39 @@
 
 @yield('page-modals')
 
-<script>
-const sidebar       = document.getElementById('sidebar');
-const toggleBtn     = document.getElementById('toggle-btn');
-const logoText      = document.getElementById('logo-text');
-const navLabel      = document.getElementById('nav-label');
-const userInfo      = document.getElementById('user-info');
-const sidebarFooter = document.getElementById('sidebar-footer');
-const mobileBtn     = document.getElementById('mobile-menu-btn');
-const overlay       = document.getElementById('mobile-overlay');
-
-toggleBtn.addEventListener('click', () => {
-    const collapsed = sidebar.classList.toggle('collapsed');
-    toggleBtn.textContent = collapsed ? '›' : '‹';
-    logoText.style.display  = collapsed ? 'none' : '';
-    navLabel.style.display  = collapsed ? 'none' : '';
-    userInfo.style.display  = collapsed ? 'none' : '';
-    sidebarFooter.classList.toggle('collapsed-footer', collapsed);
-    document.querySelectorAll('.nav-label, .nav-active-bar').forEach(el => {
-        el.style.display = collapsed ? 'none' : '';
-    });
-});
-
-mobileBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('active');
-});
-
-overlay.addEventListener('click', () => {
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('active');
-});
-</script>
 @endsection
+
+@push('scripts')
+    <script>
+        const sidebar       = document.getElementById('sidebar');
+        const toggleBtn     = document.getElementById('toggle-btn');
+        const logoText      = document.getElementById('logo-text');
+        const navLabel      = document.getElementById('nav-label');
+        const userInfo      = document.getElementById('user-info');
+        const sidebarFooter = document.getElementById('sidebar-footer');
+        const mobileBtn     = document.getElementById('mobile-menu-btn');
+        const overlay       = document.getElementById('mobile-overlay');
+
+        toggleBtn.addEventListener('click', () => {
+            const collapsed = sidebar.classList.toggle('collapsed');
+            toggleBtn.textContent = collapsed ? '›' : '‹';
+            logoText.style.display  = collapsed ? 'none' : '';
+            navLabel.style.display  = collapsed ? 'none' : '';
+            userInfo.style.display  = collapsed ? 'none' : '';
+            sidebarFooter.classList.toggle('collapsed-footer', collapsed);
+            document.querySelectorAll('.nav-label, .nav-active-bar').forEach(el => {
+                el.style.display = collapsed ? 'none' : '';
+            });
+        });
+
+        mobileBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        });
+    </script>
+@endpush

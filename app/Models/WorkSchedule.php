@@ -23,7 +23,6 @@ class WorkSchedule extends Model
         'break_minutes',
         'work_days',
         'grace_period_minutes',
-        'user_id',
     ];
 
     protected $casts = [

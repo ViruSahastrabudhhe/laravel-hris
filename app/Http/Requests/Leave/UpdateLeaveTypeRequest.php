@@ -11,7 +11,7 @@ class UpdateLeaveTypeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -25,7 +25,6 @@ class UpdateLeaveTypeRequest extends FormRequest
             'leave_type' => 'required|string',
             'days_of_leave' => 'required|integer',
             'is_active' => 'required|boolean',
-            'user_id' => 'required',
         ];
     }
 }

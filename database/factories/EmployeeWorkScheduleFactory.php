@@ -27,7 +27,6 @@ class EmployeeWorkScheduleFactory extends Factory
         return [
             'employee_id' => 1,
             'work_schedule_id' => 1,
-            'user_id' => 1,
         ];
     }
 }

@@ -12,7 +12,7 @@ class StoreEmployeeTrainingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('employee');
     }
 
     /**
@@ -23,12 +23,7 @@ class StoreEmployeeTrainingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id'     => 'required|integer|exists:employees,id',
-            'training_id'     => 'required|integer|exists:trainings,id',
-            'status'          => 'required|string',
-            'completion_date' => 'nullable|date',
-            'remarks'         => 'nullable|string',
-            'user_id'         => 'required',
+            'training_id' => 'required|integer',
         ];
     }
 }

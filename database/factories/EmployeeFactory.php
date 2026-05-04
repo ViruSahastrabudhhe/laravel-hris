@@ -31,13 +31,12 @@ class EmployeeFactory extends Factory
             'gender' => 'Male',
             'email' => 'johndoe@example.com',
             'date_of_birth' => '2026-02-22',
-            'address_id' => 1,
             'phone_number' => '09123456789',
             'employment_type' => EmploymentType::Regular->value,
             'is_active' => 1,
             'position_id' => 2,
             'department_id' => 2,
-            'user_id' => 1,
+            'user_id' => 2,
         ];
     }
 }

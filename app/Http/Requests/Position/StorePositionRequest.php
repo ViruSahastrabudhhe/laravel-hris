@@ -11,7 +11,7 @@ class StorePositionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->user()->hasRole('admin');
     }
 
     /**
@@ -26,7 +26,6 @@ class StorePositionRequest extends FormRequest
             'status' => 'required',
             'is_active' => 'required',
             'total_employees' => 'required',
-            'user_id' => 'required',
         ];
     }
 }

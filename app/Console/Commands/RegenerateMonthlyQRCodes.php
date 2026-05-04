@@ -28,7 +28,7 @@ class RegenerateMonthlyQrCodes extends Command
      */
     public function handle(): void
     {
-        $employees = Employee::findAllWithUserID()->all();
+        $employees = Employee::all();
 
         foreach ($employees as $employee) {
             $hash = hash('sha256', $employee->id . now()->format('Y-m') . uniqid());

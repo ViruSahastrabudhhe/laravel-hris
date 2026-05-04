@@ -19,7 +19,6 @@ class EmployeeLeaveBalanceFactory extends Factory
         return [
             'leave_balance' => 15,
             'employee_id' => 1,
-            'user_id' => 1,
         ];
     }
 }

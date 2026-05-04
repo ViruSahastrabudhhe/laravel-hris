@@ -6,7 +6,7 @@
             ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
             ['id' => 'training',   'label' => 'Training & Development',       'route' => 'trainings.index',       'icon' => 'training', 'section' => null],
             ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
-            ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'employee_leaves.index', 'icon' => 'leave', 'section' => null],
+            ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'leave_requests.index', 'icon' => 'leave', 'section' => null],
             ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'employees.index',       'icon' => 'performance', 'section' => null],
             ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
             ['id' => 'reports',   'label' => 'Reports',       'route' => 'employees.index',       'icon' => 'reports', 'section' => null],
@@ -14,9 +14,9 @@
     } else {
         $navItems = [
             ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
-            ['id' => 'profile',        'label' => 'Profile',       'route' => 'home',                  'icon' => 'profile', 'section' => null],
-            ['id' => 'leaves',        'label' => 'Requests',       'route' => 'home',                  'icon' => 'leave', 'section' => null],
-            ['id' => 'training',        'label' => 'Trainings',       'route' => 'home',                  'icon' => 'training', 'section' => null],
+            ['id' => 'profile',        'label' => 'Profile',       'route' => 'profile.index',                  'icon' => 'profile', 'section' => null],
+            ['id' => 'leaves',        'label' => 'Leave & Benefits',       'route' => 'employee_leaves.index',                  'icon' => 'leave', 'section' => null],
+            ['id' => 'training',        'label' => 'Trainings',       'route' => 'employee_trainings.index',                  'icon' => 'training', 'section' => null],
             ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'home',                  'icon' => 'attendance', 'section' => null],
             ['id' => 'performance',        'label' => 'Performance',       'route' => 'home',                  'icon' => 'performance', 'section' => null],
             ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'home',                  'icon' => 'payslip', 'section' => null],
@@ -36,7 +36,8 @@
         <div class="logo">
             <div class="logo-mark">
                 <div class="pub-logo-seal sm" style="background:#0b044d">
-                    <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <!-- <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> -->
+                    <img src="{{ asset('images/municipal-of-pagsanjan-logo.jpg') }}" alt="Municipal of Pagsanjan Logo" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
             </div>
                 <div class="logo-text-wrap" id="logo-text">

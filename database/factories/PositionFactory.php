@@ -29,7 +29,6 @@ class PositionFactory extends Factory
             'title' => 'Administrative Aide I',
             'total_employees' => 15,
             'status' => PositionStatus::Hiring->value,
-            'user_id' => 1,
         ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Employee;
 use App\Models\User;
+use App\Enums\SalaryType;
 
 class Salary extends Model
 {
@@ -18,11 +19,10 @@ class Salary extends Model
         'step',
         'salary_type',
         'employee_id',
-        'user_id',  
     ];
 
     protected $casts = [
-        'salary_type' => \App\Enums\SalaryType::class,
+        'salary_type' => SalaryType::class,
     ];
 
     public function employee()

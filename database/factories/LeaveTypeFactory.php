@@ -20,7 +20,6 @@ class LeaveTypeFactory extends Factory
             'leave_type' => 'Annual Leave',
             'days_of_leave' => 5,
             'is_active' => 1,
-            'user_id' => 1,
         ];
     }
 }

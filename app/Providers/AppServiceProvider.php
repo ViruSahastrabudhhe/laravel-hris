@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use App\Models\Attendance;
 use App\Models\Employee;
-use App\Models\EmployeeLeave;
+use App\Models\LeaveRequest;
 use App\Models\Salary;
 use App\Models\Position;
 use App\Observers\AttendanceObserver;
 use App\Observers\EmployeeObserver;
-use App\Observers\EmployeeLeaveObserver;
+use App\Observers\LeaveRequestObserver;
 use App\Observers\SalaryObserver;
 use App\Observers\PositionObserver;
 use Illuminate\Support\Facades\Gate;
@@ -35,34 +35,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Attendance::observe(AttendanceObserver::class);
         Employee::observe(EmployeeObserver::class);
-        EmployeeLeave::observe(EmployeeLeaveObserver::class);
+        LeaveRequest::observe(LeaveRequestObserver::class);
         Salary::observe(SalaryObserver::class);
         Position::observe(PositionObserver::class);
         
-        View::composer('layouts.employee', function ($view) {
-            $route = Route::currentRouteName();
-            $header = match(true) {
-                str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
-                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
-                str_contains($route, 'employee_leaves') => __('employee_leave.title'),
-                str_contains($route, 'qr') => __('qr_code.title'),
-                str_contains($route, 'department') => __('department.title'),
-                str_contains($route, 'position') => __('position.title'),
-                str_contains($route, 'training') => __('training.title'),
-                str_contains($route, 'employee') => __('employee.title'),
-                str_contains($route, 'schedule') => __('schedule.title'),
-                str_contains($route, 'attendance') => __('attendance.title'),
-                str_contains($route, 'training') => __('training.title'),
-                str_contains($route, 'leave') => __('leave_type.title'),
-                str_contains($route, 'salaries') => __('salary.title'),
-                str_contains($route, 'deduction') => __('deduction.title'),
-                str_contains($route, 'payroll') => __('payroll.title'),
-                str_contains($route, 'holiday') => __('holiday.title'),
-                default => null
-            };
-            $view->with('pageHeader', $header);
-        });
-
+        // page title
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();
             $title = match(true) {
@@ -72,9 +49,10 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'register') => __('common.app_register'),
                 str_contains($route, 'password') => __('common.app_password'),
                 str_contains($route, 'verify') => __('common.app_verify'),
+                str_contains($route, 'profile') => __('profile.title'),
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
                 str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
-                str_contains($route, 'employee_leaves') => __('employee_leave.title'),
+                str_contains($route, 'leave_requests') => __('leave_request.title'),
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'training') => __('training.title'),
@@ -92,11 +70,12 @@ class AppServiceProvider extends ServiceProvider
             $view->with('pageTitle', $title);
         });
 
+        // page header for admin
         View::composer('layouts.admin', function ($view) {
             $route = Route::currentRouteName();
             $header = match(true) {
                 str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
-                str_contains($route, 'employee_leaves') => __('common.app_leave'),
+                str_contains($route, 'leave_requests') => __('common.app_leave'),
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'position') => __('position.title'),
@@ -108,6 +87,31 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'salaries') => __('salary.title'),
                 str_contains($route, 'deduction') => __('deduction.title'),
                 str_contains($route, 'payroll') => __('common.app_payroll'),
+                str_contains($route, 'holiday') => __('holiday.title'),
+                default => null
+            };
+            $view->with('pageHeader', $header);
+        });
+
+        // page header for employee
+        View::composer('layouts.employee', function ($view) {
+            $route = Route::currentRouteName();
+            $header = match(true) {
+                str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
+                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'leave_requests') => __('common.app_leave'),
+                str_contains($route, 'qr') => __('qr_code.title'),
+                str_contains($route, 'department') => __('department.title'),
+                str_contains($route, 'position') => __('position.title'),
+                str_contains($route, 'training') => __('training.title'),
+                str_contains($route, 'employee') => __('employee.title'),
+                str_contains($route, 'schedule') => __('schedule.title'),
+                str_contains($route, 'attendance') => __('attendance.title'),
+                str_contains($route, 'training') => __('training.title'),
+                str_contains($route, 'leave') => __('leave_type.title'),
+                str_contains($route, 'salaries') => __('salary.title'),
+                str_contains($route, 'deduction') => __('deduction.title'),
+                str_contains($route, 'payroll') => __('payroll.title'),
                 str_contains($route, 'holiday') => __('holiday.title'),
                 default => null
             };
