@@ -46,7 +46,7 @@
         <div class="qa-icon" style="background:#f0effe"><svg width="16" height="16" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         Manage Employees
     </a>
-    <a href="{{ route('employee_deductions.index') }}" class="qa-btn">
+    <a href="{{ route('employee_compensations.index') }}" class="qa-btn">
         <div class="qa-icon" style="background:#e8f9ef">
             <svg width="22" height="22" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
@@ -110,7 +110,7 @@
                 <p class="stat-sub">Number of employees</p>
             </div>
         </div>
-        
+
         <div class="stat-card">
             <div class="stat-top">
                 <p class="stat-label">On Leave</p>
@@ -321,7 +321,7 @@
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             // Remove active class from all buttons
             document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-            
+
             // Show active tab
             document.getElementById('view-' + viewId).classList.add('active');
             // Set active button

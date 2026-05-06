@@ -11,7 +11,7 @@ use App\Models\Department;
 use App\Models\WorkSchedule;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
-use App\Models\EmployeeDeduction;
+use App\Models\EmployeeCompensation;
 use App\Models\Salary;
 use App\Enums\EmploymentType;
 use App\Enums\SalaryType;
@@ -33,7 +33,7 @@ class EmployeeController extends Controller
         $departments = Department::paginate(25);
 
         return view('admin.personnel.index', compact('employees', 'positions', 'departments'));
-    }   
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -93,7 +93,7 @@ class EmployeeController extends Controller
         $employeeWorkSchedule->employee_id = $employee->id;
         $employeeWorkSchedule->work_schedule_id = $data['work_schedule_id'];
         $employeeWorkSchedule->save();
-        
+
         event(new Registered($employeeAccount));
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
@@ -105,7 +105,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $address = Address::where('employee_id', $employee->id)->first();
-        
+
         return view('admin.personnel.show', ['address' => $address, 'employee' => $employee]);
     }
 
@@ -119,7 +119,7 @@ class EmployeeController extends Controller
         $workSchedules = WorkSchedule::paginate(25);
         $employmentTypes = EmploymentType::cases();
 
-        return view('admin.personnel.edit', 
+        return view('admin.personnel.edit',
             [
                 'employee' => $employee,
                 'positions' => $positions,
@@ -163,7 +163,7 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')->with('success', __('employee.success_deleting'));
     }
-        
+
     public function restore($employeeId)
     {
         $employee = Employee::onlyTrashed()->findOrFail($employeeId);

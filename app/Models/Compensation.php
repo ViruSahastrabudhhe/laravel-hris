@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\DeductionType;
+use App\Enums\CompensationType;
 
-class Deduction extends Model
+class Compensation extends Model
 {
-    /** @use HasFactory<\Database\Factories\DeductionFactory> */
+    /** @use HasFactory<\Database\Factories\CompensationFactory> */
     use HasFactory;
 
-    protected $table = "deductions";
+    protected $table = "compensations";
 
     protected $fillable = [
         'name',
@@ -23,7 +23,7 @@ class Deduction extends Model
     ];
 
     #[Scope]
-    protected function otherDeductions(Builder $query): void {
-        $query->where('type', '!=', DeductionType::Mandatory);
+    protected function otherCompensations(Builder $query): void {
+        $query->where('is_mandatory', false);
     }
 }

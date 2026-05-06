@@ -15,7 +15,7 @@ class SalaryController extends Controller
      */
     public function index()
     {
-        return redirect()->route('employee_deductions.index');
+        return redirect()->route('employee_compensations.index');
     }
 
     /**

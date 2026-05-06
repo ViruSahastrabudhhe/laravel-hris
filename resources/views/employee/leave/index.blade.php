@@ -153,7 +153,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="table-wrapper">
             <table class="payroll-table" id="leaves-table">
                 <thead>
@@ -288,60 +288,20 @@
 </div>
 
 <div id="tab-benefits" class="tab-content hidden">
-    <div class="benefits-grid">
-        <div class="stat-card">
-            <div class="stat-top">
-                <p class="stat-label">GSIS Premium</p>
-                <div class="stat-icon-wrap" style="background:#0b044d15"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b044d" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
-            </div>
-            <h2 class="stat-value">₱3,046</h2>
-            <div class="stat-footer">
-                <span class="stat-dot" style="background:#0b044d"></span>
-                <p class="stat-sub">Monthly contribution</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top">
-                <p class="stat-label">PhilHealth</p>
-                <div class="stat-icon-wrap" style="background:#15803d15"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-            </div>
-            <h2 class="stat-value">₱850</h2>
-            <div class="stat-footer">
-                <span class="stat-dot" style="background:#15803d"></span>
-                <p class="stat-sub">Monthly contribution</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top">
-                <p class="stat-label">Pag-IBIG</p>
-                <div class="stat-icon-wrap" style="background:#8e1e1815"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8e1e18" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
-            </div>
-            <h2 class="stat-value">₱100</h2>
-            <div class="stat-footer">
-                <span class="stat-dot" style="background:#8e1e18"></span>
-                <p class="stat-sub">Monthly contribution</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top">
-                <p class="stat-label">Withholding Tax</p>
-                <div class="stat-icon-wrap" style="background:#d9bb0015"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9bb00" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-            </div>
-            <h2 class="stat-value">₱2,772</h2>
-            <div class="stat-footer">
-                <span class="stat-dot" style="background:#d9bb00"></span>
-                <p class="stat-sub">Monthly deduction</p>
-            </div>
-        </div>
-    </div>
-        
     <section class="table-section">
         <div class="table-header">
             <div>
                 <h3 class="table-title">Benefits Breakdown — June 2025</h3>
-                <p class="table-sub">Government-mandated contributions and deductions</p>
+                <p class="table-sub">Government-mandated contributions and compensations</p>
+            </div>
+            <div class="table-actions">
+                <button class="modal-btn-primary">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    File Loan
+                </button>
             </div>
         </div>
+
         <div class="table-wrapper">
             <table class="payroll-table">
                 <thead>
@@ -409,7 +369,7 @@
                 <div class="form-field">
                     <label>Employee <span style="color:#dc2626">*</span></label>
                     <h3 class="modal-title" style="margin-bottom: 1rem;">For {{ $employee->first_name }} {{ $employee->last_name }}</h3>
-                    <input type="hidden" name="employee_id" value="{{ $employee->id }}"> 
+                    <input type="hidden" name="employee_id" value="{{ $employee->id }}">
                 </div>
                 <div class="form-field">
                     <label>Leave Type <span style="color:#dc2626">*</span></label>
@@ -543,8 +503,8 @@
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No leave requests found', },
             dom: 'rtip',
-        });    
-    
+        });
+
         $('#leaves-search').on('keyup', function() {
             leave_table.search(this.value).draw();
         });

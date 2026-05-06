@@ -48,7 +48,7 @@
         <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->netPay(), 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">After deductions</p>
+            <p class="stat-sub">After compensations</p>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
             <p class="table-title">Payslip Breakdown</p>
             <p class="table-sub">{{ $employee->first_name }} {{ $employee->last_name }} &nbsp;·&nbsp; EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
         </div>
-        <div class="table-actions"> 
+        <div class="table-actions">
             <!-- <a href="{{ route('payroll.index') }}">
                 <button class="btn-export">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>

@@ -3,24 +3,24 @@
 namespace App\Models;
 
 use App\Models\Employee;
-use App\Models\Deduction;
-use App\Enumbs\DeductionType;
+use App\Models\Compensation;
+use App\Enums\CompensationType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 
-class EmployeeDeduction extends Model
+class EmployeeCompensation extends Model
 {
-    /** @use HasFactory<\Database\Factories\EmployeeDeductionFactory> */
+    /** @use HasFactory<\Database\Factories\EmployeeCompensationFactory> */
     use HasFactory;
 
-    protected $table = 'employee_deductions';
+    protected $table = 'employee_compensations';
 
     protected $fillable = [
         'employee_id',
-        'deduction_id',
+        'compensation_id',
         'amount',
     ];
 
@@ -28,7 +28,7 @@ class EmployeeDeduction extends Model
         return $this->belongsTo(Employee::class);
     }
 
-    public function deduction() {
-        return $this->belongsTo(Deduction::class);
+    public function compensation() {
+        return $this->belongsTo(Compensation::class);
     }
 }

@@ -101,7 +101,7 @@
                 <div class="pub-service-card">
                     <div class="pub-service-icon">💰</div>
                     <h4>Payroll Processing</h4>
-                    <p>Automated payroll computation with mandatory deductions, salary grades, and net pay calculations.</p>
+                    <p>Automated payroll computation with mandatory compensations, salary grades, and net pay calculations.</p>
                 </div>
                 <div class="pub-service-card">
                     <div class="pub-service-icon">📅</div>

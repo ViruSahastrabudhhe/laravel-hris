@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Attendance;
 
 use App\Models\Attendance;
+use App\Models\Department;
+use App\Models\Position;
 use App\Models\Employee;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\WorkSchedule;
@@ -21,16 +23,15 @@ class AttendanceController extends Controller
     public function index()
     {
         $attendances = Attendance::currentMonth()->get();
-        $schedules = WorkSchedule::where('user_id', auth()->id())->get();
-
+        $schedules = WorkSchedule::get();
         $employees = Employee::with(['position', 'department', 'employeeWorkSchedule.workSchedule'])->get();
-        $currentMonth = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
-        $qrScans = QrAttendanceScan::whereBetween('created_at', [$currentMonth, $monthEnd])->get()->keyBy('employee_id');
+        $departments = Department::get();
+        $positions = Position::get();
+        $qrScans = QrAttendanceScan::betweenCurrentMonth()->get()->keyBy('employee_id');
         $totalQrGenerated = $qrScans->count();
         $activeQr = $qrScans->where('valid_until', '>', Carbon::now())->count();
 
-        return view('admin.attendance.index', compact('attendances', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
+        return view('admin.attendance.index', compact('attendances', 'departments', 'positions', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
     }
 
     /**
@@ -125,12 +126,12 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendances.index')->with('message', __('attendance.success_deleting'));
     }
-        
+
     public function restore($attendanceId)
     {
         Attendance::onlyTrashed()->find($attendanceId)->restore();
 
-        return redirect()->route('attendances.archive')->with('success', __('attendance.success_restoring'));   
+        return redirect()->route('attendances.archive')->with('success', __('attendance.success_restoring'));
     }
 
     public function bulkRestore(Request $request)
@@ -140,7 +141,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendances.index')->with('message', __('attendance.success_restoring'));
     }
 
-    public function archive() 
+    public function archive()
     {
         $attendances = Attendance::onlyTrashed()->get();
 

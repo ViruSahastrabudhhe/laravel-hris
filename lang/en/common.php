@@ -12,7 +12,7 @@ return [
     'app_reports' => 'Reports',
     'app_organization' => 'Organization',
     'app_employee' => 'Employees',
-    'app_deduction' => 'Deduction',
+    'app_deduction' => 'Compensation',
     'app_login' => 'Login',
     'app_register' => 'Sign Up',
     'app_password' => 'Password',
@@ -26,4 +26,4 @@ return [
 
     'department' => 'Department',
     'designation' => 'Designation',
-]; 
+];

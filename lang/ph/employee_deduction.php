@@ -5,16 +5,16 @@ return [
 
     'sidebar' => 'Employee Deductions List',
 
-    'create' => 'Create Employee Deduction',
+    'create' => 'Create Employee Compensation',
     'back' => 'Back to Employee Deductions List',
-    'archive' => 'Employee Deduction Archives',
-    'edit' => 'Edit Employee Deduction',
+    'archive' => 'Employee Compensation Archives',
+    'edit' => 'Edit Employee Compensation',
 
     'success_creating' => 'Successfully created new employee deduction!',
     'success_deleting' => 'Successfully archived employee deduction!',
     'success_editing' => 'Successfully edited employee deduction!',
     'success_restoring' => 'Successfully restored employee deduction!',
-    
+
     'error_creating' => 'Error creating new employee deduction!',
     'error_deleting' => 'Error archiving new employee deduction!',
     'error_editing' => 'Error editing new employee deduction!',

@@ -6,8 +6,8 @@ use App\Models\Salary;
 use Illuminate\Support\Facades\Log;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
-use App\Models\EmployeeDeduction;
-use App\Models\Deduction;
+use App\Models\EmployeeCompensation;
+use App\Models\Compensation;
 use App\Enums\EmploymentType;
 
 class SalaryObserver
@@ -59,18 +59,18 @@ class SalaryObserver
             return;
         }
 
-        $gsis = Deduction::where('name', 'GSIS Contribution')->first();
-        $philhealth = Deduction::where('name', 'PhilHealth Personal Share Contribution')->first();
+        $gsis = Compensation::where('name', 'GSIS Contribution')->first();
+        $philhealth = Compensation::where('name', 'PhilHealth Personal Share Contribution')->first();
 
         $amount = $employee->salary->amount ?? 0;
 
-        $employeeDeduction = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 1)->first();
+        $employeeDeduction = EmployeeCompensation::where('employee_id', $employee->id)->where('compensation_id', 1)->first();
         if ($employeeDeduction) {
             $employeeDeduction->amount = $amount * $gsis->rate;
             $employeeDeduction->save();
         }
 
-        $employeePhilhealth = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 2)->first();
+        $employeePhilhealth = EmployeeCompensation::where('employee_id', $employee->id)->where('compensation_id', 2)->first();
         if ($employeePhilhealth) {
             $employeePhilhealth->amount = $amount * $philhealth->rate;
             if ($employeePhilhealth->amount >= 2500) {

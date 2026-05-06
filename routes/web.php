@@ -7,11 +7,11 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\Employee\EmployeeController;
 use App\Http\Controllers\Admin\Position\PositionController;
 use App\Http\Controllers\Admin\Department\DepartmentController;
-use App\Http\Controllers\Admin\Deduction\DeductionController;
+use App\Http\Controllers\Admin\Compensation\CompensationController;
 use App\Http\Controllers\Admin\WorkSchedule\WorkScheduleController;
 use App\Http\Controllers\Admin\Attendance\AttendanceController;
-use App\Http\Controllers\Admin\Payroll\PayrollController;
-use App\Http\Controllers\Admin\Deduction\EmployeeDeductionController;
+use App\Http\Controllers\Admin\Payroll\PayrollRecordController;
+use App\Http\Controllers\Admin\Compensation\EmployeeCompensationController;
 use App\Http\Controllers\Admin\Leave\LeaveRequestController;
 use App\Http\Controllers\Admin\Leave\LeaveBalanceController;
 use App\Http\Controllers\Admin\Leave\HolidayController;
@@ -55,11 +55,12 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('attendances/{attendanceId}/restore', [AttendanceController::class, 'restore'])->name('attendances.restore');
     Route::resource('attendances', AttendanceController::class);
     Route::resource('work_schedules', WorkScheduleController::class);
-    Route::get('payroll/export-payroll', [PayrollController::class, 'exportPayroll'])->name('payroll.exportPayroll');
-    Route::get('payroll/{employee}/export-payslip', [PayrollController::class, 'exportPayslip'])->name('payroll.exportPayslip');
-    Route::resource('payroll', PayrollController::class);
-    Route::resource('deductions', DeductionController::class);
-    Route::resource('employee_deductions', EmployeeDeductionController::class);
+    Route::get('payroll/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
+    Route::get('payroll/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');
+    Route::get('payroll/{employee}/export-payslip', [PayrollRecordController::class, 'exportPayslip'])->name('payroll.exportPayslip');
+    Route::resource('payroll', PayrollRecordController::class);
+    Route::resource('compensations', CompensationController::class);
+    Route::resource('employee_compensations', EmployeeCompensationController::class);
     Route::resource('leave_types', LeaveTypeController::class);
     Route::put('leave_requests/{leave_request}/approve', [LeaveRequestController::class, 'approve'])->name('leave_requests.approve');
     Route::put('leave_requests/{leave_request}/deny', [LeaveRequestController::class, 'deny'])->name('leave_requests.deny');
@@ -68,7 +69,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::patch('trainings/{employeeTraining}/approve', [TrainingController::class, 'approveParticipant'])->name('trainings.approve');
     Route::patch('trainings/{employeeTraining}/decline', [TrainingController::class, 'declineParticipant'])->name('trainings.decline');
     Route::resource('trainings', TrainingController::class);
-    
+
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');
     Route::post('qr-code/generate', [QrCodeController::class, 'generate'])->name('qr-code.generate');

@@ -7,13 +7,14 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PositionSeeder;
 use Database\Seeders\DepartmentSeeder;
-use Database\Seeders\DeductionSeeder;
+use Database\Seeders\CompensationSeeder;
 use Database\Seeders\EmployeeSeeder;
 use Database\Seeders\AddressSeeder;
 use Database\Seeders\LeaveTypeSeeder;
 use Database\Seeders\EmployeeLeaveBalanceSeeder;
 use Database\Seeders\WorkScheduleSeeder;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\TrainingSeeder;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -36,11 +37,12 @@ class DatabaseSeeder extends Seeder
             LeaveTypeSeeder::class,
             PositionSeeder::class,
             DepartmentSeeder::class,
-            DeductionSeeder::class,
+            CompensationSeeder::class,
             WorkScheduleSeeder::class,
             PermissionSeeder::class,
             EmployeeSeeder::class,
             EmployeeLeaveBalanceSeeder::class,
+            TrainingSeeder::class,
         ]);
 
         $admin = Role::findByName('admin');

@@ -12,9 +12,9 @@
     <link rel="icon" type="image/jpeg" href="{{ asset('images/municipal-of-pagsanjan-logo.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     @vite([
-        'resources/css/app.css', 
+        'resources/css/app.css',
         'resources/css/admin.css',
         'resources/css/jquery.dataTables.min.css',
         'resources/css/datatable.css',
@@ -32,6 +32,7 @@
     <script src="{{ asset('/js/jquery.dataTables.min.js') }}"></script>
     <script>
         function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+        function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') {

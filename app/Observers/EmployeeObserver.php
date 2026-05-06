@@ -5,11 +5,11 @@ namespace App\Observers;
 use App\Models\Employee;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
-use App\Models\EmployeeDeduction;
-use App\Models\Deduction;
+use App\Models\EmployeeCompensation;
+use App\Models\Compensation;
 use App\Models\Position;
 use App\Enums\EmploymentType;
-use App\Enums\DeductionType;
+use App\Enums\CompensationType;
 use App\Enums\PositionStatus;
 use Illuminate\Support\Facades\Log;
 
@@ -34,10 +34,10 @@ class EmployeeObserver
         $this->updatePositionStatus($employee);
 
         if ($employee->isJobOrder()) {
-            foreach ($employee->employeeDeduction as $deduction) {
-                if ($deduction->deduction->type == DeductionType::Mandatory->value) {
-                    $deduction->amount = 0;
-                    $deduction->save();
+            foreach ($employee->employeeCompensation as $compensation) {
+                if ($compensation->compensation->is_mandatory) {
+                    $compensation->amount = 0;
+                    $compensation->save();
                 }
             }
         }
@@ -87,33 +87,33 @@ class EmployeeObserver
     }
 
     private function createEmployeeMandatoryDeductions(Employee $employee) {
-        $gsis = Deduction::where('name', 'GSIS Contribution')->first();
-        $philhealth = Deduction::where('name', 'PhilHealth Personal Share Contribution')->first();
+        $gsis = Compensation::where('name', 'GSIS Contribution')->first();
+        $philhealth = Compensation::where('name', 'PhilHealth Personal Share Contribution')->first();
 
         $amount = $employee->salary->amount ?? 0;
 
-        $employeeDeduction = new EmployeeDeduction;
+        $employeeDeduction = new EmployeeCompensation;
         $employeeDeduction->employee_id = $employee->id;
-        $employeeDeduction->deduction_id = 1;
+        $employeeDeduction->compensation_id = 1;
         $employeeDeduction->amount = $amount * $gsis->rate;
-        
-        $employeePhilhealth = new EmployeeDeduction;
+
+        $employeePhilhealth = new EmployeeCompensation;
         $employeePhilhealth->employee_id = $employee->id;
-        $employeePhilhealth->deduction_id = 2;
+        $employeePhilhealth->compensation_id = 2;
         $employeePhilhealth->amount = $amount * $philhealth->rate;
         if ($employeePhilhealth->amount >= 2500) {
             $employeePhilhealth->amount = 2500;
         }
-        
-        $employeePagibig = new EmployeeDeduction;
+
+        $employeePagibig = new EmployeeCompensation;
         $employeePagibig->employee_id = $employee->id;
-        $employeePagibig->deduction_id = 3;
+        $employeePagibig->compensation_id = 3;
         if ($amount > 1500) {
             $employeePagibig->amount = 200;
         } else {
             $employeePagibig->amount = 100;
         }
-        
+
         $employeeDeduction->save();
         $employeePhilhealth->save();
         $employeePagibig->save();
@@ -124,18 +124,18 @@ class EmployeeObserver
             return;
         }
 
-        $gsis = Deduction::where('name', 'GSIS Contribution')->first();
-        $philhealth = Deduction::where('name', 'PhilHealth Personal Share Contribution')->first();
+        $gsis = Compensation::where('name', 'GSIS Contribution')->first();
+        $philhealth = Compensation::where('name', 'PhilHealth Personal Share Contribution')->first();
 
         $amount = $employee->salary->amount ?? 0;
 
-        $employeeDeduction = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 1)->first();
+        $employeeDeduction = EmployeeCompensation::where('employee_id', $employee->id)->where('compensation_id', 1)->first();
         if ($employeeDeduction) {
             $employeeDeduction->amount = $amount * $gsis->rate;
             $employeeDeduction->save();
         }
 
-        $employeePhilhealth = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 2)->first();
+        $employeePhilhealth = EmployeeCompensation::where('employee_id', $employee->id)->where('compensation_id', 2)->first();
         if ($employeePhilhealth) {
             $employeePhilhealth->amount = $amount * $philhealth->rate;
             if ($employeePhilhealth->amount >= 2500) {
@@ -144,7 +144,7 @@ class EmployeeObserver
             $employeePhilhealth->save();
         }
 
-        $employeePagibig = EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_id', 3)->first();
+        $employeePagibig = EmployeeCompensation::where('employee_id', $employee->id)->where('compensation_id', 3)->first();
         if ($employeePagibig) {
             if ($amount > 1500) {
                 $employeePagibig->amount = 200;
@@ -156,7 +156,7 @@ class EmployeeObserver
     }
 
     // private function deleteEmployeeDeductions(Employee $employee) {
-    //     EmployeeDeduction::where('employee_id', $employee->id)->where('deduction_type', DeductionType::Optional->value)->delete();
+    //     EmployeeCompensation::where('employee_id', $employee->id)->where('deduction_type', CompensationType::Optional->value)->delete();
     // }
 
     private function updatePositionStatus(Employee $employee) {

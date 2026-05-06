@@ -5,14 +5,14 @@ namespace App\Models;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\Attendance;
-use App\Models\EmployeeDeduction;
+use App\Models\EmployeeCompensation;
 use App\Models\EmployeeTraining;
 use App\Models\LeaveRequest;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeWorkSchedule;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
-use App\Enums\DeductionType;
+use App\Enums\CompensationType;
 use App\Enums\AttendanceStatus;
 use App\Models\Scopes\EmployeeScope;
 use Illuminate\Support\Facades\DB;
@@ -22,316 +22,179 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 #[ScopedBy([EmployeeScope::class])]
 class Employee extends Model
 {
-    /** @use HasFactory<\Database\Factories\EmployeeFactory> */
     use HasFactory, SoftDeletes;
 
     protected $table = 'employees';
 
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'gender',
-        'email',
-        'date_of_birth',
-        'phone_number',
-        'employment_type',
-        'is_active',
-        'position_id',  
-        'department_id',
-        'user_id',
+        'first_name', 'last_name', 'gender', 'email', 'date_of_birth',
+        'phone_number', 'employment_type', 'is_active',
+        'position_id', 'department_id', 'user_id',
     ];
 
-    public function department() {
-        return $this->hasOne(Department::class, 'id', 'department_id');
-    }
-
-    public function position() {
-        return $this->hasOne(Position::class, 'id', 'position_id');
-    }
-
-    public function salary() {
-        return $this->hasOne(Salary::class);
-    }
-
-    public function attendance() {
-        return $this->hasMany(Attendance::class);
-    }
-
-    public function employeeDeduction() {
-        return $this->hasMany(EmployeeDeduction::class);
-    }
-
-    public function employeeTraining() {
-        return $this->hasMany(EmployeeTraining::class);
-    }
-
-    public function address() {
-        return $this->hasOne(Address::class);
-    }
-
-    public function leaves() {
-        return $this->hasMany(LeaveRequest::class);
-    }
-
-    public function leaveBalance() {
-        return $this->hasOne(EmployeeLeaveBalance::class);
-    }
-
-    public function employeeWorkSchedule() {
-        return $this->hasOne(EmployeeWorkSchedule::class);
-    }
-
-    public function qrAttendanceScans() {
-        return $this->hasMany(QrAttendanceScan::class);
-    }
+    public function department() { return $this->hasOne(Department::class, 'id', 'department_id'); }
+    public function position() { return $this->hasOne(Position::class, 'id', 'position_id'); }
+    public function salary() { return $this->hasOne(Salary::class); }
+    public function attendance() { return $this->hasMany(Attendance::class); }
+    public function employeeCompensation() { return $this->hasMany(EmployeeCompensation::class); }
+    public function employeeTraining() { return $this->hasMany(EmployeeTraining::class); }
+    public function address() { return $this->hasOne(Address::class); }
+    public function leaves() { return $this->hasMany(LeaveRequest::class); }
+    public function leaveBalance() { return $this->hasOne(EmployeeLeaveBalance::class); }
+    public function employeeWorkSchedule() { return $this->hasOne(EmployeeWorkSchedule::class); }
+    public function qrAttendanceScans() { return $this->hasMany(QrAttendanceScan::class); }
+    public function payrollRecords() { return $this->hasMany(PayrollRecord::class); }
 
     public function isJobOrder() {
         return $this->employment_type == EmploymentType::JobOrder->value;
     }
 
-    public function hoursWorked() {
-        $total_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.employee_id', '=', $this->id)
-            ->currentMonthBetween()           
-            ->whereNull('attendances.deleted_at')
-            ->sum('attendances.total_minutes');
+    private function attendanceQuery(?int $month = null, ?int $year = null) {
+        $query = Attendance::where('attendances.employee_id', $this->id)
+            ->whereNull('attendances.deleted_at');
 
+        return ($month && $year)
+            ? $query->forPeriod($month, $year)
+            : $query->betweenCurrentMonth();
+    }
+
+    public function hoursWorked(?int $month = null, ?int $year = null) {
+        $total_minutes = $this->attendanceQuery($month, $year)->sum('total_minutes');
         return round($total_minutes / 60, 2);
     }
 
-    public function daysWorked() {
-        $entries = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.employee_id', '=', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('attendances.deleted_at')
-            ->count();
-
-        return $entries;
+    public function daysWorked(?int $month = null, ?int $year = null) {
+        return $this->attendanceQuery($month, $year)->count();
     }
 
-    public function overtimeWorked() {
-        $overtime_minutes = Attendance::join('employees', 'attendances.employee_id', '=', 'employees.id')
-            ->where('attendances.employee_id', '=', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('attendances.deleted_at')
-            ->sum('overtime_minutes');
-
+    public function overtimeWorked(?int $month = null, ?int $year = null) {
+        $overtime_minutes = $this->attendanceQuery($month, $year)->sum('overtime_minutes');
         return round($overtime_minutes / 60, 2);
     }
 
-    public function totalHoursWorked() {
-        return $this->hoursWorked() + $this->overtimeWorked();
+    public function totalHoursWorked(?int $month = null, ?int $year = null) {
+        return $this->hoursWorked($month, $year) + $this->overtimeWorked($month, $year);
     }
 
     public function hourlyRate() {
         $amount = $this->salary->amount ?? 0;
-        $hourlyRate = ($amount * 12) / (261 * 8);
-        return $hourlyRate;
+        return ($amount * 12) / (261 * 8);
     }
 
     public function dailyRate() {
         $amount = $this->salary->amount ?? 0;
-        $dailyRate = ($amount * 12) / 261;
-        return $dailyRate;
+        return ($amount * 12) / 261;
     }
 
-    public function grossPay() {
+    public function grossPay(?int $month = null, ?int $year = null) {
         $basicPay = $this->salary->amount ?? 0;
-        $overtime = $this->overtimePay();
-        $monthlySalary = $this->hoursWorked() * $this->hourlyRate();
+        $overtime = $this->overtimePay($month, $year);
 
-        if ($this->isJobOrder()) {
-            return $basicPay + $overtime;
-        }
-        
-        return round(($basicPay + $overtime), 2);
+        return round($basicPay + $overtime, 2);
     }
 
-    public function overtimePay() {
-        $overtimeHours = $this->overtimeWorked();
-        $hourlyRate = $this->hourlyRate();
-
-        $overtimeHourlyRate = $hourlyRate * 1.25;
-        $overtimePay = $overtimeHourlyRate * $overtimeHours;
-
-        return $overtimePay;
+    public function overtimePay(?int $month = null, ?int $year = null) {
+        return round($this->hourlyRate() * 1.25 * $this->overtimeWorked($month, $year), 2);
     }
 
-    public function daysLate() {
-        $lates = Attendance::where('employee_id', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('deleted_at')
+    public function allowances(): float {
+        $allowances = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('compensations.type', CompensationType::Allowance->value)
+            ->get();
+        return round($allowances->sum('amount'), 2);
+    }
+
+    public function daysLate(?int $month = null, ?int $year = null) {
+        return $this->attendanceQuery($month, $year)
             ->where('attendance_status', AttendanceStatus::Late->value)
             ->count();
-
-        return $lates;
     }
 
-    public function daysAbsent() {
-        $absences = Attendance::where('employee_id', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('deleted_at')
+    public function daysAbsent(?int $month = null, ?int $year = null) {
+        return $this->attendanceQuery($month, $year)
             ->where('attendance_status', AttendanceStatus::Absent->value)
             ->count();
-
-        return $absences;
     }
 
-    public function absentDeductions(): float {
+    public function absentDeductions(?int $month = null, ?int $year = null): float {
         $leaveBalance = $this->leaveBalance;
 
-        // Job Order: always deduct for absences/lates (on top of hourly pay already being reduced)
-        // Regular: only deduct when leave balance is fully depleted
         if (!$this->isJobOrder()) {
             if (!$leaveBalance || $leaveBalance->leave_balance > 0) {
                 return 0;
             }
         }
 
-        $absences = Attendance::where('user_id', auth()->user()->id)
-            ->where('employee_id', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('deleted_at')
-            ->where('attendance_status', AttendanceStatus::Absent->value)
-            ->count();
-
-        $lates = Attendance::where('user_id', auth()->user()->id)
-            ->where('employee_id', $this->id)
-            ->currentMonthBetween()
-            ->whereNull('deleted_at')
-            ->where('attendance_status', AttendanceStatus::Late->value)
-            ->count();
+        $absences = $this->daysAbsent($month, $year);
+        $lates    = $this->daysLate($month, $year);
 
         return round(($absences * $this->dailyRate()) + ($lates * ($this->dailyRate() * 0.5)), 2);
     }
 
     public function gsisContribution(): float {
-        if ($this->isJobOrder()) {
-            return 0;
-        }
-
-        $gsis = DB::table('employee_deductions')
-            ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.employee_id', '=', $this->id)
-            ->where('deductions.id', '=', 1)
-            ->first();
-
-        if (!$gsis) {
-            return 0;
-        }
-
-        return round($gsis->amount, 2);
+        if ($this->isJobOrder()) return 0;
+        $gsis = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('compensations.id', 1)->first();
+        return $gsis ? round($gsis->amount, 2) : 0;
     }
 
     public function philHealthContribution(): float {
-        if ($this->isJobOrder()) {
-            return 0;
-        }
-        
-        $philHealth = DB::table('employee_deductions')
-            ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.employee_id', '=', $this->id)
-            ->where('deductions.id', '=', 2)
-            ->first();
-
-        if (!$philHealth) {
-            return 0;
-        }
-
-        return round($philHealth->amount, 2);
+        if ($this->isJobOrder()) return 0;
+        $philHealth = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('compensations.id', 2)->first();
+        return $philHealth ? round($philHealth->amount, 2) : 0;
     }
 
     public function pagIbigContribution(): float {
-        if ($this->isJobOrder()) {
-            return 0;
-        }
-
-        $pagibig = DB::table('employee_deductions')
-            ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.employee_id', '=', $this->id)
-            ->where('deductions.id', '=', 3)
-            ->first();
-
-        if (!$pagibig) {
-            return 0;
-        }
-
-        return $pagibig->amount;
-        }
+        if ($this->isJobOrder()) return 0;
+        $pagibig = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('compensations.id', 3)->first();
+        return $pagibig ? round($pagibig->amount, 2) : 0;
+    }
 
     public function optionalDeductions(): float {
-        $optionalDeductions = DB::table('employee_deductions')
-            ->join('deductions', 'employee_deductions.deduction_id', '=', 'deductions.id')
-            ->where('employee_deductions.employee_id', '=', $this->id)
-            ->where('deductions.type', '=', DeductionType::Optional->value)
+        $optional = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('compensations.is_mandatory', false)
             ->get();
-
-        return round($optionalDeductions->sum('amount'), 2);
+        return round($optional->sum('amount'), 2);
     }
 
-    public function netTaxableIncome() {
-        $grossPay = $this->grossPay();
-        $contributions = $this->gsisContribution() + $this->philHealthContribution() + $this->pagIbigContribution();
-
-        return round(($grossPay - $contributions), 2);
+    public function netTaxableIncome(?int $month = null, ?int $year = null) {
+        return round($this->grossPay($month, $year) - $this->gsisContribution() - $this->philHealthContribution() - $this->pagIbigContribution(), 2);
     }
 
-    public function withholdingTax() {
-        $netTaxableIncome = $this->netTaxableIncome();
-        $calc = 0;
-
-        if ($netTaxableIncome < 20833) {
-            return 0;
-        } elseif ($netTaxableIncome >= 20833 && $netTaxableIncome <= 33332) {
-            $calc = $netTaxableIncome - 20833;
-            return $calc * 0.15;
-        } elseif ($netTaxableIncome >= 33333 && $netTaxableIncome <= 66666) {
-            $calc = $netTaxableIncome - 33333;
-            $calc *= 0.20;
-            $calc += 1875;
-            return $calc;
-        } elseif ($netTaxableIncome >= 66667 && $netTaxableIncome <= 166666) {
-            $calc = $netTaxableIncome - 66667;
-            $calc *= 0.25;
-            $calc += 8541.80;
-            return $calc;
-        } elseif ($netTaxableIncome >= 166667 && $netTaxableIncome <= 666666) {
-            $calc = $netTaxableIncome - 166667;
-            $calc *= 0.30;
-            $calc += 33541.80;
-            return $calc;
-        } elseif ($netTaxableIncome >= 666667) {
-            $calc = $netTaxableIncome - 666667;
-            $calc *= 0.35;
-            $calc += 183541.80;
-            return $calc;
-        }
+    public function withholdingTax(?int $month = null, ?int $year = null) {
+        $nti = $this->netTaxableIncome($month, $year);
+        if ($nti < 20833) return 0;
+        if ($nti <= 33332) return ($nti - 20833) * 0.15;
+        if ($nti <= 66666) return (($nti - 33333) * 0.20) + 1875;
+        if ($nti <= 166666) return (($nti - 66667) * 0.25) + 8541.80;
+        if ($nti <= 666666) return (($nti - 166667) * 0.30) + 33541.80;
+        return (($nti - 666667) * 0.35) + 183541.80;
     }
 
-    public function totalDeductions() {
-        $gsis = $this->gsisContribution();
-        $philHealth = $this->philHealthContribution();
-        $pagibig = $this->pagIbigContribution();
-        $withholdingTax = $this->withholdingTax();
-        $otherDeductions = $this->optionalDeductions();
-        $absentDeductions = $this->absentDeductions();
-
-        $total = $gsis + $philHealth + $pagibig + $withholdingTax + $otherDeductions + $absentDeductions;
-
-        return round($total, 2);
+    public function totalDeductions(?int $month = null, ?int $year = null) {
+        return round(
+            $this->gsisContribution() +
+            $this->philHealthContribution() +
+            $this->pagIbigContribution() +
+            $this->withholdingTax($month, $year) +
+            $this->optionalDeductions() +
+            $this->absentDeductions($month, $year),
+            2
+        );
     }
 
-    public function netPay() {
-        $grossPay = $this->grossPay();
-        $totalDeductions = $this->totalDeductions();
-
-        $sum = $grossPay - $totalDeductions;
-
-        return round($sum, 2);
+    public function netPay(?int $month = null, ?int $year = null) {
+        return round($this->grossPay($month, $year) - $this->totalDeductions($month, $year), 2);
     }
 }

@@ -3,12 +3,12 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Enums\DeductionType;
+use App\Enums\CompensationType;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Deduction>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Compensation>
  */
-class DeductionFactory extends Factory
+class CompensationFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,7 +19,8 @@ class DeductionFactory extends Factory
     {
         return [
             'name' => 'GSIS Contribution',
-            'type' => DeductionType::Optional->value,
+            'type' => CompensationType::Deduction->value,
+            'is_mandatory' => true,
             'description' => '',
         ];
     }

@@ -17,7 +17,7 @@
 ![App Attendances](screenshots/attendances.png)
 
 ## Deductions
-![App Deductions](screenshots/deductions.png)
+![App Deductions](screenshots/compensations.png)
 
 ## Payroll
 ![App Payroll](screenshots/payroll.png)

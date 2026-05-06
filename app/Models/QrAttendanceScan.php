@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -32,8 +33,14 @@ class QrAttendanceScan extends Model
     }
 
     #[Scope]
-    protected function currentMonthBetween(Builder $query): void {
-        $query->whereDate('date', '>=', Carbon::now()->startOfMonth())
-            ->whereDate('date', '<=', Carbon::now()->endOfMonth());
+    protected function currentMonth(Builder $query): void {
+        $query->whereYear('created_at', '=', Carbon::now()->year)
+            ->whereMonth('created_at', '=', Carbon::now()->month);
+    }
+
+    #[Scope]
+    protected function betweenCurrentMonth(Builder $query): void {
+        $query->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth());
     }
 }

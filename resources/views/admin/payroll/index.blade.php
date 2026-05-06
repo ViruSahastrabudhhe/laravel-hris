@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @php
+    use Carbon\Carbon;
+
     $grossPayroll = 0;
     $totalNetPay = 0;
     $totalDeductions = 0;
@@ -9,58 +11,10 @@
         $totalNetPay += $employee->netPay();
         $totalDeductions += $employee->totalDeductions();
     }
-    $departments = \App\Models\Department::paginate(25);
+
+    $totalPersonnel = 0;
+    $payDate = 0;
 @endphp
-
-@push('styles')
-    <style>
-        .payslip-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:24px; }
-        .payslip-block { background:#f7f6ff; border-radius:14px; padding:20px 22px; }
-        .payslip-block-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin:0 0 14px; }
-        .payslip-info-row { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
-        .payslip-detail-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #eeecfc; }
-        .payslip-detail-row span { font-size:13px; color:#9999bb; font-weight:500; }
-        .payslip-detail-row strong { font-size:13px; color:#0b044d; font-weight:600; }
-
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
-        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
-        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
-        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
-        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
-        .modal-sub { font-size:13px; color:#6b6a8a; margin:0; }
-        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
-        .modal-close:hover { color:#0b044d; }
-        .modal-body { padding:20px 24px; }
-        .modal-emp-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
-        .modal-emp-id { font-size:11px; color:#9999bb; margin:0 0 4px; }
-        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
-        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
-        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
-        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
-        .modal-row.total { border-bottom:2px solid #e5e4f0; padding-top:14px; margin-top:6px; }
-        .modal-deduct { color:#8e1e18 !important; }
-        .modal-net-row { display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-radius:10px; padding:14px 16px; margin-top:10px; }
-        .modal-net-row span { font-size:13px; color:#15803d; font-weight:700; }
-        .modal-net-row strong { font-size:18px; color:#15803d; }
-        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
-        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
-        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
-
-        @media (max-width: 768px) {
-            .payslip-grid { grid-template-columns:1fr; }
-            .modal-box { border-radius:12px; }
-            .modal-header { padding:16px 16px 0; }
-            .modal-body { padding:14px 16px; }
-            .modal-footer { padding:12px 16px 16px; }
-        }
-        @media (max-width: 400px) {
-            .modal-overlay { padding:0; align-items:flex-end; }
-            .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
-        }
-    </style>
-@endpush
 
 @section('page-content')
 <div class="stats-grid stats-grid-4">
@@ -89,7 +43,7 @@
         <p class="stat-value">₱{{ number_format($totalNetPay, 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#15803d"></span>
-            <p class="stat-sub">After deductions</p>
+            <p class="stat-sub">After compensations</p>
         </div>
     </div>
 
@@ -134,6 +88,18 @@
                 <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" id="payroll-search" placeholder="Search payroll..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
             </div>
+            <select class="filter-select" id="month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                @foreach(range(1,12) as $m)
+                    <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
+                        {{ Carbon::create()->month($m)->format('F') }}
+                    </option>
+                @endforeach
+            </select>
+            <select class="filter-select" id="year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                @foreach(range(now()->year - 2, now()->year) as $y)
+                    <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endforeach
+            </select>
             <select class="filter-select" id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                 <option value="">All Departments</option>
                 @foreach($departments as $dept)
@@ -144,15 +110,15 @@
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export CSV
             </a>
-            <a href="#" class="modal-btn-primary">
+            <button class="modal-btn-primary" onclick="openPayrollRunModal()">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Run Payroll
-            </a>
+            </button>
         </div>
     </div>
 
     <div class="table-wrapper">
-        <table class="payroll-table" id="attendance-table">
+        <table class="payroll-table" id="payroll-table">
             <thead>
                 <tr>
                     <th>Employee</th>
@@ -181,7 +147,6 @@
                     <td><span class="pay-cell">₱{{ number_format($employee->grossPay(), 2) }}</span></td>
                     <td>
                         <span class="deduction">₱{{ number_format($employee->totalDeductions(), 2) }}</span>
-                        <a href="{{ route('employees.show', $employee) }}" style="font-size:10px;color:#8e1e18;display:block;margin-top:2px">View</a>
                     </td>
                     <td><span class="net-pay">₱{{ number_format($employee->netPay(), 2) }}</span></td>
                     <td>
@@ -247,12 +212,43 @@
     </div>
 </div>
 
+{{-- Run Payroll Modal --}}
+<div class="modal-overlay" id="payroll-run-modal" style="display:none" onclick="closeModal('payroll-run-modal')">
+    <div class="modal-box modal-sm" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">PAYROLL PROCESSING</span>
+                <h3 class="modal-title" id="payroll-modal-title">Process Payroll?</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal('payroll-run-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('payroll.store') }}" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="modal-confirm-info" style="margin-bottom: 16px;">
+                    <input type="hidden" name="month" id="payroll-run-month">
+                    <input type="hidden" name="year" id="payroll-run-year">
+                    <div class="modal-row"><span>Total Personnel</span><strong>8</strong></div>
+                    <div class="modal-row"><span>Gross Payroll</span><strong>₱127,485.50</strong></div>
+                    <div class="modal-row"><span>Pay Date</span><strong>Jun 30, 2025</strong></div>
+                </div>
+                <p style="font-size: 13px; color: #8e1e18; background: #8e1e1818; padding: 10px 12px; border-radius: 6px;">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('payroll-run-modal')">Cancel</button>
+                <button type="submit" class="modal-btn-primary">Confirm & Process</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
 $(function () {
-    const table = $('#attendance-table').DataTable({
+    const payroll_table = $('#payroll-table').DataTable({
         columnDefs: [{ orderable: false, targets: [5] }],
         pageLength: 25,
         language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll records found', },
@@ -260,17 +256,59 @@ $(function () {
     });
 
     $('#payroll-search').on('keyup', function() {
-        table.search(this.value).draw();
+        payroll_table.search(this.value).draw();
     });
 
     $('#dept-filter').on('change', function() {
-        table.column(1).search(this.value).draw();
+        payroll_table.column(1).search(this.value).draw();
     });
-});
-</script>
 
-<script>
-function openModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = ''; }
+    const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+
+    function fetchPayroll() {
+        const month = parseInt($('#month-filter').val());
+        const year  = parseInt($('#year-filter').val());
+
+        if (month === {{ now()->month }} && year === {{ now()->year }}) {
+            location.reload();
+            return;
+        }
+
+        $.get('{{ route('payroll.filter') }}', { month, year }, function(res) {
+            payroll_table.clear();
+
+            res.employees.forEach(function(e) {
+                const initials = e.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                const color    = colors[e.id % 5];
+                const empId    = 'EMP-' + String(e.id).padStart(3, '0');
+
+                payroll_table.row.add([
+                    `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.name}</p><p class="emp-id">${empId}</p></div></div>`,
+                    `<span class="dept-tag">${e.department}</span>`,
+                    `<span class="pay-cell">₱${e.gross_pay}</span>`,
+                    `<span class="deduction">₱${e.compensations}</span>`,
+                    `<span class="net-pay">₱${e.net_pay}</span>`,
+                    '',
+                ]);
+            });
+
+            payroll_table.draw();
+        });
+    }
+
+    $('#month-filter, #year-filter').on('change', fetchPayroll);
+
+    window.openPayrollRunModal = function() {
+        const month = $('#month-filter').val();
+        const year = $('#year-filter').val();
+        const monthName = $('#month-filter option:selected').text();
+
+        $('#payroll-run-month').val(month);
+        $('#payroll-run-year').val(year);
+        $('#payroll-modal-title').text(`Process ${monthName} ${year} Payroll?`);
+
+        openModal('payroll-run-modal');
+    };
+});
 </script>
 @endpush

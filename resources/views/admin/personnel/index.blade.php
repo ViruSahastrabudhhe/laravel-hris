@@ -28,73 +28,6 @@
     $vacantPositions = max(0, $totalPositions - $filledPositions);
 @endphp
 
-@push('styles')
-    <style>
-        .search-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search-wrap svg {
-            position: absolute;
-            left: 10px;
-            pointer-events: none;
-        }
-        .search-input {
-            height: 34px;
-            padding: 0 10px 0 30px;
-            border: 1.5px solid #e4e3f0;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-family: 'Poppins', sans-serif;
-            color: #0b044d;
-            background: #fafafe;
-            outline: none;
-            width: 180px;
-            transition: border-color 0.2s;
-        }
-        .search-input:focus { border-color: #0b044d; }
-
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
-        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
-        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
-        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
-        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
-        .modal-sub { font-size:13px; color:#6b6a8a; margin:0; }
-        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
-        .modal-close:hover { color:#0b044d; }
-        .modal-body { padding:20px 24px; }
-        .modal-emp-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
-        .modal-emp-id { font-size:11px; color:#9999bb; margin:0 0 4px; }
-        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
-        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
-        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
-        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
-        .modal-row.total { border-bottom:2px solid #e5e4f0; padding-top:14px; margin-top:6px; }
-        .modal-deduct { color:#8e1e18 !important; }
-        .modal-net-row { display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-radius:10px; padding:14px 16px; margin-top:10px; }
-        .modal-net-row span { font-size:13px; color:#15803d; font-weight:700; }
-        .modal-net-row strong { font-size:18px; color:#15803d; }
-        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
-        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
-        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
-
-        @media (max-width: 768px) {
-            .payslip-grid { grid-template-columns:1fr; }
-            .modal-box { border-radius:12px; }
-            .modal-header { padding:16px 16px 0; }
-            .modal-body { padding:14px 16px; }
-            .modal-footer { padding:12px 16px 16px; }
-        }
-        @media (max-width: 400px) {
-            .modal-overlay { padding:0; align-items:flex-end; }
-            .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
-        }
-    </style>
-@endpush
-
 @section('page-content')
 <div id="stats-employees" class="stats-grid stats-grid-4">
     <div class="stat-card">
@@ -261,7 +194,7 @@
     </div>
 </div>
 
-<div class="view-tabs">
+<div class="view-tabs" hidden>
     <button class="view-tab active" onclick="switchView('employees', this)">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         Employees
@@ -276,7 +209,14 @@
     </button>
 </div>
 
-<div id="view-employees" class="tab-pane active">
+{{-- Tabs --}}
+<div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1.5px solid #eceaf8; padding-bottom: 0;">
+    <button class="tab-btn active" onclick="switchView('employees', this)">Employees</button>
+    <button class="tab-btn" onclick="switchView('departments', this)">Departments</button>
+    <button class="tab-btn" onclick="switchView('positions', this)">Positions</button>
+</div>  
+
+<div id="tab-employees" class="tab-pane active">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -424,7 +364,7 @@
     </div>
 </div>
 
-<div id="view-departments" class="tab-pane">
+<div id="tab-departments" class="tab-pane">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -510,7 +450,7 @@
     </div>
 </div>
 
-<div id="view-positions" class="tab-pane">
+<div id="tab-positions" class="tab-pane">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -813,20 +753,16 @@
         }
 
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-        document.getElementById('view-' + viewId).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + viewId).classList.add('active');
         btn.classList.add('active');
 
-        document.getElementById('stats-employees').style.display  = viewId === 'employees'   ? 'grid' : 'none';
+        document.getElementById('stats-employees').style.display = viewId === 'employees' ? 'grid' : 'none';
         document.getElementById('stats-departments').style.display = viewId === 'departments' ? 'grid' : 'none';
-        document.getElementById('stats-positions').style.display   = viewId === 'positions'   ? 'grid' : 'none';
+        document.getElementById('stats-positions').style.display = viewId === 'positions' ? 'grid' : 'none';
     }
 
     $(function () {
-        function escapeRegex(value) {
-            return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        }
-
         if ($('#attendance-table').length) {
             const employeeTable = $('#attendance-table').DataTable({
                 columnDefs: [{ orderable: false, targets: [6] }],

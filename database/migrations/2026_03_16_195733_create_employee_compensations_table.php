@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employee_deductions', function (Blueprint $table) {
+        Schema::create('employee_compensations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('deduction_id');
+            $table->unsignedBigInteger('compensation_id');
             $table->float('amount');
             $table->timestamps();
             $table->foreign('employee_id')
                 ->references('id')->on('employees')
                 ->onUpdate('set null')
                 ->onDelete('set null');
-            $table->foreign('deduction_id')
-                ->references('id')->on('deductions')
+            $table->foreign('compensation_id')
+                ->references('id')->on('compensations')
                 ->onUpdate('set null')
                 ->onDelete('set null');
         });
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employee_deductions');
+        Schema::dropIfExists('employee_compensations');
     }
 };

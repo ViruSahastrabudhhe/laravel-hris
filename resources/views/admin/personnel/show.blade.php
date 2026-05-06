@@ -58,7 +58,7 @@
             <div class="table-header">
                 <div>
                     <p class="table-title">Deductions</p>
-                    <p class="table-sub">Applied deductions for this employee</p>
+                    <p class="table-sub">Applied compensations for this employee</p>
                 </div>
             </div>
             <div class="table-wrapper">
@@ -72,18 +72,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @forelse($employee->employeeDeduction as $deduction)
+                    @forelse($employee->employeeCompensation as $compensation)
                         <tr>
-                            <td><span style="font-size:13px;font-weight:600;color:#0b044d">{{ $deduction->deduction->name }}</span></td>
+                            <td><span style="font-size:13px;font-weight:600;color:#0b044d">{{ $compensation->compensation->name }}</span></td>
                             <td>
-                                <span class="dept-tag" style="{{ $deduction->deduction->type === 'Mandatory' ? 'background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce' : 'background:#f0effe;color:#0b044d' }}">
-                                    {{ $deduction->deduction->type }}
+                                <span class="dept-tag" style="{{ $compensation->compensation->type === 'Mandatory' ? 'background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce' : 'background:#f0effe;color:#0b044d' }}">
+                                    {{ $compensation->compensation->type }}
                                 </span>
                             </td>
-                            <td><span class="deduction">₱{{ number_format($deduction->amount, 2) }}</span></td>
+                            <td><span class="deduction">₱{{ number_format($compensation->amount, 2) }}</span></td>
                             <td>
-                                @if($deduction->deduction->type === 'Optional')
-                                <form id="delete-form-{{ $deduction->id }}" action="{{ route('employee_deductions.destroy', $deduction) }}" method="post" style="display:inline" onsubmit="return confirm('Remove this deduction?')">
+                                @if($compensation->compensation->type === 'Optional')
+                                <form id="delete-form-{{ $compensation->id }}" action="{{ route('employee_compensations.destroy', $compensation) }}" method="post" style="display:inline" onsubmit="return confirm('Remove this deduction?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
@@ -99,17 +99,17 @@
                     @empty
                         <tr>
                             <td colspan="4" class="empty-state">
-                                <p style="font-size:13px;color:#9999bb">No deductions applied</p>
+                                <p style="font-size:13px;color:#9999bb">No compensations applied</p>
                             </td>
                         </tr>
                     @endforelse
                     </tbody>
                 </table>
             </div>
-            @if($employee->employeeDeduction->count())
+            @if($employee->employeeCompensation->count())
             <div class="table-footer">
                 <span>Total Deductions</span>
-                <span class="deduction" style="font-size:14px;font-weight:700">₱{{ number_format($employee->employeeDeduction->sum('amount'), 2) }}</span>
+                <span class="deduction" style="font-size:14px;font-weight:700">₱{{ number_format($employee->employeeCompensation->sum('amount'), 2) }}</span>
             </div>
             @endif
         </div>

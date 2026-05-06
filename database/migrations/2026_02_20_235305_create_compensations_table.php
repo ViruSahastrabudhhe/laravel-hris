@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Enums\DeductionType;
+use App\Enums\CompensationType;
 
 return new class extends Migration
 {
@@ -12,11 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deductions', function (Blueprint $table) {
+        Schema::create('compensations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->double('rate')->nullable();
-            $table->enum('type', DeductionType::cases())->default(DeductionType::Optional->value);
+            $table->enum('type', CompensationType::cases());
+            $table->boolean('is_mandatory')->default(false);
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deductions');
+        Schema::dropIfExists('compensations');
     }
 };

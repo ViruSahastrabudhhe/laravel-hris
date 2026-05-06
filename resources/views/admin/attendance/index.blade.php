@@ -11,29 +11,7 @@
     }
 
     $totalOT = round($totalOT / 60, 2);
-    $departments = \App\Models\Department::paginate(25);
-    $positions = \App\Models\Position::paginate(25);
 @endphp
-
-@push('styles')
-    <style>
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
-        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
-        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
-        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
-        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
-        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
-        .modal-close:hover { color:#0b044d; }
-        .modal-body { padding:20px 24px; }
-        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
-        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
-        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-        .modal-btn-primary { border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-weight:700; }
-        @media (max-width:768px) { .modal-box { border-radius:12px; } .modal-header { padding:16px 16px 0; } .modal-body { padding:14px 16px; } .modal-footer { padding:12px 16px 16px; } }
-        @media (max-width:400px) { .modal-overlay { padding:0; align-items:flex-end; } .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; } }
-    </style>
-@endpush
 
 @section('page-content')
 <div id="stats-attendances" class="stats-grid stats-grid-4">
@@ -154,7 +132,7 @@
     </div>
 </div>
 
-<div class="view-tabs">
+<div class="view-tabs" hidden>
     <button class="view-tab active" onclick="switchView('attendances',this)">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
         Attendances
@@ -175,7 +153,7 @@
             <line x1="14" y1="21" x2="14" y2="21.01"/>
             <line x1="17" y1="21" x2="21" y2="21"/>
             <line x1="2" y1="12" x2="22" y2="12" stroke-dasharray="3 1"/>
-        </svg>        
+        </svg>
         Scan History
     </button>
     <button class="view-tab" onclick="switchView('qr-codes',this)">
@@ -184,7 +162,13 @@
     </button>
 </div>
 
-<div id="view-attendances" class="tab-pane active">
+<div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1.5px solid #eceaf8; padding-bottom: 0;">
+    <button class="tab-btn active" onclick="switchView('attendances', this)">Attendances</button>
+    <button class="tab-btn" onclick="switchView('scan-history', this)">Scan History</button>
+    <button class="tab-btn" onclick="switchView('qr-codes', this)">QR Codes</button>
+</div>
+
+<div id="tab-attendances" class="tab-pane active">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -208,7 +192,7 @@
                         <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;" hidden>
                     <option value="">All Departments</option>
                     @foreach($departments as $dept)
                         <option value="{{ $dept->name }}">{{ $dept->name }}</option>
@@ -227,8 +211,6 @@
                 <thead>
                     <tr>
                         <th>Employee</th>
-                        <th>Position</th>
-                        <th>Department</th>
                         <th>Present</th>
                         <th>Absent</th>
                         <th>Late</th>
@@ -251,8 +233,6 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span>{{ $employee->position->title }}</span></td>
-                        <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
                         <td><span style="color: #15803d; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count(); }}</span></td>
                         <td><span style="color: #8e1e18; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count(); }}</span></td>
                         <td><span style="color: #a16207; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count(); }}</span></td>
@@ -277,7 +257,7 @@
     </div>
 </div>
 
-<div id="view-scan-history" class="tab-pane">
+<div id="tab-scan-history" class="tab-pane">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -311,7 +291,7 @@
                 <a class="modal-btn-primary" id="add-attendance-btn" href="#attendance">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Submit DTR
-                </a>  
+                </a>
                 <a class="modal-btn-primary" href="{{ route('qr-code.scan') }}" target="_blank">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
                     Scan QR Code
@@ -382,7 +362,7 @@
     </div>
 </div>
 
-<div id="view-qr-codes" class="tab-pane">
+<div id="tab-qr-codes" class="tab-pane">
     <div class="table-section">
         <div class="table-header">
             <div>
@@ -407,13 +387,12 @@
                 </select>
             </div>
         </div>
-    
+
         <div class="table-wrapper">
             <table class="payroll-table" id="qr-table">
                 <thead>
                     <tr>
                         <th>Employee</th>
-                        <th>Position</th>
                         <th>Work Schedule</th>
                         <th>Expiry Date</th>
                         <th>QR Status</th>
@@ -435,15 +414,14 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="dept-tag" style="background:#f0effe;color:#0b044d;border-color:#dddcf0">{{ $employee->position->title }}</span></td>
                         <td>
                             @if($ws)
                                 <span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">
-                                    {{ $ws->name }}, 
+                                    {{ $ws->name }},
                                     {{ \Carbon\Carbon::parse($ws->start_time)->format('H:i') }}-{{ \Carbon\Carbon::parse($ws->end_time)->format('H:i') }}
                                 </span>
                             @else
-                                <spanclass="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">No schedule</span>
+                                <span class="dept-tag" style="background:#fefce8;color:#a16207;border-color:#fde68a">No schedule</span>
                             @endif
                         </td>
                         <td>
@@ -492,6 +470,7 @@
     </div>
 </div>
 
+{{-- Submit DTR Modal --}}
 <div class="modal-overlay" id="attendance-modal" style="display:none" onclick="closeAttendanceModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -526,6 +505,7 @@
     </div>
 </div>
 
+{{-- Generate QR Modal --}}
 <div class="modal-overlay" id="qr-modal" style="display:none" onclick="closeQRCodeModal()">
     <div class="modal-box" style="max-width:460px" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -555,6 +535,7 @@
     </div>
 </div>
 
+{{-- View QR Modal --}}
 <div class="modal-overlay" id="view-qr-modal" style="display:none" onclick="closeViewQRModal()">
     <div class="modal-box" style="max-width:460px" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -596,6 +577,7 @@
     </div>
 </div>
 
+{{-- View DTR Modal --}}
 <div class="modal-overlay" id="view-attendance-modal" style="display: none;">
     <div class="modal-box">
         <div class="modal-header">
@@ -641,7 +623,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
@@ -714,13 +695,17 @@
         }
 
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-        document.getElementById('view-' + viewId).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + viewId).classList.add('active');
         btn.classList.add('active');
-        document.getElementById('stats-attendances').style.display  = viewId === 'attendances' || viewId === 'scan-history'   ? 'grid' : 'none';
-        document.getElementById('stats-qr-codes').style.display = viewId === 'qr-codes' ? 'grid' : 'none';
-        document.getElementById('quick-actions-attendances').style.display  = viewId === 'attendances'   ? 'flex' : 'none';
-        document.getElementById('quick-actions-qr-codes').style.display = viewId === 'qr-codes' ? 'flex' : 'none';
+
+        if (viewId === 'attendances' || viewId === 'scan-history') {
+            document.getElementById('stats-attendances').style.display = 'grid';
+            document.getElementById('stats-qr-codes').style.display = 'none';
+        } else {
+            document.getElementById('stats-attendances').style.display = 'none';
+            document.getElementById('stats-qr-codes').style.display = 'grid';
+        }
     }
 
     function closeAttendanceModal() {
@@ -765,12 +750,12 @@
 
     $(function () {
         const attendance_table = $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [7] }],
+            columnDefs: [{ orderable: false, targets: [6] }],
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
             dom: 'rtip',
-        });    
-    
+        });
+
         const scan_table = $('#scan-table').DataTable({
             columnDefs: [{ orderable: false, targets: [0, 9] }],
             pageLength: 25,
@@ -779,7 +764,7 @@
         });
 
         const qr_table = $('#qr-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [5] }],
+            columnDefs: [{ orderable: false, targets: [4] }],
             pageLength: 25,
             language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR codes found', },
             dom: 'rtip',

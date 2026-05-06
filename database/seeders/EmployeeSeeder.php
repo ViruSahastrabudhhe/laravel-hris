@@ -4,17 +4,17 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\EmployeeWorkSchedule;
-use App\Models\EmployeeDeduction;
+use App\Models\EmployeeCompensation;
 use App\Models\Salary;
 use App\Models\Address;
 use App\Enums\EmploymentType;
 use App\Enums\SalaryType;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class EmployeeSeeder extends Seeder
 {
@@ -77,21 +77,21 @@ class EmployeeSeeder extends Seeder
             ['work_schedule_id' => 1],
         ];
 
-        $deductions = [
+        $compensations = [
             [
-                ['deduction_id' => 1, 'amount' => 0],
-                ['deduction_id' => 2, 'amount' => 0],
-                ['deduction_id' => 3, 'amount' => 0],
+                ['compensation_id' => 1, 'amount' => 0],
+                ['compensation_id' => 2, 'amount' => 0],
+                ['compensation_id' => 3, 'amount' => 0],
             ],
             [
-                ['deduction_id' => 1, 'amount' => 0],
-                ['deduction_id' => 2, 'amount' => 0],
-                ['deduction_id' => 3, 'amount' => 0],
+                ['compensation_id' => 1, 'amount' => 0],
+                ['compensation_id' => 2, 'amount' => 0],
+                ['compensation_id' => 3, 'amount' => 0],
             ],
             [
-                ['deduction_id' => 1, 'amount' => 0],
-                ['deduction_id' => 2, 'amount' => 0],
-                ['deduction_id' => 3, 'amount' => 0],
+                ['compensation_id' => 1, 'amount' => 0],
+                ['compensation_id' => 2, 'amount' => 0],
+                ['compensation_id' => 3, 'amount' => 0],
             ],
         ];
 
@@ -107,7 +107,7 @@ class EmployeeSeeder extends Seeder
             Employee::factory()
                 ->has(EmployeeWorkSchedule::factory()->state($workSchedules[$index]))
                 ->has(Salary::factory()->state($salaries[$index]))
-                ->has(EmployeeDeduction::factory()->count(3)->state(new Sequence(...$deductions[$index])))
+                ->has(EmployeeCompensation::factory()->count(3)->state(new Sequence(...$compensations[$index])))
                 ->has(Address::factory())
                 ->create(array_merge($employeeData, ['user_id' => $user->id]));
         }

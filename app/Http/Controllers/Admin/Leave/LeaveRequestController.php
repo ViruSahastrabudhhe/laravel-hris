@@ -6,7 +6,7 @@ use App\Models\LeaveRequest;
 use App\Models\Employee;
 use App\Models\LeaveType;
 use App\Models\Holiday;
-use App\Models\EmployeeDeduction;
+use App\Models\EmployeeCompensation;
 use App\Enums\LeaveStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
@@ -26,13 +26,13 @@ class LeaveRequestController extends Controller
         $leaveTypes = LeaveType::paginate(25);
         $leaveStatuses = LeaveStatus::cases();
         $holidays = Holiday::paginate(25);
-        $benefits = EmployeeDeduction::get();
+        $benefits = EmployeeCompensation::get();
 
         return view('admin.leave.index', compact(
-            'employees', 
-            'leaveRequests', 
-            'leaveTypes', 
-            'holidays', 
+            'employees',
+            'leaveRequests',
+            'leaveTypes',
+            'holidays',
             'leaveStatuses',
             'benefits'
         ));

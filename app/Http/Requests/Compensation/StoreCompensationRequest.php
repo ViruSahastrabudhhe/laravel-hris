@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Deduction;
+namespace App\Http\Requests\Compensation;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateDeductionRequest extends FormRequest
+class StoreCompensationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

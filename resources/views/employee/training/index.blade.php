@@ -70,74 +70,20 @@
     $completedTrainings = $myTrainings->where('status', \App\Enums\EmployeeTrainingStatus::Completed->value)->count();
     $enrolledTrainings = $myTrainings->where('status', \App\Enums\EmployeeTrainingStatus::Enrolled->value)->count();
     $availableTrainingsCount = $availableTrainings->count();
+
+    $typeAccents = [
+        \App\Enums\TrainingType::Leadership->value  => '#0b044d',
+        \App\Enums\TrainingType::SoftSkills->value  => '#d9bb00',
+        \App\Enums\TrainingType::Orientation->value => '#0e7490',
+        \App\Enums\TrainingType::Upskilling->value  => '#15803d',
+        \App\Enums\TrainingType::Reskilling->value  => '#b45309',
+        \App\Enums\TrainingType::Technical->value   => '#1d4ed8',
+        \App\Enums\TrainingType::Safety->value      => '#8e1e18',
+        \App\Enums\TrainingType::Service->value     => '#0f766e',
+        \App\Enums\TrainingType::DEI->value         => '#7c3aed',
+        \App\Enums\TrainingType::Compliance->value  => '#6b3fa0',
+    ];
 @endphp
-
-@push('styles')
-    <style>
-        .search-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search-wrap svg {
-            position: absolute;
-            left: 10px;
-            pointer-events: none;
-        }
-        .search-input {
-            height: 34px;
-            padding: 0 10px 0 30px;
-            border: 1.5px solid #e4e3f0;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-family: 'Poppins', sans-serif;
-            color: #0b044d;
-            background: #fafafe;
-            outline: none;
-            width: 180px;
-            transition: border-color 0.2s;
-        }
-        .search-input:focus { border-color: #0b044d; }
-
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; z-index:1000; padding:clamp(8px,3vw,20px); overflow-y:auto; }
-        .modal-box { background:#fff; border-radius:16px; width:min(480px,100%); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; margin:auto; }
-        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
-        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
-        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
-        .modal-sub { font-size:13px; color:#6b6a8a; margin:0; }
-        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
-        .modal-close:hover { color:#0b044d; }
-        .modal-body { padding:20px 24px; }
-        .modal-emp-row { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
-        .modal-emp-id { font-size:11px; color:#9999bb; margin:0 0 4px; }
-        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
-        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
-        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
-        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
-        .modal-row.total { border-bottom:2px solid #e5e4f0; padding-top:14px; margin-top:6px; }
-        .modal-deduct { color:#8e1e18 !important; }
-        .modal-net-row { display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-radius:10px; padding:14px 16px; margin-top:10px; }
-        .modal-net-row span { font-size:13px; color:#15803d; font-weight:700; }
-        .modal-net-row strong { font-size:18px; color:#15803d; }
-        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
-        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
-        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
-
-        @media (max-width: 768px) {
-            .payslip-grid { grid-template-columns:1fr; }
-            .modal-box { border-radius:12px; }
-            .modal-header { padding:16px 16px 0; }
-            .modal-body { padding:14px 16px; }
-            .modal-footer { padding:12px 16px 16px; }
-        }
-        @media (max-width: 400px) {
-            .modal-overlay { padding:0; align-items:flex-end; }
-            .modal-box { border-radius:16px 16px 0 0; width:100%; margin:0; }
-        }
-    </style>
-@endpush
 
 @section('page-content')
 <div class="stats-grid stats-grid-4" style="margin-bottom: 24px;">
@@ -249,9 +195,7 @@
                             default                                     => 'pending',
                         };
 
-                        $colors = ['#0b044d', '#15803d', '#d9bb00', '#8e1e18', '#6b3fa0'];
-                        $typeAccents = collect($trainingTypes)->mapWithKeys(fn($type, $i) => [$type->value => $colors[$i % count($colors)]])->all();
-                        $accent = ['Leadership' => '#0b044d', 'Technical' => '#15803d', 'Soft Skills' => '#d9bb00', 'Safety' => '#8e1e18', 'Compliance' => '#6b3fa0'][$training->training->type] ?? '#0b044d';
+                        $accent = $typeAccents[$training->training->type] ?? '#0b044d';
                     @endphp
                     <tr>
                         <td>
@@ -312,11 +256,12 @@
                 $initials = $training->participants;
                 $typeLower = strtolower(str_replace(' ', '-', $training->type));
                 $trnId = 'TRN-' . str_pad($training->id, 3, '0', STR_PAD_LEFT);
+                $accent = $typeAccents[$training->type] ?? '#0b044d';
             @endphp
             <div class="training-card">
-                <span class="type-badge {{ $typeLower }}">{{ $training->type }}</span>
+                <span class="type-badge" style="border-color: {{ $accent }}40; background: {{ $accent }}10; color: {{ $accent }}">{{ $training->type }}</span>
                 <div class="card-header">
-                    <div class="card-icon" style="background:linear-gradient(135deg,#0b044d,#1a0f6e);">{{ $initials }}</div>
+                    <div class="card-icon" style="background: linear-gradient(135deg, {{ $accent }}, {{ $accent }}cc);">{{ $initials }}</div>
                     <div>
                         <p class="card-id">{{ $trnId }}</p>
                         <h4 class="card-title">{{ $training->program_title }}</h4>
@@ -398,6 +343,7 @@
         </div>
         <div class="modal-footer" id="modalFooter">
             <button class="modal-btn-ghost" onclick="closeModal('training-view-modal')">Close</button>
+            
             <button class="modal-btn-primary" id="modalAction">Enroll Now</button>
         </div>
     </div>
@@ -582,6 +528,13 @@
             document.getElementById('modalAction').style.color = '#9999bb';
             document.getElementById('modalAction').style.cursor = 'not-allowed';
             document.getElementById('modalAction').onclick = null;
+        } else if (availableSlots <= 0) {
+            document.getElementById('modalAction').textContent = 'Fully Booked';
+            document.getElementById('modalAction').disabled = true;
+            document.getElementById('modalAction').style.background = '#e5e4f0';
+            document.getElementById('modalAction').style.color = '#9999bb';
+            document.getElementById('modalAction').style.cursor = 'not-allowed';
+            document.getElementById('modalAction').onclick = null;
         } else {
             document.getElementById('modalAction').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>Enroll Now';
             document.getElementById('modalAction').disabled = false;
@@ -590,11 +543,7 @@
             document.getElementById('modalAction').style.cursor = '';
             document.getElementById('modalAction').onclick = function() {
                 closeModal('training-view-modal');
-                if (availableSlots > 0) {
-                    openTrainingEnrollModal(trnId, title, type, startDate, endDate, venue);
-                } else {
-                    document.getElementById('fullyBookedModal').style.display = 'flex';
-                }
+                openTrainingEnrollModal(trnId, title, type, startDate, endDate, venue);
             };
         }
 

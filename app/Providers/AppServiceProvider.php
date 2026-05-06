@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         LeaveRequest::observe(LeaveRequestObserver::class);
         Salary::observe(SalaryObserver::class);
         Position::observe(PositionObserver::class);
-        
+
         // page title
         View::composer('layouts.app', function ($view) {
             $route = Route::currentRouteName();
@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'verify') => __('common.app_verify'),
                 str_contains($route, 'profile') => __('profile.title'),
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
-                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'employee_compensations') => __('employee_deduction.title'),
                 str_contains($route, 'leave_requests') => __('leave_request.title'),
                 str_contains($route, 'department') => __('department.title'),
                 str_contains($route, 'qr') => __('qr_code.title'),
@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.admin', function ($view) {
             $route = Route::currentRouteName();
             $header = match(true) {
-                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'employee_compensations') => __('employee_deduction.title'),
                 str_contains($route, 'leave_requests') => __('common.app_leave'),
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'department') => __('department.title'),
@@ -98,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
             $route = Route::currentRouteName();
             $header = match(true) {
                 str_contains($route, 'employee_attendances') => __('employee_attendance.title'),
-                str_contains($route, 'employee_deductions') => __('employee_deduction.title'),
+                str_contains($route, 'employee_compensations') => __('employee_deduction.title'),
                 str_contains($route, 'leave_requests') => __('common.app_leave'),
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'department') => __('department.title'),

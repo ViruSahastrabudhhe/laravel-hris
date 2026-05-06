@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\EmployeeDeduction;
+use App\Models\EmployeeCompensation;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
-class EmployeeDeductionSeeder extends Seeder
+class EmployeeCompensationSeeder extends Seeder
 {
     /**
      * Run the database seeds.

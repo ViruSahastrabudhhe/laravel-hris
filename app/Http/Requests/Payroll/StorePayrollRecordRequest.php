@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Deduction;
+namespace App\Http\Requests\Payroll;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateEmployeeDeductionRequest extends FormRequest
+class StorePayrollRecordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,8 @@ class UpdateEmployeeDeductionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year'  => ['required', 'integer', 'min:2000', 'max:' . now()->year],
         ];
     }
 }
