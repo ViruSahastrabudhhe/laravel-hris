@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Chatbot\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Http\Request;
@@ -13,16 +14,22 @@ use App\Http\Controllers\Admin\Attendance\AttendanceController;
 use App\Http\Controllers\Admin\Payroll\PayrollRecordController;
 use App\Http\Controllers\Admin\Compensation\EmployeeCompensationController;
 use App\Http\Controllers\Admin\Leave\LeaveRequestController;
-use App\Http\Controllers\Admin\Leave\LeaveBalanceController;
+use App\Http\Controllers\Admin\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Admin\Leave\HolidayController;
 use App\Http\Controllers\Admin\Leave\LeaveTypeController;
 use App\Http\Controllers\Admin\Salary\SalaryController;
 use App\Http\Controllers\Admin\QrCode\QrCodeController;
 use App\Http\Controllers\Admin\Training\TrainingController;
 use App\Http\Controllers\Admin\Api\QrScannerController;
+use App\Http\Controllers\Admin\Report\ReportController;
+use App\Http\Controllers\Admin\Recruitment\RecruitmentController;
+use App\Http\Controllers\Admin\PerformanceManagement\PerformanceManagementController;
 use App\Http\Controllers\Employee\Training\EmployeeTrainingController;
 use App\Http\Controllers\Employee\Profile\EmployeeProfileController;
 use App\Http\Controllers\Employee\Leave\EmployeeLeaveRequestController;
+use App\Http\Controllers\Employee\Attendance\EmployeeAttendanceController;
+use App\Http\Controllers\Employee\Performance\EmployeePerformanceController;
+use App\Http\Controllers\Employee\Payslip\EmployeePayslipController;
 
 Auth::routes(['verify' => true]);
 
@@ -56,6 +63,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('attendances', AttendanceController::class);
     Route::resource('work_schedules', WorkScheduleController::class);
     Route::get('payroll/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
+    Route::get('payroll/bulk-store', [PayrollRecordController::class, 'bulkStore'])->name('payroll.bulkStore');
     Route::get('payroll/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');
     Route::get('payroll/{employee}/export-payslip', [PayrollRecordController::class, 'exportPayslip'])->name('payroll.exportPayslip');
     Route::resource('payroll', PayrollRecordController::class);
@@ -69,6 +77,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::patch('trainings/{employeeTraining}/approve', [TrainingController::class, 'approveParticipant'])->name('trainings.approve');
     Route::patch('trainings/{employeeTraining}/decline', [TrainingController::class, 'declineParticipant'])->name('trainings.decline');
     Route::resource('trainings', TrainingController::class);
+    Route::resource('reports', ReportController::class);
+    Route::resource('recruitments', RecruitmentController::class);
+    Route::resource('performance_managements', PerformanceManagementController::class);
 
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');
@@ -83,9 +94,17 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::post('qr-scanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
 });
 
+Route::middleware(['auth', 'verified'])->group(function() {
+    Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
+    Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat');
+});
+
 Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee'])->group(function() {
-    Route::resource('profile', EmployeeProfileController::class);
-    Route::get('employee_trainings/{employeeTraining}/certificate', [EmployeeTrainingController::class, 'downloadCertificate'])->name('employee_trainings.certificate');
-    Route::resource('employee_trainings', EmployeeTrainingController::class);
-    Route::resource('employee_leaves', EmployeeLeaveRequestController::class);
+    Route::resource('my_profile', EmployeeProfileController::class);
+    Route::get('my_trainings/{employeeTraining}/certificate', [EmployeeTrainingController::class, 'downloadCertificate'])->name('my_trainings.certificate');
+    Route::resource('my_trainings', EmployeeTrainingController::class);
+    Route::resource('my_leaves', EmployeeLeaveRequestController::class);
+    Route::resource('my_payslips', EmployeePayslipController::class);
+    Route::resource('my_performance', EmployeePerformanceController::class);
+    Route::resource('my_attendances', EmployeeAttendanceController::class);
 });

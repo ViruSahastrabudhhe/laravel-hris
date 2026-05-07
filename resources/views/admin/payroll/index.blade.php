@@ -12,7 +12,7 @@
         $totalDeductions += $employee->totalDeductions();
     }
 
-    $totalPersonnel = 0;
+    $totalPersonnel = $employees->count();
     $payDate = 0;
 @endphp
 
@@ -126,12 +126,20 @@
                     <th>Gross Pay</th>
                     <th>Deductions</th>
                     <th>Net Pay</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
             @forelse($employees as $employee)
                 <tr>
+                    @php
+                        $record = $employee->payrollRecords
+                            ->where('month', now()->month)
+                            ->where('year', now()->year)
+                            ->first();
+                        $status = $record->status ?? 'Draft';
+                    @endphp
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -150,9 +158,27 @@
                     </td>
                     <td><span class="net-pay">₱{{ number_format($employee->netPay(), 2) }}</span></td>
                     <td>
-                        <button type="button" class="btn-view" onclick="openModal('payslipModal-{{ $employee->id }}')">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        </button>
+                        <span class="badge-status {{ strtolower($status) === 'processed' ? 'processed' : 'pending' }}">{{ $status }}</span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <button type="button" class="btn-view" onclick="openModal('payslipModal-{{ $employee->id }}')">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                            <button type="button" class="btn-edit" {{ $record === null ? '' : 'hidden' }}
+                                    onclick="openSinglePayrollModal({
+                                    id: {{ $employee->id }},
+                                    name: '{{ $employee->first_name }} {{ $employee->last_name }}',
+                                    department: '{{ $employee->department->name }}',
+                                    grossPay: '{{ $employee->grossPay() }}',
+                                    totalDeductions: '{{ $employee->totalDeductions() }}',
+                                    netPay: '{{ $employee->netPay() }}'
+                                })" title="Run Payroll">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -224,20 +250,60 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <form action="{{ route('payroll.store') }}" method="POST">
+        <form action="{{ route('payroll.bulkStore') }}" method="POST">
             @csrf
             <div class="modal-body">
                 <div class="modal-confirm-info" style="margin-bottom: 16px;">
                     <input type="hidden" name="month" id="payroll-run-month">
                     <input type="hidden" name="year" id="payroll-run-year">
-                    <div class="modal-row"><span>Total Personnel</span><strong>8</strong></div>
-                    <div class="modal-row"><span>Gross Payroll</span><strong>₱127,485.50</strong></div>
-                    <div class="modal-row"><span>Pay Date</span><strong>Jun 30, 2025</strong></div>
+                    <div class="modal-row"><span>Total Personnel</span><strong>{{ $totalPersonnel }}</strong></div>
+                    <div class="modal-row"><span>Gross Payroll</span><strong>₱{{ number_format($grossPayroll, 2) }}</strong></div>
+                    <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
                 </div>
                 <p style="font-size: 13px; color: #8e1e18; background: #8e1e1818; padding: 10px 12px; border-radius: 6px;">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeModal('payroll-run-modal')">Cancel</button>
+                <button type="submit" class="modal-btn-primary">Confirm & Process</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Single Payroll Modal --}}
+<div class="modal-overlay" id="single-payroll-modal" style="display:none" onclick="closeModal('single-payroll-modal')">
+    <div class="modal-box modal-sm" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">PAYROLL PROCESSING</span>
+                <h3 class="modal-title" id="single-payroll-modal-title">Process Payroll?</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal('single-payroll-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="single-payroll-form" method="POST">
+            @csrf
+            <input type="hidden" name="month" id="single-payroll-month">
+            <input type="hidden" name="year" id="single-payroll-year">
+            <div class="modal-body">
+                <div class="modal-confirm-info" style="margin-bottom:16px">
+                    <input type="hidden" name="employee_id" id="single-payroll-employee-id">
+                    <input type="hidden" name="total_earnings" id="single-payroll-total-earnings">
+                    <input type="hidden" name="total_deductions" id="single-payroll-total-deductions">
+                    <input type="hidden" name="net_pay" id="single-payroll-net-pay">
+                    <input type="hidden" name="status" value="Processed">
+                    <div class="modal-row"><span>Employee</span><strong id="single-payroll-name"></strong></div>
+                    <div class="modal-row"><span>Department</span><strong id="single-payroll-dept"></strong></div>
+                    <div class="modal-row"><span>Gross Pay</span><strong id="single-payroll-gross"></strong></div>
+                    <div class="modal-row"><span>Total Deductions</span><strong id="single-payroll-deductions"></strong></div>
+                    <div class="modal-row total"><span>Net Pay</span><strong id="single-payroll-net"></strong></div>
+                    <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
+                </div>
+                <p style="font-size:13px;color:#8e1e18;background:#8e1e1818;padding:10px 12px;border-radius:6px;">⚠ This will finalize payroll for this employee. Ensure DTR and leave records are updated before proceeding.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('single-payroll-modal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">Confirm & Process</button>
             </div>
         </form>
@@ -310,5 +376,35 @@ $(function () {
         openModal('payroll-run-modal');
     };
 });
+</script>
+
+<script>
+    function formatPeso(value) {
+        return '₱' + parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function openSinglePayrollModal(data) {
+        const month = document.getElementById('month-filter').value;
+        const year  = document.getElementById('year-filter').value;
+        const monthName = document.getElementById('month-filter').options[document.getElementById('month-filter').selectedIndex].text;
+
+        document.getElementById('single-payroll-modal-title').textContent = `Process ${monthName} ${year} Payroll?`;
+        document.getElementById('single-payroll-name').textContent        = data.name;
+        document.getElementById('single-payroll-dept').textContent        = data.department;
+        document.getElementById('single-payroll-gross').textContent       = formatPeso(data.grossPay);
+        document.getElementById('single-payroll-deductions').textContent  = formatPeso(data.totalDeductions);
+        document.getElementById('single-payroll-net').textContent         = formatPeso(data.netPay);
+
+        var url = "{{ route('payroll.store') }}";
+        document.getElementById('single-payroll-form').action            = url;
+        document.getElementById('single-payroll-month').value            = month;
+        document.getElementById('single-payroll-year').value             = year;
+        document.getElementById('single-payroll-employee-id').value      = data.id;
+        document.getElementById('single-payroll-total-earnings').value   = data.grossPay;
+        document.getElementById('single-payroll-total-deductions').value = data.totalDeductions;
+        document.getElementById('single-payroll-net-pay').value          = data.netPay;
+
+        openModal('single-payroll-modal');
+    };
 </script>
 @endpush

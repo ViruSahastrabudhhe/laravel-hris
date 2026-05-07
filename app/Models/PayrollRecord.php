@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Models\Employees;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employee;
+use App\Models\PayrollItem;
+use App\Enums\CompensationType;
 
 class PayrollRecord extends Model
 {
@@ -29,11 +32,15 @@ class PayrollRecord extends Model
 
     public function earnings()
     {
-        return $this->items()->where('type', 'Earning');
+        return $this->items()->where('type', CompensationType::Allowance->value);
     }
 
-    public function compensations()
+    public function deductions()
     {
-        return $this->items()->where('type', 'Compensation');
+        return $this->items()->where('type', CompensationType::Deduction->value);
+    }
+
+    public function isProcessed() {
+        return $this->status === 'Processed';
     }
 }

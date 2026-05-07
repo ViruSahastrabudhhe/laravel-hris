@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Payroll\BulkStorePayrollRecordRequest;
 use App\Http\Requests\Payroll\StorePayrollRecordRequest;
 use App\Http\Requests\Payroll\UpdatePayrollRecordRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -37,10 +38,48 @@ class PayrollRecordController extends Controller
         //
     }
 
+    public function store(StorePayrollRecordRequest $request) {
+        $data = $request->validated();
+
+        $month = $data['month'];
+        $year  = $data['year'];
+        $employee = Employee::find($data['employee_id']);
+
+        $record = PayrollRecord::updateOrCreate(
+            ['employee_id' => $data['employee_id'], 'month' => $data['month'], 'year' => $data['year']],
+            [
+                'total_earnings' => $data['total_earnings'],
+                'total_deductions' => $data['total_deductions'],
+                'net_pay' => $data['net_pay'],
+                'status' => 'Processed',
+            ]
+        );
+
+        $record->items()->delete();
+
+        $items = [
+            ['name' => 'Basic Pay',    'type' => 'Allowance',   'amount' => $employee->salary->amount ?? 0],
+            ['name' => 'Overtime Pay', 'type' => 'Allowance',   'amount' => $employee->overtimePay($data['month'], $data['year'])],
+            ['name' => 'Absent/Late',  'type' => 'Deduction', 'amount' => $employee->absentDeductions($month, $year)],
+        ];
+
+        foreach ($employee->employeeCompensation as $item) {
+            $items[] = [
+                'name'   => $item->compensation->name,
+                'type'   => $item->compensation->type === CompensationType::Allowance->value ? 'Allowance' : 'Deduction',
+                'amount' => $item->amount,
+            ];
+        }
+
+        $record->items()->createMany($items);
+
+        return redirect()->route('payroll.index');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePayrollRecordRequest $request)
+    public function bulkStore(BulkStorePayrollRecordRequest $request)
     {
         $month = $request->integer('month');
         $year  = $request->integer('year');

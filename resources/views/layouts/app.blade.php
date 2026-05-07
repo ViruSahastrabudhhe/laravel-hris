@@ -31,7 +31,7 @@
     <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('/js/jquery.dataTables.min.js') }}"></script>
     <script>
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; document.body.style.overflow = ''; }
         function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 
         document.addEventListener('keydown', e => {

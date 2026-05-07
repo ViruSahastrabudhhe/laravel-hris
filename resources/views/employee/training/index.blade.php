@@ -171,7 +171,7 @@
                 </select>
             </div>
         </div>
-            
+
         <div class="table-wrapper">
             <table class="payroll-table" id="training-table">
                 <thead>
@@ -248,7 +248,7 @@
             <p class="table-sub">Open programs you can enroll in</p>
         </div>
     </div>
-    
+
     <div class="training-cards">
         @forelse($availableTrainings as $training)
             @php
@@ -343,7 +343,7 @@
         </div>
         <div class="modal-footer" id="modalFooter">
             <button class="modal-btn-ghost" onclick="closeModal('training-view-modal')">Close</button>
-            
+
             <button class="modal-btn-primary" id="modalAction">Enroll Now</button>
         </div>
     </div>
@@ -367,7 +367,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <form action="{{ route('employee_trainings.store') }}" method="POST">
+        <form action="{{ route('my_trainings.store') }}" method="POST">
             @csrf
             <input type="hidden" name="training_id" id="enrollTrainingId">
             <div class="modal-body">
@@ -599,7 +599,7 @@
         document.getElementById('cdDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         document.getElementById('certDownloadModal').style.display = 'flex';
 
-        window.location.href = `/employee/employee_trainings/${employeeTrainingId}/certificate`;
+        window.location.href = `/employee/my_trainings/${employeeTrainingId}/certificate`;
     }
 </script>
 @endpush

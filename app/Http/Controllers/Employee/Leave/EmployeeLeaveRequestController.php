@@ -40,7 +40,7 @@ class EmployeeLeaveRequestController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('employee_leaves.index')->with('success', __('leave_request.success_creating'));
+        return redirect()->route('my_leaves.index')->with('success', __('leave_request.success_creating'));
     }
 
     public function show() {}

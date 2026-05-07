@@ -5,7 +5,7 @@
     $activeEmployees = 0;
     $inactiveEmployees = 0;
     $regularEmployees = 0;
-    
+
     foreach ($employees as $employee) {
         if ($employee->is_active) {
             $activeEmployees++;
@@ -214,7 +214,7 @@
     <button class="tab-btn active" onclick="switchView('employees', this)">Employees</button>
     <button class="tab-btn" onclick="switchView('departments', this)">Departments</button>
     <button class="tab-btn" onclick="switchView('positions', this)">Positions</button>
-</div>  
+</div>
 
 <div id="tab-employees" class="tab-pane active">
     <div class="table-section">
@@ -290,7 +290,7 @@
                                 {{ $employee->employment_type }}
                             </span>
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($employee->created_at)->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($employee->created_at)->format(config('app.day_month')) }}</td>
                         <td>
                             @if($employee->is_active)
                                 <span class="badge-status processed" data-order="0">Active</span>
@@ -427,7 +427,7 @@
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                                 <form action="{{ route('departments.destroy', $department) }}" method="post" style="display:inline" onsubmit="return confirm('Delete this department?')">
-                                    @csrf   
+                                    @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>

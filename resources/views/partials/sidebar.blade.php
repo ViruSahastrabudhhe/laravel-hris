@@ -2,24 +2,24 @@
     if (auth()->user()->hasRole('admin')) {
         $navItems = [
             ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
-            ['id' => 'recruitment',   'label' => 'Recruitment',       'route' => 'employees.index',       'icon' => 'recruitment', 'section' => null],
+            ['id' => 'recruitment',   'label' => 'Recruitment',       'route' => 'recruitments.index',       'icon' => 'recruitment', 'section' => null],
             ['id' => 'employees',   'label' => 'Personnel',       'route' => 'employees.index',       'icon' => 'personnel', 'section' => null],
             ['id' => 'training',   'label' => 'Training & Development',       'route' => 'trainings.index',       'icon' => 'training', 'section' => null],
             ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
             ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'leave_requests.index', 'icon' => 'leave', 'section' => null],
-            ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'employees.index',       'icon' => 'performance', 'section' => null],
+            ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'performance_managements.index',       'icon' => 'performance', 'section' => null],
             ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
-            ['id' => 'reports',   'label' => 'Reports',       'route' => 'employees.index',       'icon' => 'reports', 'section' => null],
+            ['id' => 'reports',   'label' => 'Reports',       'route' => 'reports.index',       'icon' => 'reports', 'section' => null],
         ];
     } else {
         $navItems = [
             ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
-            ['id' => 'profile',        'label' => 'Profile',       'route' => 'profile.index',                  'icon' => 'profile', 'section' => null],
-            ['id' => 'leaves',        'label' => 'Leave & Benefits',       'route' => 'employee_leaves.index',                  'icon' => 'leave', 'section' => null],
-            ['id' => 'training',        'label' => 'Trainings',       'route' => 'employee_trainings.index',                  'icon' => 'training', 'section' => null],
-            ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'home',                  'icon' => 'attendance', 'section' => null],
-            ['id' => 'performance',        'label' => 'Performance',       'route' => 'home',                  'icon' => 'performance', 'section' => null],
-            ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'home',                  'icon' => 'payslip', 'section' => null],
+            ['id' => 'profile',        'label' => 'Profile',       'route' => 'my_profile.index',                  'icon' => 'profile', 'section' => null],
+            ['id' => 'leaves',        'label' => 'Leave & Benefits',       'route' => 'my_leaves.index',                  'icon' => 'leave', 'section' => null],
+            ['id' => 'training',        'label' => 'Trainings',       'route' => 'my_trainings.index',                  'icon' => 'training', 'section' => null],
+            ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'my_attendances.index',                  'icon' => 'attendance', 'section' => null],
+            ['id' => 'performance',        'label' => 'Performance',       'route' => 'my_performance.index',                  'icon' => 'performance', 'section' => null],
+            ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'my_payslips.index',                  'icon' => 'payslip', 'section' => null],
         ];
     }
 

@@ -1,5 +1,5 @@
 @extends('layouts.employee')
 
 @section('page-content')
-    <h1>EMPLOYEE DASHBOARD GOES HERE</h1>
+    <h1>PERFORMANCES GOES HERE</h1>
 @endsection

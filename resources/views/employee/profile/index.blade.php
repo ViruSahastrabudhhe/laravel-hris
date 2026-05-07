@@ -99,14 +99,14 @@
             <p class="table-sub">View and manage your personal details</p>
         </div>
     </div>
-    
+
     <div class="pmodal-tabs">
         <button class="pmodal-tab active" onclick="switchTab('personal', this)">Personal Info</button>
         <button class="pmodal-tab" onclick="switchTab('employment', this)">Employment</button>
         <button class="pmodal-tab" onclick="switchTab('government', this)">Government IDs</button>
         <button class="pmodal-tab" onclick="switchTab('emergency', this)">Emergency Contact</button>
     </div>
-    
+
     <div style="padding:28px 32px;">
         <div id="tab-personal" class="tab-content">
             <div class="pmodal-grid">
@@ -159,7 +159,7 @@
             </button>
         </div>
 
-        <form id="profile-edit-form" method="POST" action="{{ route('profile.update', $employee->id) }}">
+        <form id="profile-edit-form" method="POST" action="{{ route('my_profile.update', $employee->id) }}">
             @csrf
             @method('PUT')
 
