@@ -47,6 +47,7 @@ Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'veri
 Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
     Route::get('employees/check-email', [EmployeeController::class, 'checkEmail'])->name('employees.checkEmail');
+    Route::post('employees/bulk-store', [EmployeeController::class, 'bulkStore'])->name('employees.bulkStore');
     Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::put('employees/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
     Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
@@ -63,7 +64,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('attendances', AttendanceController::class);
     Route::resource('work_schedules', WorkScheduleController::class);
     Route::get('payroll/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
-    Route::get('payroll/bulk-store', [PayrollRecordController::class, 'bulkStore'])->name('payroll.bulkStore');
+    Route::post('payroll/bulk-store', [PayrollRecordController::class, 'bulkStore'])->name('payroll.bulkStore');
     Route::get('payroll/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');
     Route::get('payroll/{employee}/export-payslip', [PayrollRecordController::class, 'exportPayslip'])->name('payroll.exportPayslip');
     Route::resource('payroll', PayrollRecordController::class);

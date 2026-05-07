@@ -823,6 +823,10 @@ body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
 .stat-sub { font-size: 11.5px; color: #9999bb; margin: 0; }
 
 /* Table Section */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 .table-section {
   background: #ffffff; border: 1.5px solid #eceaf8;
   border-radius: 14px; overflow: hidden; margin-bottom: 22px;

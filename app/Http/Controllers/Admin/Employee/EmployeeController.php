@@ -16,6 +16,7 @@ use App\Models\Salary;
 use App\Enums\EmploymentType;
 use App\Enums\SalaryType;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
@@ -95,6 +96,94 @@ class EmployeeController extends Controller
         $employeeWorkSchedule->save();
 
         event(new Registered($employeeAccount));
+
+        return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
+    }
+
+    public function bulkStore(Request $request)
+    {
+        $request->validate(['csv_file' => 'required|file|mimes:csv,txt']);
+
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+        $header = fgetcsv($file); // skip header row
+
+        $errors = [];
+        $row = 2;
+
+        while (($data = fgetcsv($file)) !== false) {
+            $record = array_combine($header, $data);
+
+            if (User::where('email', $record['email'])->exists() || Employee::where('email', $record['email'])->exists()) {
+                $errors[] = "Row {$row}: Email {$record['email']} already exists.";
+                $row++;
+                continue;
+            }
+
+            DB::beginTransaction();
+            try {
+                $employeeAccount = User::create([
+                    'name'     => $record['first_name'] . ' ' . $record['last_name'],
+                    'email'    => $record['email'],
+                    'password' => Hash::make($record['password']),
+                ]);
+
+                $employeeAccount->assignRole('employee');
+
+                $employee = Employee::createQuietly([
+                    'first_name'      => $record['first_name'],
+                    'last_name'       => $record['last_name'],
+                    'gender'          => $record['gender'],
+                    'email'           => $record['email'],
+                    'date_of_birth'   => $record['date_of_birth'],
+                    'phone_number'    => $record['phone_number'],
+                    'employment_type' => $record['employment_type'],
+                    'is_active'       => $record['is_active'],
+                    'position_id'     => $record['position_id'],
+                    'department_id'   => $record['department_id'],
+                    'user_id'         => $employeeAccount->id,
+                ]);
+
+                Salary::create([
+                    'employee_id'  => $employee->id,
+                    'salary_type'  => $record['salary_type'],
+                    'amount'       => $record['amount'],
+                    'salary_grade' => $record['salary_grade'],
+                    'step'         => $record['step'],
+                ]);
+
+                (new \App\Observers\EmployeeObserver())->created($employee);
+
+                Address::create([
+                    'employee_id' => $employee->id,
+                    'country'     => $record['country'],
+                    'zip_code'    => $record['zip_code'],
+                    'city'        => $record['city'],
+                    'address'     => $record['address'],
+                    'province'    => $record['province'],
+                ]);
+
+                EmployeeWorkSchedule::create([
+                    'employee_id'      => $employee->id,
+                    'work_schedule_id' => $record['work_schedule_id'],
+                ]);
+
+                event(new Registered($employeeAccount));
+                
+                DB::commit();
+                $row++;
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $errors[] = "Row {$row}: Failed to import (check foreign keys). Error: " . $e->getMessage();
+                $row++;
+            }
+        }
+
+        fclose($file);
+
+        if (!empty($errors)) {
+            return redirect()->route('employees.index')
+                ->with('warning', implode('<br>', $errors));
+        }
 
         return redirect()->route('employees.index')->with('success', __('employee.success_creating'));
     }

@@ -249,6 +249,10 @@
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     View Archive
                 </a>
+                <a class="modal-btn-primary" id="import-employee-btn" href="#import">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Import Employees
+                </a>
                 <a href="{{ route('employees.create') }}" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Add Employee
@@ -743,6 +747,41 @@
         </form>
     </div>
 </div>
+
+{{-- Import Employee Modal --}}
+<div class="modal-overlay" id="employee-import-modal" style="display:none" onclick="closeEmployeeImportModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">IMPORT EMPLOYEES</span>
+                <h3 class="modal-title">Upload CSV File</h3>
+            </div>
+            <button class="modal-close" onclick="closeEmployeeImportModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('employees.bulkStore') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <div class="form-field">
+                    <label>CSV File <span style="color:#dc2626">*</span></label>
+                    <input type="file" name="csv_file" accept=".csv" required>
+                </div>
+                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
+                    <strong style="color:#0b044d;display:block;margin-bottom:4px;">CSV Format</strong>
+                    first_name, last_name, gender, email, password, date_of_birth, phone_number, employment_type, is_active, position_id, department_id, salary_type, amount, salary_grade, step, country, zip_code, city, address, province, work_schedule_id
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeEmployeeImportModal()">Cancel</button>
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Import CSV
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -851,5 +890,29 @@
         document.getElementById('pos-edit-modal').style.display = 'flex';
     }
     function closePosEditModal() { document.getElementById('pos-edit-modal').style.display = 'none'; }
+
+    function closeEmployeeImportModal() {
+        document.getElementById('employee-import-modal').style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }
+
+    $('#import-employee-btn').on('click', function (e) {
+        e.preventDefault();
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.paddingRight = scrollbarWidth + 'px';
+        document.getElementById('employee-import-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeDeptCreateModal();
+            closeDeptEditModal();
+            closePosCreateModal();
+            closePosEditModal();
+            closeEmployeeImportModal();
+        }
+    });
 </script>
 @endpush
