@@ -1,13 +1,16 @@
 @extends('layouts.admin')
 
 @php
-    $totalPresent = $attendances->where('attendance_status', 'Present')->count();
-    $totalAbsences = $attendances->where('attendance_status', 'Absent')->count();
+    $totalPresent = 0;
+    $totalAbsences = 0;
     $totalOT = 0;
-    $totalLate = $attendances->where('attendance_status', 'Late')->count();
+    $totalLate = 0;
 
     foreach ($attendances as $attendance) {
-        $totalOT += $attendance->overtime_minutes;
+        $totalPresent += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count();
+        $totalLate += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count();
+        $totalAbsences += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count();
+        $totalOT += $attendance->betweenCurrentMonth()->value('overtime_minutes');
     }
 
     $totalOT = round($totalOT / 60, 2);
@@ -180,14 +183,14 @@
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
                 </div>
-                <select class="filter-select" id="month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="ea-month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                     @foreach(range(1,12) as $m)
                         <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
                             {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                         </option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="ea-year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
                     @foreach(range(now()->year - 2, now()->year) as $y)
                         <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
@@ -220,25 +223,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($employees as $employee)
+                @foreach($employeeAttendances as $attendance)
                     <tr>
                         <td>
                             <div class="emp-cell">
-                                <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
-                                    {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
+                                <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($attendance->employee->id % 5)] }}">
+                                    {{ strtoupper(substr($attendance->employee->first_name, 0, 1) . substr($attendance->employee->last_name, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <p class="emp-name">{{ $employee->first_name }} {{ $employee->last_name }}</p>
-                                    <p class="emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+                                    <p class="emp-name">{{ $attendance->employee->first_name }} {{ $attendance->employee->last_name }}</p>
+                                    <p class="emp-id">EMP-{{ str_pad($attendance->employee->id, 3, '0', STR_PAD_LEFT) }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td><span style="color: #15803d; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count(); }}</span></td>
-                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count(); }}</span></td>
-                        <td><span style="color: #a16207; font-weight: 600;">{{ $employee->attendance->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count(); }}</span></td>
+                        <td><span style="color: #15803d; font-weight: 600;">{{ $attendance->total_present }}</span></td>
+                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_late }}</span></td>
+                        <td><span style="color: #a16207; font-weight: 600;">{{ $attendance->total_absent }}</span></td>
                         @php
-                            $employeeOTHours = $employee->attendance()->sum('overtime_minutes') / 60;
-                            $employeeAttendanceIsComplete = $employee->attendance->count();
+                            $employeeOTHours = $attendance->overtimeMinutes() / 60;
+                            $employeeAttendanceIsComplete = $attendance->completeAttendances();
                         @endphp
                         <td><span style="color: #0b044d; font-weight: 600;">{{ number_format($employeeOTHours, 2) }} hrs</span></td>
                         <td>
@@ -482,7 +485,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <form action="{{ route('attendances.csvStore') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('attendances.bulkStore') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
                 <div class="form-field">
@@ -833,28 +836,31 @@
 
         const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
 
-        function fetchAttendance() {
-            const month = $('#month-filter').val();
-            const year  = $('#year-filter').val();
+        function fetchEmployeeAttendance() {
+            const month = parseInt($('#ea-month-filter').val());
+            const year  = parseInt($('#ea-year-filter').val());
 
-            $.get('{{ route('attendances.filter') }}', { month, year }, function(res) {
+            if (month === {{ now()->month }} && year === {{ now()->year }}) {
+                location.reload();
+                return;
+            }
+
+            $.get('{{ route('attendances.filterEmployeeAttendance') }}', { month, year }, function(res) {
                 attendance_table.clear();
 
                 res.employees.forEach(function(e) {
                     const initials = e.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
                     const color    = colors[e.id % 5];
                     const empId    = 'EMP-' + String(e.id).padStart(3, '0');
-                    const status   = e.complete
+                    const status   = e.is_complete
                         ? '<span class="badge-status processed">Complete</span>'
                         : '<span class="badge-status pending">Incomplete</span>';
 
                     attendance_table.row.add([
                         `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.name}</p><p class="emp-id">${empId}</p></div></div>`,
-                        e.position,
-                        `<span class="dept-tag">${e.department}</span>`,
                         `<span style="color:#15803d;font-weight:600">${e.present}</span>`,
-                        `<span style="color:#8e1e18;font-weight:600">${e.absent}</span>`,
-                        `<span style="color:#a16207;font-weight:600">${e.late}</span>`,
+                        `<span style="color:#8e1e18;font-weight:600">${e.late}</span>`,
+                        `<span style="color:#a16207;font-weight:600">${e.absent}</span>`,
                         `<span style="color:#0b044d;font-weight:600">${e.ot_hours} hrs</span>`,
                         status,
                         '',
@@ -865,7 +871,7 @@
             });
         }
 
-        $('#month-filter, #year-filter').on('change', fetchAttendance);
+        $('#ea-month-filter, #ea-year-filter').on('change', fetchEmployeeAttendance);
     });
 </script>
 @endpush

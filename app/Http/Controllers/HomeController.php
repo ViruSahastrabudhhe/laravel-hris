@@ -27,15 +27,15 @@ class HomeController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('admin')) {
-            $employees = Employee::with(['department', 'position'])->get();
+            $employees = Employee::with(['department', 'position', 'attendance'])->get();
             $leaveRequests = LeaveRequest::with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
-    
+
             return view('admin.home', [
                 'employees' => $employees,
                 'leaveRequests' => $leaveRequests,
             ]);
         }
-        
+
         if (auth()->user()->hasRole('employee')) {
             return view('employee.home');
         }

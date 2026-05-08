@@ -32,7 +32,7 @@ class WorkScheduleFactory extends Factory
             'pm_start_time' => Carbon::parse('13:00'),
             'break_minutes' => 60,
             'work_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-            'grace_period_minutes' => 15,
+            'grace_period_minutes' => 5,
         ];
     }
 }

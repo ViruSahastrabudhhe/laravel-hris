@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('employee_leave_balances', function (Blueprint $table) {
             $table->id();
-            $table->float('leave_balance');
+            $table->float('amount');
+            $table->enum('type', ['Sick', 'Vacation']);
             $table->unsignedBigInteger('employee_id');
             $table->timestamps();
             $table->foreign('employee_id')

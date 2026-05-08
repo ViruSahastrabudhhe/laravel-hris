@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\Attendance;
 use App\Models\EmployeeCompensation;
+use App\Models\EmployeeAttendance;
 use App\Models\EmployeeTraining;
 use App\Models\LeaveRequest;
 use App\Models\EmployeeLeaveBalance;
@@ -39,12 +40,13 @@ class Employee extends Model
     public function department() { return $this->hasOne(Department::class, 'id', 'department_id'); }
     public function position() { return $this->hasOne(Position::class, 'id', 'position_id'); }
     public function salary() { return $this->hasOne(Salary::class); }
+    public function employeeAttendance() { return $this->hasMany(EmployeeAttendance::class); }
     public function attendance() { return $this->hasMany(Attendance::class); }
     public function employeeCompensation() { return $this->hasMany(EmployeeCompensation::class); }
     public function employeeTraining() { return $this->hasMany(EmployeeTraining::class); }
     public function address() { return $this->hasOne(Address::class); }
     public function leaves() { return $this->hasMany(LeaveRequest::class); }
-    public function leaveBalance() { return $this->hasOne(EmployeeLeaveBalance::class); }
+    public function employeeLeaveBalance() { return $this->hasOne(EmployeeLeaveBalance::class); }
     public function employeeWorkSchedule() { return $this->hasOne(EmployeeWorkSchedule::class); }
     public function qrAttendanceScans() { return $this->hasMany(QrAttendanceScan::class); }
     public function payrollRecords() { return $this->hasMany(PayrollRecord::class); }

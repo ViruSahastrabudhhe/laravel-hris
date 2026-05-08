@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum AttendanceStatus: string
 {
+    case Missing = 'Missing';
     case Absent = 'Absent';
     case Late = 'Late';
     case Present = 'Present';

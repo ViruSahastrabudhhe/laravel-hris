@@ -16,8 +16,9 @@ class EmployeeLeaveBalance extends Model
     protected $table = 'employee_leave_balances';
 
     protected $fillable = [
-        'leave_balance',
         'employee_id',
+        'amount',
+        'type',
     ];
 
     public function employee() {

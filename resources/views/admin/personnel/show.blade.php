@@ -127,7 +127,7 @@
                 ['Department', $employee->department->name],
                 ['Employment Type', $employee->employment_type],
                 ['Work Schedule', $employee->employeeWorkSchedule->workSchedule->name],
-                ['Leave Balance', $employee->leaveBalance->leave_balance . ' days'],
+                ['Leave Balance', $employee->employeeLeaveBalance->amount . ' days'],
             ] as [$label, $value])
             <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f7f6ff;font-size:13px">
                 <span style="color:#9999bb">{{ $label }}</span>

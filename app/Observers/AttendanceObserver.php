@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\Attendance;
 use App\Enums\AttendanceStatus;
+use App\Models\Employee;
+use App\Models\EmployeeAttendance;
 use Carbon\Carbon;
 
 class AttendanceObserver
@@ -17,6 +19,7 @@ class AttendanceObserver
         $this->calculateOvertimeMinutes($attendance);
         $this->determineAttendanceStatus($attendance);
         $this->processLeaveDeduction($attendance);
+        $this->addDayToEmployeeAttendance($attendance);
     }
 
     /**
@@ -24,7 +27,6 @@ class AttendanceObserver
      */
     public function updated(Attendance $attendance): void
     {
-        //
     }
 
     /**
@@ -49,6 +51,37 @@ class AttendanceObserver
     public function forceDeleted(Attendance $attendance): void
     {
         //
+    }
+
+    private function addDayToEmployeeAttendance(Attendance $attendance): void {
+        $attendanceDate = Carbon::parse($attendance->date);
+
+        $employeeAttendance = EmployeeAttendance::firstOrCreate(
+            [
+                'employee_id' => $attendance->employee_id,
+                'month' => $attendanceDate->month,
+                'year' => $attendanceDate->year
+            ],
+            [
+                'total_present' => 0,
+                'total_late' => 0,
+                'total_absent' => 0,
+                'is_complete' => false
+            ]
+        );
+
+        if ($attendance->attendance_status === AttendanceStatus::Present->value) {
+            $employeeAttendance->increment('total_present');
+        } elseif ($attendance->attendance_status === AttendanceStatus::Late->value) {
+            $employeeAttendance->increment('total_late');
+        } else {
+            $employeeAttendance->increment('total_absent');
+        }
+
+        $employeeAttendance->refresh();
+        if ($employeeAttendance->total_present >= 22) {
+            $employeeAttendance->update(['is_complete' => true]);
+        }
     }
 
     private function calculateWorkMinutes(Attendance $attendance) {
@@ -85,7 +118,7 @@ class AttendanceObserver
         if (!$attendance->time_in || !$attendance->time_out) {
             return;
         }
-    
+
         $timeIn = Carbon::parse($attendance->time_in);
         $timeOut = Carbon::parse($attendance->time_out);
 

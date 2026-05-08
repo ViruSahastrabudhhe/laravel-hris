@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AttendanceStatus;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ class Attendance extends Model
     protected $table = 'attendances';
 
     protected $fillable = [
+        'employee_id',
         'date',
         'time_in',
         'time_out',
@@ -30,17 +32,21 @@ class Attendance extends Model
         'attendance_status',
         'total_minutes',
         'overtime_minutes',
-        'employee_id',
+        'number_of_scans',
     ];
 
     public function employee() {
         return $this->belongsTo(Employee::class, 'employee_id', 'id');
     }
 
+    public function employeeAttendance() {
+        return $this->belongsTo(EmployeeAttendance::class);
+    }
+
     #[Scope]
     protected function currentMonth(Builder $query): void {
-        $query->whereYear('created_at', '=', Carbon::now()->year)
-              ->whereMonth('created_at', '=', Carbon::now()->month);
+        $query->whereYear('date', '=', Carbon::now()->year)
+              ->whereMonth('date', '=', Carbon::now()->month);
     }
 
     #[Scope]
@@ -54,5 +60,17 @@ class Attendance extends Model
         $date = Carbon::createFromDate($year, $month, 1);
         $query->whereDate('date', '>=', $date->copy()->startOfMonth())
             ->whereDate('date', '<=', $date->copy()->endOfMonth());
+    }
+
+    #[Scope]
+    protected function presentToday(Builder $query): void {
+        $query->where('attendance_status', AttendanceStatus::Present->value)
+            ->whereDate('date', '>=', Carbon::now()->startOfDay())
+            ->whereDate('date', '<=', Carbon::now()->endOfDay());
+    }
+
+    #[Scope]
+    protected function joinWithEmployeeAttendance(Builder $query): void {
+        $query->join('employee_attendances', 'employee_attendances.employee_id', '=', 'attendances.employee_id');
     }
 }

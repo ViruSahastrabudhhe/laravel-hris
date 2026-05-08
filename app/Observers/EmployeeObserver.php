@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Employee;
+use App\Models\EmployeeAttendance;
 use App\Models\EmployeeWorkSchedule;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeCompensation;
@@ -11,6 +12,7 @@ use App\Models\Position;
 use App\Enums\EmploymentType;
 use App\Enums\CompensationType;
 use App\Enums\PositionStatus;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class EmployeeObserver
@@ -21,9 +23,7 @@ class EmployeeObserver
     public function created(Employee $employee): void
     {
         $this->createEmployeeLeaveBalance($employee);
-        if ($employee->employment_type == EmploymentType::Regular->value) {
-            $this->createEmployeeMandatoryDeductions($employee);
-        }
+        $this->createEmployeeAttendanceForCurrentMonth($employee);
     }
 
     /**
@@ -72,18 +72,28 @@ class EmployeeObserver
     }
 
     private function createEmployeeLeaveBalance(Employee $employee) {
-        if ($employee->isJobOrder()) {
-            $employeeLeaveBalance = new EmployeeLeaveBalance;
-            $employeeLeaveBalance->leave_balance = 0.0;
-            $employeeLeaveBalance->employee_id = $employee->id;
-            $employeeLeaveBalance->save();
-            return;
-        }
+        $sickLeave = new EmployeeLeaveBalance;
+        $sickLeave->type = 'Sick';
+        $sickLeave->amount = 0;
+        $sickLeave->employee_id = $employee->id;
+        $sickLeave->save();
 
-        $employeeLeaveBalance = new EmployeeLeaveBalance;
-        $employeeLeaveBalance->leave_balance = 15;
-        $employeeLeaveBalance->employee_id = $employee->id;
-        $employeeLeaveBalance->save();
+        $vacationLeave = new EmployeeLeaveBalance;
+        $vacationLeave->type = 'Vacation';
+        $vacationLeave->amount = 0;
+        $vacationLeave->employee_id = $employee->id;
+        $vacationLeave->save();
+    }
+
+    private function createEmployeeAttendanceForCurrentMonth(Employee $employee) {
+        $employeeAttendance = EmployeeAttendance::create([
+            'employee_id' => $employee->id,
+            'total_present' => 0,
+            'total_late' => 0,
+            'total_absent' => 0,
+            'month' => Carbon::now()->month,
+            'year' => Carbon::now()->year,
+        ]);
     }
 
     private function createEmployeeMandatoryDeductions(Employee $employee) {

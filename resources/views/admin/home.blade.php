@@ -1,23 +1,24 @@
 @extends('layouts.admin')
 
 @php
+    use App\Enums\LeaveStatus;
+
     $monthlyPayroll = 0;
     $employeesOnLeave = 0;
     $employeesPendingLeave = 0;
     $totalEmployees = isset($employees) ? $employees->count() : 0;
+    $presentToday = 0;
+
 
     if (isset($employees)) {
         foreach ($employees as $employee) {
+            foreach($employee->attendance as $attendance) {
+                $presentToday = $attendance->presentToday()->count();
+            }
             $monthlyPayroll += method_exists($employee, 'netPay') ? $employee->netPay() : 0;
-            $employeesOnLeave += $employee->leaves()->where('leave_status', 'Approved')->count();
-            $employeesPendingLeave += $employee->leaves()->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
+            $employeesOnLeave += $employee->leaves()->where('leave_status', LeaveStatus::Approved->value)->count();
+            $employeesPendingLeave += $employee->leaves()->where('leave_status', LeaveStatus::Pending->value)->count();
         }
-
-        $presentToday = $employees->filter(function($employee) {
-            return $employee->attendance()->whereDate('date', now()->toDateString())->where('attendance_status', 'Present')->exists();
-        })->count();
-    } else {
-        $presentToday = 0;
     }
 @endphp
 

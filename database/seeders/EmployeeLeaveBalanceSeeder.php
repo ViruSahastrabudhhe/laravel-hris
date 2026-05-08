@@ -14,22 +14,6 @@ class EmployeeLeaveBalanceSeeder extends Seeder
      */
     public function run(): void
     {
-        EmployeeLeaveBalance::factory()
-            ->count(3)
-            ->state(new Sequence(
-                [
-                    'leave_balance' => 15,
-                    'employee_id' => 1,
-                ],
-                [
-                    'leave_balance' => 15,
-                    'employee_id' => 2,
-                ],
-                [
-                    'leave_balance' => 0,
-                    'employee_id' => 3,
-                ],
-            ))
-            ->create();
+        //
     }
 }

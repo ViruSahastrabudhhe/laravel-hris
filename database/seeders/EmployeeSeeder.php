@@ -2,15 +2,18 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use App\Models\Employee;
+use App\Models\EmployeeAttendance;
+use App\Models\EmployeeWorkSchedule;
+use App\Models\EmployeeCompensation;
+use App\Models\EmployeeLeaveBalance;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\EmployeeWorkSchedule;
-use App\Models\EmployeeCompensation;
 use App\Models\Salary;
 use App\Models\Address;
 use App\Enums\EmploymentType;
@@ -77,6 +80,27 @@ class EmployeeSeeder extends Seeder
             ['work_schedule_id' => 1],
         ];
 
+        $attendances = [
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+        ];
+
+        $leaveBalances = [
+            [
+                ['amount' => 0, 'type' => 'Sick'],
+                ['amount' => 0, 'type' => 'Vacation'],
+            ],
+            [
+                ['amount' => 0, 'type' => 'Sick'],
+                ['amount' => 0, 'type' => 'Vacation'],
+            ],
+            [
+                ['amount' => 0, 'type' => 'Sick'],
+                ['amount' => 0, 'type' => 'Vacation'],
+            ],
+        ];
+
         $compensations = [
             [
                 ['compensation_id' => 1, 'amount' => 0],
@@ -107,8 +131,10 @@ class EmployeeSeeder extends Seeder
             Employee::factory()
                 ->has(EmployeeWorkSchedule::factory()->state($workSchedules[$index]))
                 ->has(Salary::factory()->state($salaries[$index]))
-                ->has(EmployeeCompensation::factory()->count(3)->state(new Sequence(...$compensations[$index])))
+//                ->has(EmployeeCompensation::factory()->count(3)->state(new Sequence(...$compensations[$index])))
+                ->has(EmployeeAttendance::factory()->state($attendances[$index]))
                 ->has(Address::factory())
+                ->has(EmployeeLeaveBalance::factory()->count(3)->state(...$leaveBalances[$index]))
                 ->create(array_merge($employeeData, ['user_id' => $user->id]));
         }
     }

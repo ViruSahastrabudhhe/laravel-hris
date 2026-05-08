@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Attendance;
 
 use App\Models\Attendance;
 use App\Models\Department;
+use App\Models\EmployeeAttendance;
 use App\Models\Position;
 use App\Models\Employee;
 use App\Models\EmployeeLeaveBalance;
@@ -22,7 +23,8 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::currentMonth()->get();
+        $attendances = Attendance::get();
+        $employeeAttendances = EmployeeAttendance::currentMonth()->get();
         $schedules = WorkSchedule::get();
         $employees = Employee::with(['position', 'department', 'employeeWorkSchedule.workSchedule'])->get();
         $departments = Department::get();
@@ -31,7 +33,7 @@ class AttendanceController extends Controller
         $totalQrGenerated = $qrScans->count();
         $activeQr = $qrScans->where('valid_until', '>', Carbon::now())->count();
 
-        return view('admin.attendance.index', compact('attendances', 'departments', 'positions', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
+        return view('admin.attendance.index', compact('attendances', 'employeeAttendances', 'departments', 'positions', 'schedules', 'employees', 'qrScans', 'totalQrGenerated', 'activeQr'));
     }
 
     /**
@@ -50,7 +52,7 @@ class AttendanceController extends Controller
         //
     }
 
-    public function csvStore(Request $request) {
+    public function bulkStore(Request $request) {
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
@@ -65,7 +67,7 @@ class AttendanceController extends Controller
                 unset($data[0]);
 
                 foreach ($data as $row) {
-                    Attendance::updateOrCreate(
+                    Attendance::firstOrCreate(
                         ['employee_id' => $row[7], 'date' => $row[0]],
                         [
                             'date' => $row[0],
@@ -76,7 +78,6 @@ class AttendanceController extends Controller
                             'overtime_in' => $row[5],
                             'overtime_out' => $row[6],
                             'employee_id' => $row[7],
-                            'user_id' => $row[8]
                         ]
                     );
                 }
@@ -148,30 +149,45 @@ class AttendanceController extends Controller
         return view('admin.attendance.archive', ['attendances' => $attendances]);
     }
 
-    public function filterByMonth(Request $request)
+    public function filterEmployeeAttendance(Request $request)
     {
         $month = $request->integer('month', now()->month);
         $year  = $request->integer('year', now()->year);
+        $isCurrentMonth = $month === now()->month && $year === now()->year;
 
-        $employees = Employee::with([
-            'position', 'department',
-            'attendance' => fn($q) => $q->whereYear('created_at', $year)->whereMonth('created_at', $month),
-        ])->get();
+        if ($isCurrentMonth) {
+            $employees = Employee::with(['employeeAttendance'])->get();
 
-        $workingDays = \Carbon\Carbon::create($year, $month)->startOfMonth()
-            ->diffInWeekdays(\Carbon\Carbon::create($year, $month)->endOfMonth()) + 1;
+            return response()->json([
+                'source' => 'live',
+                'employees' => $employees->map(fn($e) => [
+                    'id' => $e->id,
+                    'name' => $e->first_name . ' ' . $e->last_name,
+                    'total_present' => $e->employeeAttendance->total_present,
+                    'total_late' => $e->employeeAttendance->total_late,
+                    'total_absent' => $e->employeeAttendance->total_absent,
+                    'is_complete' => $e->employeeAttendance->is_complete,
+                ]),
+            ]);
+        }
+
+        $employeeAttendances = EmployeeAttendance::with(['employee'])
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get();
+
+        $daysInMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth()->diffInWeekdays(Carbon::createFromDate($year, $month, 1)->endOfMonth()) + 1;
 
         return response()->json([
-            'employees' => $employees->map(fn($e) => [
-                'id'         => $e->id,
-                'name'       => $e->first_name . ' ' . $e->last_name,
-                'position'   => $e->position->title,
-                'department' => $e->department->name,
-                'present'    => $e->attendance->where('attendance_status', 'Present')->count(),
-                'absent'     => $e->attendance->where('attendance_status', 'Absent')->count(),
-                'late'       => $e->attendance->where('attendance_status', 'Late')->count(),
-                'ot_hours'   => number_format($e->attendance->sum('overtime_minutes') / 60, 1),
-                'complete'   => $e->attendance->count() >= $workingDays,
+            'source' => 'snapshot',
+            'employees' => $employeeAttendances->map(fn($ea) => [
+                'id' => $ea->employee->id,
+                'name' => $ea->employee->first_name . ' ' . $ea->employee->last_name,
+                'present' => $ea->total_present,
+                'late' => $ea->total_late,
+                'absent' => $ea->total_absent,
+                'ot_hours' => number_format($ea->overtimeMinutes() / 60, 2),
+                'is_complete' => $ea->completeAttendances() >= $daysInMonth,
             ]),
         ]);
     }

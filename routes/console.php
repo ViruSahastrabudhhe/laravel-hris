@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('qr:regenerate')->monthlyOn(1, '00:00');
+Schedule::command('attendances:mark-absent')->dailyAt('23:59');

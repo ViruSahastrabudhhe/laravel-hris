@@ -46,7 +46,8 @@ class QrScannerController extends Controller
                 return response()->json(['success' => false, 'message' => 'QR code expired. Please get a new one from admin.'], 400);
             }
 
-            $schedule = $qrScan->employee->employeeWorkSchedule->workSchedule;
+            $employee = $qrScan->employee;
+            $schedule = $employee->employeeWorkSchedule->workSchedule;
             $today = now()->toDateString();
             $now = now();
 
@@ -54,36 +55,54 @@ class QrScannerController extends Controller
                 ->where('date', $today)
                 ->first();
 
-            [$scanType, $status, $overtimeMinutes, $totalMinutes] = $this->resolveScan($attendance, $schedule, $now, $qrScan->employee);
+            $scanData = $this->resolveScan($attendance, $schedule, $now);
 
-            if (!$scanType) {
-                return response()->json(['success' => false, 'message' => 'All scans for today are already completed.'], 400);
+            $field = $scanData['field'];
+            $status = $scanData['status'];
+
+            if (!$field) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'All scans already completed.'
+                ], 400);
             }
 
-            $updateData = [$scanType => $now->format('H:i:s')];
+            if (!$attendance) {
+                $attendance = new Attendance();
 
-            if ($scanType === 'time_out') {
-                $updateData['overtime_minutes'] = $overtimeMinutes;
-                $updateData['total_minutes'] = $totalMinutes;
+                $attendance->employee_id = $employee->id;
+                $attendance->date = $today;
+                $attendance->number_of_scans = 0;
             }
 
-            if ($scanType === 'time_in') {
-                $updateData['attendance_status'] = $status->value;
-            } elseif ($status === AttendanceStatus::Late) {
-                $updateData['attendance_status'] = AttendanceStatus::Late->value;
+            $attendance->{$field} = $now->format('H:i:s');
+
+            $attendance->number_of_scans += 1;
+
+            if ($attendance->number_of_scans >= 4) {
+                if (!$attendance->time_in || !$attendance->time_out) {
+                    $attendance->attendance_status = AttendanceStatus::Absent->value;
+                } else {
+                    $attendance->attendance_status = $status->value;
+                }
+                $timeIn = Carbon::parse("$today {$attendance->time_in}");
+                $timeOut = Carbon::parse("$today {$attendance->time_out}");
+                $attendance->total_minutes = $timeIn->diffInMinutes($timeOut) - $schedule->break_minutes;
+                $isJobOrder = $employee->employment_type === EmploymentType::JobOrder->value;
+                $endTime = Carbon::parse($schedule->end_time)->setDateFrom(now());
+                $attendance->overtime_minutes = (!$isJobOrder && $now->gt($endTime)) ? $endTime->diffInMinutes($now) : 0;
             }
 
-            $attendance = Attendance::updateOrCreate(
-                ['employee_id' => $qrScan->employee_id, 'date' => $today],
-                array_merge(['user_id' => 1], $updateData)
-            );
+            $attendance->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance recorded successfully',
-                'scan_type' => $scanType,
+                'scan_type' => $field,
                 'status' => $status->value,
-                'employee_name' => $qrScan->employee->first_name . ' ' . $qrScan->employee->last_name,
+                'number_of_scans' => $attendance->number_of_scans,
+                'date' => $now,
+                'employee_name' => $employee->first_name . ' ' . $employee->last_name,
             ]);
 
         } catch (\Throwable $e) {
@@ -92,39 +111,53 @@ class QrScannerController extends Controller
         }
     }
 
-    private function resolveScan(?Attendance $attendance, $schedule, Carbon $now, $employee): array
+    private function resolveScan(?Attendance $attendance, $schedule, Carbon $now): array
     {
-        $grace = $schedule->grace_period_minutes;
-        $date  = today()->toDateString();
-        $isJobOrder = $employee->employment_type === EmploymentType::JobOrder->value;
+        $scanCount = $attendance?->number_of_scans ?? 0;
 
-        if (!$attendance?->time_in) {
-            $deadline = Carbon::parse($schedule->start_time)->setDateFrom(now())->addMinutes($grace);
-            $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
-            return ['time_in', $status, 0, 0];
+        switch ($scanCount) {
+            case 0:
+                return [
+                    'field' => 'time_in',
+                    'status' => $this->determineStatus(
+                        $now,
+                        $schedule->start_time,
+                        $schedule->grace_period_minutes
+                    ),
+                ];
+            case 1:
+                return [
+                    'field' => 'break_start',
+                    'status' => AttendanceStatus::Present,
+                ];
+            case 2:
+                return [
+                    'field' => 'break_end',
+                    'status' => AttendanceStatus::Present,
+                ];
+            case 3:
+                return [
+                    'field' => 'time_out',
+                    'status' =>
+                        $attendance->attendance_status ? AttendanceStatus::from($attendance->attendance_status) : AttendanceStatus::Present,
+                ];
+            default:
+                return [
+                    'field' => null,
+                    'status' => AttendanceStatus::Present,
+                ];
         }
+    }
 
-        if (!$attendance->break_start) {
-            $deadline = Carbon::parse("$date 12:00:00")->addMinutes($grace);
-            $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
-            return ['break_start', $status, 0, 0];
-        }
+    private function determineStatus(Carbon $now, string $startTime, int $grace): AttendanceStatus
+    {
+        $deadline = Carbon::parse($startTime)
+            ->setDateFrom(now())
+            ->addMinutes($grace);
 
-        if (!$attendance->break_end) {
-            $deadline = Carbon::parse($schedule->pm_start_time)->setDateFrom(now())->addMinutes($grace);
-            $status = $now->lte($deadline) ? AttendanceStatus::Present : AttendanceStatus::Late;
-            return ['break_end', $status, 0, 0];
-        }
-
-        if (!$attendance->time_out) {
-            $endTime = Carbon::parse($schedule->end_time)->setDateFrom(now());
-            $timeIn  = Carbon::parse("$date {$attendance->time_in}");
-            $overtimeMinutes = (!$isJobOrder && $now->gt($endTime)) ? (int) $endTime->diffInMinutes($now) : 0;
-            $totalMinutes    = (int) $timeIn->diffInMinutes($now) - $schedule->break_minutes;
-            return ['time_out', AttendanceStatus::Present, $overtimeMinutes, $totalMinutes];
-        }
-
-        return [null, AttendanceStatus::Present, 0, 0];
+        return $now->lte($deadline)
+            ? AttendanceStatus::Present
+            : AttendanceStatus::Late;
     }
 
     public function uploadScan(Request $request)

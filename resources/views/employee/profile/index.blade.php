@@ -6,7 +6,7 @@
 
     $yearsOfService = 0;
     $performanceRating = 0;
-    $leaveBalance = $employee->leaveBalance->leave_balance;
+    $leaveBalance = $employee->EmployeeLeaveBalance->amount;
     $trainingsCompleted = 0;
 
     foreach ($employee->employeeTraining as $et) {

@@ -21,13 +21,13 @@ return new class extends Migration
             $table->time('overtime_in')->nullable();
             $table->time('overtime_out')->nullable();
             $table->date('date');
-            $table->enum('attendance_status', AttendanceStatus::cases())->default(AttendanceStatus::Absent->value);
+            $table->enum('attendance_status', AttendanceStatus::cases())->default(AttendanceStatus::Missing->value);
             $table->integer('total_minutes')->default(0);
             $table->integer('overtime_minutes')->default(0);
-            $table->unsignedBigInteger('employee_id');
+            $table->integer('number_of_scans')->default(0);
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('employee_id')
+            $table->foreignId('employee_id')
                     ->references('id')->on('employees')
                     ->onDelete('set null');
         });
