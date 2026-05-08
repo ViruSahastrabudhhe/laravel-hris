@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\AttendanceStatus;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
+use App\Models\AttendanceScanLog;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +42,10 @@ class Attendance extends Model
 
     public function employeeAttendance() {
         return $this->belongsTo(EmployeeAttendance::class);
+    }
+
+    public function attendanceScanLogs() {
+        return $this->hasMany(AttendanceScanLog::class);
     }
 
     #[Scope]

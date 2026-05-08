@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\AttendanceScanLog;
 use App\Models\QrAttendanceScan;
 use App\Enums\EmploymentType;
 use Illuminate\Http\Request;
@@ -47,6 +48,15 @@ class QrScannerController extends Controller
             }
 
             $employee = $qrScan->employee;
+
+            if ($this->hasRecentScan($employee->id)) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Duplicate scan detected. Please wait.'
+                ], 429);
+            }
+
             $schedule = $employee->employeeWorkSchedule->workSchedule;
             $today = now()->toDateString();
             $now = now();
@@ -94,6 +104,17 @@ class QrScannerController extends Controller
             }
 
             $attendance->save();
+
+            AttendanceScanLog::create([
+                'attendance_id' => $attendance->id,
+                'employee_id' => $employee->id,
+                'scan_type' => $field,
+                'scanned_at' => now(),
+
+                'device_name' => $request->userAgent(),
+
+                'ip_address' => $request->ip(),
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -158,6 +179,16 @@ class QrScannerController extends Controller
         return $now->lte($deadline)
             ? AttendanceStatus::Present
             : AttendanceStatus::Late;
+    }
+
+    private function hasRecentScan($employeeId): bool
+    {
+        $recentScan = AttendanceScanLog::where( 'employee_id', $employeeId)->latest('scanned_at')->first();
+        if (!$recentScan) {
+            return false;
+        }
+
+        return $recentScan->scanned_at->diffInSeconds(now()) < 10;
     }
 
     public function uploadScan(Request $request)

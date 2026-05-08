@@ -86,20 +86,20 @@ class EmployeeSeeder extends Seeder
             ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
         ];
 
-        $leaveBalances = [
-            [
-                ['amount' => 0, 'type' => 'Sick'],
-                ['amount' => 0, 'type' => 'Vacation'],
-            ],
-            [
-                ['amount' => 0, 'type' => 'Sick'],
-                ['amount' => 0, 'type' => 'Vacation'],
-            ],
-            [
-                ['amount' => 0, 'type' => 'Sick'],
-                ['amount' => 0, 'type' => 'Vacation'],
-            ],
-        ];
+            $leaveBalances = [
+                [
+                    ['amount' => 0, 'type' => 'Sick'],
+                    ['amount' => 0, 'type' => 'Vacation'],
+                ],
+                [
+                    ['amount' => 0, 'type' => 'Sick'],
+                    ['amount' => 0, 'type' => 'Vacation'],
+                ],
+                [
+                    ['amount' => 0, 'type' => 'Sick'],
+                    ['amount' => 0, 'type' => 'Vacation'],
+                ],
+            ];
 
         $compensations = [
             [
@@ -134,7 +134,7 @@ class EmployeeSeeder extends Seeder
 //                ->has(EmployeeCompensation::factory()->count(3)->state(new Sequence(...$compensations[$index])))
                 ->has(EmployeeAttendance::factory()->state($attendances[$index]))
                 ->has(Address::factory())
-                ->has(EmployeeLeaveBalance::factory()->count(3)->state(...$leaveBalances[$index]))
+                ->has(EmployeeLeaveBalance::factory()->count(2)->state(new Sequence(...$leaveBalances[$index])))
                 ->create(array_merge($employeeData, ['user_id' => $user->id]));
         }
     }
