@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin\Leave;
 
+use App\Http\Requests\Leave\StoreLeaveRequest;
+use App\Http\Requests\Leave\UpdateLeaveRequest;
 use App\Models\LeaveRequest;
 use App\Models\Employee;
 use App\Models\LeaveType;
@@ -11,7 +13,7 @@ use App\Enums\LeaveStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
 use App\Http\Requests\Leave\UpdateEmployeeLeaveRequest;
-use App\Http\Requests\Leave\DenyEmployeeLeaveRequest;
+use App\Http\Requests\Leave\DenyLeaveRequest;
 use Illuminate\Support\Facades\Log;
 
 class LeaveRequestController extends Controller
@@ -53,7 +55,7 @@ class LeaveRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEmployeeLeaveRequest $request)
+    public function store(StoreLeaveRequest $request)
     {
         $data = $request->validated();
 
@@ -84,7 +86,7 @@ class LeaveRequestController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEmployeeLeaveRequest $request, LeaveRequest $leaveRequest)
+    public function update(UpdateLeaveRequest $request, LeaveRequest $leaveRequest)
     {
         $data = $request->validated();
 
@@ -109,7 +111,7 @@ class LeaveRequestController extends Controller
         return redirect()->route('leave_requests.index')->with('success', __('leave_request.success_approving'));
     }
 
-    public function deny(LeaveRequest $leaveRequest, DenyEmployeeLeaveRequest $request) {
+    public function deny(LeaveRequest $leaveRequest, DenyLeaveRequest $request) {
         $data = $request->validated();
 
         $leaveRequest->update([

@@ -22,7 +22,16 @@ class StoreAttendanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'employee_id' => 'required',
+            'date' => 'required',
+            'time_in' => 'nullable',
+            'time_out' => 'nullable',
+            'break_start' => 'nullable',
+            'break_end' => 'nullable',
+            'overtime_in' => 'nullable',
+            'overtime_out' => 'nullable',
+            'correction.remarks' => 'required',
+            'correction.proof' => 'required',
         ];
     }
 }

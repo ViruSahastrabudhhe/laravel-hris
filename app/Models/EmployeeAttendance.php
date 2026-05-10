@@ -23,6 +23,7 @@ class EmployeeAttendance extends Model
         'total_present',
         'total_late',
         'total_absent',
+        'total_overtime',
         'month',
         'year',
         'is_complete',
@@ -30,18 +31,6 @@ class EmployeeAttendance extends Model
 
     public function employee() { return $this->belongsTo(Employee::class); }
     public function attendance() { return $this->hasMany(Attendance::class); }
-
-    public function overtimeMinutes() {
-        return Attendance::joinWithEmployeeAttendance()
-            ->betweenCurrentMonth()
-            ->sum('attendances.overtime_minutes');
-    }
-
-    public function completeAttendances(int $month = null, int $year = null) {
-        return Attendance::joinWithEmployeeAttendance()
-            ->where('employee_attendances.is_complete', true)
-            ->count();
-    }
 
     #[Scope]
     protected function currentMonth(Builder $query): void {

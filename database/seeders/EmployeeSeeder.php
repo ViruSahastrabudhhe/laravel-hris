@@ -81,9 +81,9 @@ class EmployeeSeeder extends Seeder
         ];
 
         $attendances = [
-            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
-            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
-            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'total_overtime' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'total_overtime' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
+            ['total_present' => 0, 'total_absent' => 0, 'total_late' => 0, 'total_overtime' => 0, 'month' => Carbon::now()->month, 'year' => Carbon::now()->year],
         ];
 
             $leaveBalances = [

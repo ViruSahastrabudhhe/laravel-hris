@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('total_present', 10, 2)->default(0);
             $table->decimal('total_late', 10, 2)->default(0);
             $table->decimal('total_absent', 10, 2)->default(0);
+            $table->decimal('total_overtime', 10, 2)->default(0);
             $table->unsignedTinyInteger('month');
             $table->unsignedSmallInteger('year');
             $table->boolean('is_complete')->default(false);

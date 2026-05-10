@@ -301,5 +301,6 @@
         </div>
     </footer>
 
+    @include('admin.chatbot.chat')
 </div>
 @endsection

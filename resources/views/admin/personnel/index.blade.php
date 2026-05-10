@@ -231,7 +231,7 @@
                 <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Departments</option>
                     @foreach($departments as $dept)
-                        <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                        <option value="{{ $dept->department_code }}">{{ $dept->name }}</option>
                     @endforeach
                 </select>
                 <select class="filter-select" id="position-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
@@ -288,7 +288,7 @@
                             </div>
                         </td>
                         <td><span class="position-cell">{{ $employee->position->title }}</span></td>
-                        <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
+                        <td><span class="dept-tag">{{ $employee->department->department_code }}</span></td>
                         <td>
                             <span class="dept-tag" style="background:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#bbf7d0' : '#fde68a' }}">
                                 {{ $employee->employment_type }}

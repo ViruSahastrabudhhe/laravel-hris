@@ -27,9 +27,9 @@ class WorkScheduleFactory extends Factory
     {
         return [
             'name' => 'Standard',
-            'start_time' => Carbon::parse('08:00'),
-            'end_time' => Carbon::parse('17:00'),
-            'pm_start_time' => Carbon::parse('13:00'),
+            'start_time' => Carbon::parse('08:00')->format('H:i'),
+            'end_time' => Carbon::parse('17:00')->format('H:i'),
+            'pm_start_time' => Carbon::parse('13:00')->format('H:i'),
             'break_minutes' => 60,
             'work_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
             'grace_period_minutes' => 5,

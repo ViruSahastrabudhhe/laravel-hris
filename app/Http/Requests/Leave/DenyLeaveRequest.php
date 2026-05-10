@@ -5,7 +5,7 @@ namespace App\Http\Requests\Leave;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DenyEmployeeLeaveRequest extends FormRequest
+class DenyLeaveRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

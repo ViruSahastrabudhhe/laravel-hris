@@ -6,7 +6,9 @@ use App\Models\Attendance;
 use App\Enums\AttendanceStatus;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
+use App\Models\EmployeeLeaveBalance;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceObserver
 {
@@ -19,7 +21,8 @@ class AttendanceObserver
         $this->calculateOvertimeMinutes($attendance);
         $this->determineAttendanceStatus($attendance);
         $this->processLeaveDeduction($attendance);
-        $this->addDayToEmployeeAttendance($attendance);
+        $this->recalculateEmployeeMonthlySummary($attendance);
+        $this->recalculateMonthlyOvertime($attendance);
     }
 
     /**
@@ -27,6 +30,11 @@ class AttendanceObserver
      */
     public function updated(Attendance $attendance): void
     {
+        $this->calculateWorkMinutes($attendance);
+        $this->calculateOvertimeMinutes($attendance);
+        $this->determineAttendanceStatus($attendance);
+        $this->recalculateEmployeeMonthlySummary($attendance);
+        $this->recalculateMonthlyOvertime($attendance);
     }
 
     /**
@@ -34,7 +42,12 @@ class AttendanceObserver
      */
     public function deleted(Attendance $attendance): void
     {
-        //
+        Log::info([
+            'message' => 'DELETED YOUR ATTENDANCE BOI',
+            'attendance' => $attendance->id,
+        ]);
+        $this->recalculateEmployeeMonthlySummary($attendance);
+        $this->recalculateMonthlyOvertime($attendance);
     }
 
     /**
@@ -42,7 +55,12 @@ class AttendanceObserver
      */
     public function restored(Attendance $attendance): void
     {
-        //
+        Log::info([
+            'message' => 'RESTORED YOUR ATTENDANCE BOI',
+            'attendance' => $attendance->id,
+        ]);
+        $this->recalculateEmployeeMonthlySummary($attendance);
+        $this->recalculateMonthlyOvertime($attendance);
     }
 
     /**
@@ -53,35 +71,71 @@ class AttendanceObserver
         //
     }
 
-    private function addDayToEmployeeAttendance(Attendance $attendance): void {
-        $attendanceDate = Carbon::parse($attendance->date);
+    private function recalculateEmployeeMonthlySummary(Attendance $attendance): void {
+        $date = Carbon::parse($attendance->date);
 
         $employeeAttendance = EmployeeAttendance::firstOrCreate(
             [
                 'employee_id' => $attendance->employee_id,
-                'month' => $attendanceDate->month,
-                'year' => $attendanceDate->year
+                'month' => $date->month,
+                'year' => $date->year,
             ],
             [
                 'total_present' => 0,
                 'total_late' => 0,
                 'total_absent' => 0,
-                'is_complete' => false
+                'total_overtime' => 0,
+                'is_complete' => false,
             ]
         );
 
-        if ($attendance->attendance_status === AttendanceStatus::Present->value) {
-            $employeeAttendance->increment('total_present');
-        } elseif ($attendance->attendance_status === AttendanceStatus::Late->value) {
-            $employeeAttendance->increment('total_late');
-        } else {
-            $employeeAttendance->increment('total_absent');
-        }
+        $query = Attendance::where('employee_id', $attendance->employee_id)
+            ->whereMonth('date', Carbon::parse($attendance->date)->month)
+            ->whereYear('date', Carbon::parse($attendance->date)->year)
+            ->whereNull('deleted_at');
 
-        $employeeAttendance->refresh();
-        if ($employeeAttendance->total_present >= 22) {
-            $employeeAttendance->update(['is_complete' => true]);
-        }
+        $employeeAttendance->update([
+            'total_present' => (clone $query)->where('attendance_status', AttendanceStatus::Present->value)->count(),
+            'total_late'    => (clone $query)->where('attendance_status', AttendanceStatus::Late->value)->count(),
+            'total_absent'  => (clone $query)->where('attendance_status', AttendanceStatus::Absent->value)->count(),
+            'total_overtime'=> (clone $query)->sum('overtime_minutes'),
+        ]);
+
+        $totalDays = $employeeAttendance->total_present + $employeeAttendance->total_late + $employeeAttendance->total_absent;
+
+        $employeeAttendance->update([
+            'is_complete' => $totalDays >= 22
+        ]);
+    }
+
+    private function recalculateMonthlyOvertime(Attendance $attendance): void
+    {
+        $date = Carbon::parse($attendance->date);
+
+        $employeeAttendance = EmployeeAttendance::firstOrCreate(
+            [
+                'employee_id' => $attendance->employee_id,
+                'month' => $date->month,
+                'year' => $date->year,
+            ],
+            [
+                'total_present' => 0,
+                'total_late' => 0,
+                'total_absent' => 0,
+                'total_overtime' => 0,
+                'is_complete' => false,
+            ]
+        );
+
+        $totalOvertime = Attendance::where('employee_id', $attendance->employee_id)
+            ->whereMonth('date', $date->month)
+            ->whereYear('date', $date->year)
+            ->whereNull('deleted_at')
+            ->sum('overtime_minutes');
+
+        $employeeAttendance->update([
+            'total_overtime' => $totalOvertime
+        ]);
     }
 
     private function calculateWorkMinutes(Attendance $attendance) {
@@ -97,7 +151,7 @@ class AttendanceObserver
         $actualTotalMinutes = $sumTimeInAndTimeOut - $sumBreakStartAndBreakEnd;
 
         $attendance->total_minutes = $actualTotalMinutes;
-        $attendance->save();
+        $attendance->saveQuietly();
     }
 
     private function calculateOvertimeMinutes(Attendance $attendance) {
@@ -111,7 +165,7 @@ class AttendanceObserver
         $overtimeMinutes = $overtimeIn->diffInMinutes($overtimeOut);
 
         $attendance->overtime_minutes = $overtimeMinutes;
-        $attendance->save();
+        $attendance->saveQuietly();
     }
 
     private function determineAttendanceStatus(Attendance $attendance) {
@@ -124,7 +178,7 @@ class AttendanceObserver
 
         if ($timeIn->eq($timeIn->copy()->startOfDay()) || $timeOut->eq($timeOut->copy()->startOfDay())) {
             $attendance->attendance_status = AttendanceStatus::Absent->value;
-            $attendance->save();
+            $attendance->saveQuietly();
             return;
         }
 
@@ -139,26 +193,23 @@ class AttendanceObserver
             $attendance->attendance_status = AttendanceStatus::Present->value;
         }
 
-        $attendance->save();
+        $attendance->saveQuietly();
     }
 
     private function processLeaveDeduction(Attendance $attendance) {
-        $leaveBalance = $attendance->employee->leaveBalance;
+        $leaveBalance = EmployeeLeaveBalance::where('employee_id', $attendance->employee_id)
+                ->where('type', 'Vacation')
+                ->first();
 
         if (!$leaveBalance) {
             return;
         }
 
         if ($attendance->attendance_status==AttendanceStatus::Late->value) {
-            $leaveBalance->leave_balance -= 0.5;
+            $leaveBalance->amount -= 0.5;
             $leaveBalance->save();
         } elseif ($attendance->attendance_status==AttendanceStatus::Absent->value) {
-            $leaveBalance->leave_balance -= 1;
-            $leaveBalance->save();
-        }
-
-        if ($leaveBalance->leave_balance <= 0) {
-            $leaveBalance->leave_balance = 0;
+            $leaveBalance->amount -= 1;
             $leaveBalance->save();
         }
     }

@@ -11,6 +11,7 @@ use App\Models\EmployeeTraining;
 use App\Models\LeaveRequest;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeWorkSchedule;
+use App\Models\AttendanceSession;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Enums\CompensationType;
@@ -43,6 +44,7 @@ class Employee extends Model
     public function employeeAttendance() { return $this->hasMany(EmployeeAttendance::class); }
     public function attendance() { return $this->hasMany(Attendance::class); }
     public function attendanceScanLog() { return $this->hasMany(AttendanceScanLog::class); }
+    public function attendanceSession() { return $this->hasMany(AttendanceSession::class); }
     public function employeeCompensation() { return $this->hasMany(EmployeeCompensation::class); }
     public function employeeTraining() { return $this->hasMany(EmployeeTraining::class); }
     public function address() { return $this->hasOne(Address::class); }

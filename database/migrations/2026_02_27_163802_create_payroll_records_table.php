@@ -22,8 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('year');
             $table->timestamps();
             $table->foreign('employee_id')
-                ->references('id')->on('employees')
-                ->cascadeOnDelete();
+                ->references('id')->on('employees');
             $table->unique(['employee_id', 'month', 'year']);
         });
     }

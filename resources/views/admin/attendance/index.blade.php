@@ -1,19 +1,12 @@
 @extends('layouts.admin')
 
 @php
-    $totalPresent = 0;
-    $totalAbsences = 0;
-    $totalOT = 0;
-    $totalLate = 0;
+    $totalPresent = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count();
+    $totalLate = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count();
+    $totalAbsences = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count();
+    $totalOT = $attendances->sum('overtime_minutes') / 60;
 
-    foreach ($attendances as $attendance) {
-        $totalPresent += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count();
-        $totalLate += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count();
-        $totalAbsences += $attendance->betweenCurrentMonth()->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count();
-        $totalOT += $attendance->betweenCurrentMonth()->value('overtime_minutes');
-    }
-
-    $totalOT = round($totalOT / 60, 2);
+    $totalOT = round($totalOT, 2);
 @endphp
 
 @section('page-content')
@@ -29,7 +22,7 @@
         <p class="stat-value">{{ now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1 }} days</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
+            <p class="stat-sub stat-month">For {{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -40,10 +33,10 @@
                 <svg width="17" height="17" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalPresent }}</p>
+        <p class="stat-value" id="stat-total-present">{{ $totalPresent }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
+            <p class="stat-sub stat-month">For {{ config('app.carbon_month') }}</p>
         </div>
     </div>
 
@@ -54,7 +47,7 @@
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalAbsences }}</p>
+        <p class="stat-value" id="stat-total-absent">{{ $totalAbsences }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#8e1e18"></span>
             <p class="stat-sub">Across all personnel</p>
@@ -68,10 +61,10 @@
                 <svg width="17" height="17" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalOT }} hrs</p>
+        <p class="stat-value" id="stat-total-overtime">{{ $totalOT }} hrs</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">{{ $totalLate }} late arrival(s)</p>
+            <p class="stat-sub" id="stat-total-late">{{ $totalLate }} {{ $totalLate == 1 ? 'late arrival' : 'late arrivals' }}</p>
         </div>
     </div>
 
@@ -176,7 +169,7 @@
         <div class="table-header">
             <div>
                 <p class="table-title">Attendance Summary</p>
-                <p class="table-sub">Overview of employee attendance for {{ config('app.carbon_month') }}</p>
+                <p class="table-sub">Overview of employee attendance</p>
             </div>
             <div class="table-actions">
                 <div class="search-wrap" style="position:relative;display:flex;align-items:center">
@@ -215,8 +208,8 @@
                     <tr>
                         <th>Employee</th>
                         <th>Present</th>
-                        <th>Absent</th>
                         <th>Late</th>
+                        <th>Absent</th>
                         <th>OT Hours</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -237,21 +230,34 @@
                             </div>
                         </td>
                         <td><span style="color: #15803d; font-weight: 600;">{{ $attendance->total_present }}</span></td>
-                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_late }}</span></td>
-                        <td><span style="color: #a16207; font-weight: 600;">{{ $attendance->total_absent }}</span></td>
-                        @php
-                            $employeeOTHours = $attendance->overtimeMinutes() / 60;
-                            $employeeAttendanceIsComplete = $attendance->completeAttendances();
-                        @endphp
-                        <td><span style="color: #0b044d; font-weight: 600;">{{ number_format($employeeOTHours, 2) }} hrs</span></td>
+                        <td><span style="color: #a16207; font-weight: 600;">{{ $attendance->total_late }}</span></td>
+                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_absent }}</span></td>
+                        <td><span style="color: #0b044d; font-weight: 600;">{{ number_format(($attendance->total_overtime / 60), 2) }} hrs</span></td>
                         <td>
-                            @if ($employeeAttendanceIsComplete >= now()->startOfMonth()->diffInWeekdays(now()->endOfMonth()) + 1)
-                                <span class="badge-status processed">Complete</span>
+                            @if ($attendance->is_complete === true)
+                                <span class="badge-status processed" data-status="complete">Complete</span>
                             @else
-                                <span class="badge-status pending">Incomplete</span>
+                                <span class="badge-status pending" data-status="incomplete">Incomplete</span>
                             @endif
                         </td>
-                        <td></td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="btn-view" onclick='openViewDTRModal({{json_encode([
+                                    "id" => $attendance->employee->id,
+                                    "first_name" => $attendance->employee->first_name,
+                                    "last_name" => $attendance->employee->last_name,
+                                    "department" => $attendance->employee->department->name ?? null,
+                                    "position" => $attendance->employee->position->title ?? null,
+                                    "present" => $attendance->total_present,
+                                    "late" => $attendance->total_late,
+                                    "absent" => $attendance->total_absent,
+                                    "overtime" => $attendance->total_overtime,
+                                    "is_complete" => (bool) $attendance->is_complete
+                                ])}})'>
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -344,18 +350,37 @@
                                 <span class="badge-status processed">{{ App\Enums\AttendanceStatus::Present->value }}</span>
                             @elseif($attendance->attendance_status === 'Late')
                                 <span class="badge-status pending">{{ App\Enums\AttendanceStatus::Late->value }}</span>
-                            @else
+                            @elseif($attendance->attendance_status === 'Absent')
                                 <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Absent->value }}</span>
+                            @else
+                                <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Missing->value }}</span>
                             @endif
                         </td>
                         <td>
-                            <form action="{{ route('attendances.destroy', $attendance) }}" method="post" style="display:inline" onsubmit="return confirm('Archive this attendance record?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <div class="row-actions">
+                                <button class="btn-edit" onclick="openEditDTRModal({{json_encode([
+                                    "employee_id" => $attendance->employee->id,
+                                    "first_name" => $attendance->employee->first_name,
+                                    "last_name" => $attendance->employee->last_name,
+                                    "attendance_id" => $attendance->id,
+                                    "date" => $attendance->date,
+                                    "time_in" => $attendance->time_in,
+                                    "time_out" => $attendance->time_out,
+                                    "break_start" => $attendance->break_start,
+                                    "break_end" => $attendance->break_end,
+                                    "overtime_in" => $attendance->overtime_in,
+                                    "overtime_out" => $attendance->overtime_out,
+                                ])}})">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
-                            </form>
+                                <form action="{{ route('attendances.destroy', $attendance) }}" method="post" style="display:inline" onsubmit="return confirm('Archive this attendance record?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -474,14 +499,14 @@
 </div>
 
 {{-- Submit DTR Modal --}}
-<div class="modal-overlay" id="attendance-modal" style="display:none" onclick="closeAttendanceModal()">
+<div class="modal-overlay" id="attendance-modal" style="display:none">
     <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <span class="modal-eyebrow">IMPORT ATTENDANCE</span>
                 <h3 class="modal-title">Upload CSV File</h3>
             </div>
-            <button class="modal-close" onclick="closeAttendanceModal()">
+            <button class="modal-close" onclick="closeModal('attendance-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -494,11 +519,11 @@
                 </div>
                 <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
                     <strong style="color:#0b044d;display:block;margin-bottom:4px;">CSV Format</strong>
-                    date, time_in, time_out, break_start, break_end, overtime_in, overtime_out, employee_id, user_id
+                    date, time_in, time_out, break_start, break_end, overtime_in, overtime_out, employee_id
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeAttendanceModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('attendance-modal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Import CSV
@@ -509,14 +534,14 @@
 </div>
 
 {{-- Generate QR Modal --}}
-<div class="modal-overlay" id="qr-modal" style="display:none" onclick="closeQRCodeModal()">
+<div class="modal-overlay" id="qr-modal" style="display:none">
     <div class="modal-box" style="max-width:460px" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <span class="modal-eyebrow">GENERATE QR CODE</span>
                 <h3 class="modal-title">Generate Employee QR Code</h3>
             </div>
-            <button class="modal-close" onclick="closeQRCodeModal()">
+            <button class="modal-close" onclick="closeModal('qr-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -528,7 +553,7 @@
                 <p style="font-size:12px;color:#6b6a8a;margin:6px 0 0">A monthly QR code will be generated for this employee.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeQRCodeModal()">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('qr-modal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M14 17h.01M17 14h.01M17 17h.01M20 14h.01M20 17h.01M20 20h.01M17 20h.01M14 20h.01"/></svg>
                     Generate QR Code
@@ -539,7 +564,7 @@
 </div>
 
 {{-- View QR Modal --}}
-<div class="modal-overlay" id="view-qr-modal" style="display:none" onclick="closeViewQRModal()">
+<div class="modal-overlay" id="view-qr-modal" style="display:none">
     <div class="modal-box" style="max-width:460px" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
@@ -589,13 +614,15 @@
                 <h3 class="modal-title" id="modal-name">Employee Name</h3>
                 <p class="modal-sub" id="modal-position">Position · Department</p>
             </div>
-            <button class="modal-close" onclick="closeModal('view-modal')">
+            <button class="modal-close" onclick="closeModal('view-attendance-modal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
         <div class="modal-body">
             <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 16px; background: #f7f6ff; border-radius: 12px;">
-                <div class="emp-avatar" id="modal-avatar" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: #0b044d;">MS</div>
+                <div class="emp-avatar" id="modal-avatar" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: #0b044d;">
+                    MS
+                </div>
                 <div>
                     <p id="modal-emp-id" style="font-size: 11px; color: #9999bb; margin: 0 0 4px;">PGS-0000</p>
                     <span class="badge-status" id="modal-status-badge">Complete</span>
@@ -618,12 +645,111 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="modal-btn-ghost" onclick="closeModal('view-modal')">Close</button>
-            <button class="btn-export">
+            <button class="modal-btn-ghost" onclick="closeModal('view-attendance-modal')">Close</button>
+            <button class="modal-btn-primary">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download DTR
             </button>
         </div>
+    </div>
+</div>
+
+{{-- Edit DTR Modal --}}
+<div class="modal-overlay" id="edit-attendance-modal" style="display:none">
+    <div class="modal-box" onclick="event.stopPropagation()">
+
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow" id="edit-dtr-title">EDIT DTR</span>
+                <h3 class="modal-title">Update Attendance Record</h3>
+                <p class="modal-sub" id="edit-dtr-employee">For Employee?</p>
+            </div>
+
+            <button class="modal-close" onclick="closeModal('edit-attendance-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <form id="edit-dtr-form" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <input type="hidden" name="employee_id" id="edit-dtr-employee_id" required>
+                <input type="hidden" name="attendance_id" id="edit-dtr-attendance_id" required>
+                <input type="hidden" name="date" id="edit-dtr-date" required>
+
+                <div style="display:flex; gap:12px;">
+                    <div class="form-field" style="flex:1;">
+                        <label>Time In </label>
+                        <input type="time" name="time_in" id="edit-dtr-time_in">
+                    </div>
+
+                    <div class="form-field" style="flex:1;">
+                        <label>Time Out </label>
+                        <input type="time" name="time_out" id="edit-dtr-time_out">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:12px;">
+                    <div class="form-field" style="flex:1;">
+                        <label>Break Start </label>
+                        <input type="time" name="break_start" id="edit-dtr-break_start">
+                    </div>
+
+                    <div class="form-field" style="flex:1;">
+                        <label>Break End </label>
+                        <input type="time" name="break_end" id="edit-dtr-break_end">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:12px;">
+                    <div class="form-field" style="flex:1;">
+                        <label>Overtime In </label>
+                        <input type="time" name="overtime_in" id="edit-dtr-overtime_in">
+                    </div>
+
+                    <div class="form-field" style="flex:1;">
+                        <label>Overtime Out </label>
+                        <input type="time" name="overtime_out" id="edit-dtr-overtime_out">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Remarks <span style="color:#dc2626">*</span></label>
+                    <textarea name="correction[remarks]" rows="3" placeholder="Enter remarks..." required></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label>Proof (PDF or Image) <span style="color:#dc2626">*</span></label>
+                    <input type="file" name="correction[proof]" accept=".pdf,image/*" required>
+                </div>
+
+                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
+                    <strong style="color:#0b044d;display:block;margin-bottom:4px;">Notes</strong>
+                    Uploading a new proof will replace the existing file.
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('edit-attendance-modal')">
+                    Cancel
+                </button>
+
+                <button type="submit" class="modal-btn-primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Update DTR
+                </button>
+            </div>
+
+        </form>
     </div>
 </div>
 @endsection
@@ -711,18 +837,6 @@
         }
     }
 
-    function closeAttendanceModal() {
-        document.getElementById('attendance-modal').style.display = 'none';
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    }
-
-    function closeQRCodeModal() {
-        document.getElementById('qr-modal').style.display = 'none';
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    }
-
     $('#add-attendance-btn').on('click', function (e) {
         e.preventDefault();
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -741,14 +855,6 @@
         document.body.style.paddingRight = scrollbarWidth + 'px';
         document.getElementById('qr-modal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
-    });
-
-    $(document).on('keydown', function (e) {
-        if (e.key === 'Escape') {
-            closeAttendanceModal();
-            closeQRCodeModal();
-            closeViewQRModal();
-        };
     });
 
     $(function () {
@@ -783,7 +889,7 @@
 
         $('#status-filter').on('change', function() {
             const val = this.value ? '^' + this.value + '$' : '';
-            attendance_table.column(7).search(val, true, false).draw();
+            attendance_table.column(5).search(val, true, false).draw();
         });
 
         $('#scan-search').on('keyup', function() {
@@ -849,21 +955,38 @@
                 attendance_table.clear();
 
                 res.employees.forEach(function(e) {
-                    const initials = e.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                    const initials = (e.first_name[0] + e.last_name[0]).toUpperCase();
                     const color    = colors[e.id % 5];
                     const empId    = 'EMP-' + String(e.id).padStart(3, '0');
                     const status   = e.is_complete
                         ? '<span class="badge-status processed">Complete</span>'
                         : '<span class="badge-status pending">Incomplete</span>';
 
+                    const modalData = {
+                        id: e.id,
+                        first_name: e.first_name,
+                        last_name: e.last_name,
+                        department: e.department,
+                        position: e.position,
+                        present: e.present,
+                        late: e.late,
+                        absent: e.absent,
+                        overtime: e.ot_hours,
+                        is_complete: e.is_complete
+                    };
+
                     attendance_table.row.add([
-                        `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.name}</p><p class="emp-id">${empId}</p></div></div>`,
+                        `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.first_name} ${e.last_name}</p><p class="emp-id">${empId}</p></div></div>`,
                         `<span style="color:#15803d;font-weight:600">${e.present}</span>`,
                         `<span style="color:#8e1e18;font-weight:600">${e.late}</span>`,
                         `<span style="color:#a16207;font-weight:600">${e.absent}</span>`,
-                        `<span style="color:#0b044d;font-weight:600">${e.ot_hours} hrs</span>`,
+                        `<span class="pay-cell" style="color:#0b044d;font-weight:600">${e.ot_hours} hrs</span>`,
                         status,
-                        '',
+                        `<div class="row-actions">
+                            <button class="btn-view" onclick='openViewDTRModal(${JSON.stringify(modalData)})'>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>`,
                     ]);
                 });
 
@@ -873,5 +996,87 @@
 
         $('#ea-month-filter, #ea-year-filter').on('change', fetchEmployeeAttendance);
     });
+</script>
+
+<script>
+    function openViewDTRModal(data) {
+        const month = document.getElementById('ea-month-filter').value;
+        const year = document.getElementById('ea-year-filter').value;
+
+        const initials = (data.first_name[0] + data.last_name[0]).toUpperCase();
+        const colors = ['#0b044d', '#8e1e18', '#15803d', '#a16207', '#7c3aed'];
+        const color = colors[data.id % 5];
+
+        document.getElementById('modal-avatar').innerText = initials;
+        document.getElementById('modal-avatar').style.background = color;
+
+        document.getElementById('modal-emp-id').innerText = 'EMP-' + String(data.id).padStart(3, '0');
+
+        const badge = document.getElementById('modal-status-badge');
+        badge.innerText = data.is_complete ? 'Complete' : 'Incomplete';
+        badge.className = data.is_complete ? 'badge-status processed' : 'badge-status pending';
+
+        document.getElementById('modal-name').textContent = `${data.first_name} ${data.last_name}`;
+        document.getElementById('modal-position').textContent = `${data.position} · ${data.department}`;
+        document.getElementById('modal-period').textContent = `DTR · ${month} ${year}`;
+        document.getElementById('modal-present').textContent = `${data.present} ${data.present === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-absent').textContent = `${data.absent} ${data.absent === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-late').textContent = `${data.late} ${data.late === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-overtime').textContent = `${data.overtime / 60} ${data.overtime === 1 ? 'hr' : 'hrs'}`;
+
+        const rate = (data.present / 22 ) * 100;
+        const rateColor = rate === 100 ? '#15803d' : rate === 0 ? '#8e1e18' : '#a16207';
+
+        document.getElementById('modal-rate').innerText = rate.toFixed(0) + '%';
+        document.getElementById('modal-rate').style.color = rateColor;
+
+        document.getElementById('view-attendance-modal').style.display = 'flex';
+    }
+
+    function openEditDTRModal(data) {
+        var url = "{{ route('attendances.update', ':id') }}".replace(':id', data.attendance_id);
+        document.getElementById('edit-dtr-form').action = url;
+        document.getElementById('edit-dtr-employee').textContent = `For ${data.first_name} ${data.last_name}`;
+
+        const dateString = data.date;
+        const date = new Date(dateString);
+
+        const formattedDate = date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        document.getElementById('edit-dtr-title').textContent = `EDIT DTR · ${formattedDate.toUpperCase()}`;
+
+        document.getElementById('edit-dtr-employee_id').value = data.employee_id;
+        document.getElementById('edit-dtr-attendance_id').value = data.attendance_id;
+        document.getElementById('edit-dtr-date').value = data.date;
+
+        document.getElementById('edit-attendance-modal').style.display = 'flex';
+    }
+
+    function fetchStats() {
+        const month = document.getElementById('ea-month-filter').value;
+        const year = document.getElementById('ea-year-filter').value;
+
+        fetch(`{{ route('attendances.stats') }}?month=${month}&year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('stat-total-present').textContent = `${data.total_present ?? 0}`;
+                document.getElementById('stat-total-absent').textContent = `${data.total_absent ?? 0}`;
+                document.getElementById('stat-total-overtime').textContent = `${data.total_overtime / 60 ?? 0}`;
+                const late = data.total_late ?? 0;
+                document.getElementById('stat-total-late').textContent = `${late} ${late === 1 ? 'late arrival' : 'late arrivals'}`;
+
+                const statMonths = document.querySelectorAll('p.stat-month');
+                statMonths.forEach(el => {
+                    el.textContent = `For ${data.stat_month}`;
+                });
+            });
+    }
+
+    document.getElementById('ea-month-filter').addEventListener('change', fetchStats);
+    document.getElementById('ea-year-filter').addEventListener('change', fetchStats);
 </script>
 @endpush

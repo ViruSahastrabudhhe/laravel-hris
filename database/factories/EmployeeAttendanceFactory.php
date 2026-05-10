@@ -31,6 +31,7 @@ class EmployeeAttendanceFactory extends Factory
             'total_present' => 0,
             'total_late' => 0,
             'total_absent' => 0,
+            'total_overtime' => 0,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
             'is_complete' => false,

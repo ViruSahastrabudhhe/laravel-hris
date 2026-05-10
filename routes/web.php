@@ -55,6 +55,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('positions', PositionController::class);
     Route::resource('salaries', SalaryController::class);
     Route::resource('departments', DepartmentController::class);
+    Route::get('attendances/stats', [AttendanceController::class, 'stats'])->name('attendances.stats');
     Route::get('attendances/filter', [AttendanceController::class, 'filterEmployeeAttendance'])->name('attendances.filterEmployeeAttendance');
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'bulkStore'])->name('attendances.bulkStore');
     Route::delete('attendances/bulk-destroy', [AttendanceController::class, 'bulkDestroy'])->name('attendances.bulkDestroy');
@@ -95,10 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::post('qr-scanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
 });
 
-Route::middleware(['auth', 'verified'])->group(function() {
-    Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
-    Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat');
-});
+Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
+Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat');
 
 Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee'])->group(function() {
     Route::resource('my_profile', EmployeeProfileController::class);
