@@ -15,7 +15,6 @@ use App\Observers\AttendanceObserver;
 use App\Observers\EmployeeObserver;
 use App\Observers\LeaveRequestObserver;
 use App\Observers\SalaryObserver;
-use App\Observers\PositionObserver;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,7 +36,6 @@ class AppServiceProvider extends ServiceProvider
         Employee::observe(EmployeeObserver::class);
         LeaveRequest::observe(LeaveRequestObserver::class);
         Salary::observe(SalaryObserver::class);
-        Position::observe(PositionObserver::class);
 
         // page title
         View::composer('layouts.app', function ($view) {

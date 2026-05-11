@@ -127,8 +127,8 @@
                 ['Department', $employee->department->name],
                 ['Employment Type', $employee->employment_type],
                 ['Work Schedule', $employee->employeeWorkSchedule->workSchedule->name],
-                ['Sick Leave Credits', $employee->employeeLeaveBalance->where('type', 'Sick')?->first()?->amount. ' days'],
-                ['Vacation Leave Credits', $employee->employeeLeaveBalance->where('type', 'Vacation')?->first()?->amount. ' days'],
+                ['Sick Leave Credits', $sickLeave. ' days'],
+                ['Vacation Leave Credits', $vacationLeave. ' days'],
             ] as [$label, $value])
             <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f7f6ff;font-size:13px">
                 <span style="color:#9999bb">{{ $label }}</span>

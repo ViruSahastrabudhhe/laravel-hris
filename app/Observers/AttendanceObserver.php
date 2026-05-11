@@ -42,10 +42,9 @@ class AttendanceObserver
      */
     public function deleted(Attendance $attendance): void
     {
-        Log::info([
-            'message' => 'DELETED YOUR ATTENDANCE BOI',
-            'attendance' => $attendance->id,
-        ]);
+        $this->calculateWorkMinutes($attendance);
+        $this->calculateOvertimeMinutes($attendance);
+        $this->determineAttendanceStatus($attendance);
         $this->recalculateEmployeeMonthlySummary($attendance);
         $this->recalculateMonthlyOvertime($attendance);
     }
@@ -55,10 +54,9 @@ class AttendanceObserver
      */
     public function restored(Attendance $attendance): void
     {
-        Log::info([
-            'message' => 'RESTORED YOUR ATTENDANCE BOI',
-            'attendance' => $attendance->id,
-        ]);
+        $this->calculateWorkMinutes($attendance);
+        $this->calculateOvertimeMinutes($attendance);
+        $this->determineAttendanceStatus($attendance);
         $this->recalculateEmployeeMonthlySummary($attendance);
         $this->recalculateMonthlyOvertime($attendance);
     }
@@ -139,6 +137,12 @@ class AttendanceObserver
     }
 
     private function calculateWorkMinutes(Attendance $attendance) {
+        if (!$attendance->time_in || !$attendance->time_out || !$attendance->break_start || !$attendance->break_end) {
+            $attendance->total_minutes = 0;
+            $attendance->saveQuietly();
+            return;
+        }
+
         $timeIn = Carbon::parse($attendance->time_in);
         $timeOut = Carbon::parse($attendance->time_out);
 
@@ -169,7 +173,9 @@ class AttendanceObserver
     }
 
     private function determineAttendanceStatus(Attendance $attendance) {
-        if (!$attendance->time_in || !$attendance->time_out) {
+        if (!$attendance->time_in || !$attendance->time_out || !$attendance->break_start || !$attendance->break_end) {
+            $attendance->attendance_status = AttendanceStatus::Absent->value;
+            $attendance->saveQuietly();
             return;
         }
 

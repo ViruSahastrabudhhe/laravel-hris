@@ -287,6 +287,18 @@
                     <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="scan-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
                 </div>
+                <select class="filter-select" id="scan-month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                    @foreach(range(1,12) as $m)
+                        <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                        </option>
+                    @endforeach
+                </select>
+                <select class="filter-select" id="scan-year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                    @foreach(range(now()->year - 2, now()->year) as $y)
+                        <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endforeach
+                </select>
                 <select class="filter-select" id="scan-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Status</option>
                     <option value="Present">Present</option>
@@ -994,7 +1006,83 @@
             });
         }
 
+        function fetchAttendance() {
+            const month = parseInt($('#scan-month-filter').val());
+            const year  = parseInt($('#scan-year-filter').val());
+
+            if (month === {{ now()->month }} && year === {{ now()->year }}) {
+                location.reload();
+                return;
+            }
+
+            $.get('{{ route('attendances.filterDetailedAttendance') }}', { month, year }, function(res) {
+                scan_table.clear();
+
+                res.attendances.forEach(function(a) {
+                    const initials = (a.employee.first_name[0] + a.employee.last_name[0]).toUpperCase();
+                    const color    = colors[a.employee.id % 5];
+                    const empId    = 'EMP-' + String(a.employee.id).padStart(3, '0');
+
+                    let statusBadge = '';
+                    if (a.attendance_status === 'Present') {
+                        statusBadge = '<span class="badge-status processed">Present</span>';
+                    } else if (a.attendance_status === 'Late') {
+                        statusBadge = '<span class="badge-status pending">Late</span>';
+                    } else if (a.attendance_status === 'Absent') {
+                        statusBadge = '<span class="badge-status on-hold">Absent</span>';
+                    } else {
+                        statusBadge = '<span class="badge-status on-hold">Missing</span>';
+                    }
+
+                    const breakInfo = a.break_start && a.break_end ? `${a.break_start} - ${a.break_end}` : 'N/A';
+                    const otInfo = a.overtime_minutes > 0 ? (a.overtime_minutes / 60).toFixed(1) + ' hrs' : 'N/A';
+                    const totalHours = ((a.total_minutes / 60) + (a.overtime_minutes / 60)).toFixed(2) + ' h';
+
+                    const editModalData = {
+                        employee_id: a.employee.id,
+                        first_name: a.employee.first_name,
+                        last_name: a.employee.last_name,
+                        attendance_id: a.id,
+                        date: a.raw_date,
+                        time_in: a.time_in === '--:--' ? null : a.time_in,
+                        time_out: a.time_out === '--:--' ? null : a.time_out,
+                        break_start: a.break_start,
+                        break_end: a.break_end,
+                        overtime_in: a.overtime_in,
+                        overtime_out: a.overtime_out,
+                    };
+
+                    scan_table.row.add([
+                        `<input type="checkbox" class="row-check" value="${a.id}">`,
+                        `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${a.employee.first_name} ${a.employee.last_name}</p><p class="emp-id">${empId}</p></div></div>`,
+                        a.date,
+                        `<span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">${a.time_in}</span>`,
+                        `<span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">${a.time_out}</span>`,
+                        `<span style="font-size:12px;color:#9999bb">${breakInfo}</span>`,
+                        `<span style="font-size:12px;color:#9999bb">${otInfo}</span>`,
+                        `<span class="pay-cell">${totalHours}</span>`,
+                        statusBadge,
+                        `<div class="row-actions">
+                            <button class="btn-edit" onclick='openEditDTRModal(${JSON.stringify(editModalData)})'>
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <form action="/admin/attendances/${a.id}" method="post" style="display:inline" onsubmit="return confirm('Archive this attendance record?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" style="display:inline-flex;align-items:center;gap:4px">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </form>
+                        </div>`,
+                    ]);
+                });
+
+                scan_table.draw();
+            });
+        }
+
         $('#ea-month-filter, #ea-year-filter').on('change', fetchEmployeeAttendance);
+        $('#scan-month-filter, #scan-year-filter').on('change', fetchAttendance);
     });
 </script>
 

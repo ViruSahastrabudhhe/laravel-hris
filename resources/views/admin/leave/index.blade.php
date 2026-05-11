@@ -291,6 +291,7 @@
                     Export
                 </button>
                 <button class="modal-btn-primary">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Request Benefit
                 </button>
             </div>
@@ -490,7 +491,7 @@
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
                 <div class="form-field">
                     <label>Employee <span style="color:#dc2626">*</span></label>
-                    <select name="employee_id" id="edit-employee" required>
+                    <select name="employee_id" id="edit-employee" required style="color:#9999bb" disabled>
                         <option value="">Select an employee</option>
                         @foreach ($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->department->name }})</option>
@@ -520,15 +521,6 @@
                 <div class="form-field">
                     <label>Reason <span style="color:#dc2626">*</span></label>
                     <textarea name="leave_reason" id="edit-leave-reason" rows="3" style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;resize:vertical" required></textarea>
-                </div>
-                <div class="form-field">
-                    <label>Status <span style="color:#dc2626">*</span></label>
-                    <select name="leave_status" id="edit-leave-status" required>
-                        <option value="">Select status</option>
-                        @foreach($leaveStatuses as $leaveStatus)
-                            <option value="{{ $leaveStatus->name }}">{{ $leaveStatus->name }}</option>
-                        @endforeach
-                    </select>
                 </div>
                 <div class="form-field">
                     <div id="edit-decline-reason-wrap" style="display:none">
@@ -637,7 +629,6 @@
         document.getElementById('edit-start-date').value = startDate;
         document.getElementById('edit-end-date').value = endDate;
         document.getElementById('edit-leave-reason').value = reason;
-        document.getElementById('edit-leave-status').value = status;
         document.getElementById('edit-decline-reason').value = declineReason || '';
         document.getElementById('edit-decline-reason-wrap').style.display = status === 'Declined' ? 'block' : 'none';
         document.getElementById('leave-edit-modal').style.display = 'flex';

@@ -168,7 +168,7 @@ class EmployeeController extends Controller
                 ]);
 
                 event(new Registered($employeeAccount));
-                
+
                 DB::commit();
                 $row++;
             } catch (\Exception $e) {
@@ -194,8 +194,10 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $address = Address::where('employee_id', $employee->id)->first();
+        $sickLeave = EmployeeLeaveBalance::where('employee_id', $employee->id)->where('type', 'Sick')?->first()?->amount;
+        $vacationLeave = EmployeeLeaveBalance::where('employee_id', $employee->id)->where('type', 'Vacation')?->first()?->amount;
 
-        return view('admin.personnel.show', ['address' => $address, 'employee' => $employee]);
+        return view('admin.personnel.show', compact('address', 'employee', 'sickLeave', 'vacationLeave'));
     }
 
     /**

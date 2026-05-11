@@ -106,7 +106,7 @@
                                 $employeeCountInPos = $employees->where('position_id', $position->id)->count();
                             @endphp
                             @if ($employeeCountInPos >= $position->total_employees)
-                                <option value="{{ $position->id }}" readonly style="color:#9999bb" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>
+                                <option value="{{ $position->id }}" disabled style="color:#9999bb" {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>
                                     {{ $position->title }} (Closed)
                                 </option>
                             @else

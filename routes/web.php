@@ -56,7 +56,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('salaries', SalaryController::class);
     Route::resource('departments', DepartmentController::class);
     Route::get('attendances/stats', [AttendanceController::class, 'stats'])->name('attendances.stats');
-    Route::get('attendances/filter', [AttendanceController::class, 'filterEmployeeAttendance'])->name('attendances.filterEmployeeAttendance');
+    Route::get('attendances/filter/employee_attendance', [AttendanceController::class, 'filterEmployeeAttendance'])->name('attendances.filterEmployeeAttendance');
+    Route::get('attendances/filter/detailed', [AttendanceController::class, 'filterDetailedAttendance'])->name('attendances.filterDetailedAttendance');
     Route::post('attendances/store_with_csv', [AttendanceController::class, 'bulkStore'])->name('attendances.bulkStore');
     Route::delete('attendances/bulk-destroy', [AttendanceController::class, 'bulkDestroy'])->name('attendances.bulkDestroy');
     Route::put('attendances/bulk-restore', [AttendanceController::class, 'bulkRestore'])->name('attendances.bulkRestore');

@@ -272,4 +272,37 @@ class AttendanceController extends Controller
             ]),
         ]);
     }
+    public function filterDetailedAttendance(Request $request)
+    {
+        $month = $request->integer('month', now()->month);
+        $year  = $request->integer('year', now()->year);
+
+        $attendances = Attendance::with(['employee'])
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->latest('date')
+            ->get();
+
+        return response()->json([
+            'attendances' => $attendances->map(fn($a) => [
+                'id' => $a->id,
+                'employee' => [
+                    'id' => $a->employee->id,
+                    'first_name' => $a->employee->first_name,
+                    'last_name' => $a->employee->last_name,
+                ],
+                'date' => Carbon::parse($a->date)->format(config('app.day_month')),
+                'time_in' => $a->time_in ?? '--:--',
+                'time_out' => $a->time_out ?? '--:--',
+                'break_start' => $a->break_start,
+                'break_end' => $a->break_end,
+                'overtime_in' => $a->overtime_in,
+                'overtime_out' => $a->overtime_out,
+                'overtime_minutes' => $a->overtime_minutes,
+                'total_minutes' => $a->total_minutes,
+                'attendance_status' => $a->attendance_status,
+                'raw_date' => $a->date, // for modal
+            ]),
+        ]);
+    }
 }
