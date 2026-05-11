@@ -13,7 +13,19 @@ class QrCodeController extends Controller
 {
     public function index()
     {
-        return redirect()->route('attendances.index');
+        $employees = Employee::with(['department', 'position', 'employeeWorkSchedule.workSchedule'])->get();
+        $qrScans   = QrAttendanceScan::whereIn('employee_id', $employees->pluck('id'))
+            ->where('expires_at', '>=', now())
+            ->get()
+            ->keyBy('employee_id');
+
+        $qrData = $qrScans->map(fn($q) => json_encode([
+            'id'          => $q->id,
+            'hash'        => $q->qr_code_hash,
+            'employee_id' => $q->employee_id,
+        ]))->toArray();
+
+        return view('admin.qr_code.index', compact('employees', 'qrScans', 'qrData'));
     }
 
     public function create(Employee $employee)
@@ -38,19 +50,13 @@ class QrCodeController extends Controller
         if (!$qrScan) {
             $hash = hash('sha256', $employee->id . now()->format('Y-m') . uniqid());
             $qrScan = QrAttendanceScan::create([
-                'employee_id' => $employee->id,
+                'employee_id'  => $employee->id,
                 'qr_code_hash' => $hash,
-                'expires_at' => Carbon::now()->endOfMonth(),
+                'expires_at'   => Carbon::now()->endOfMonth(),
             ]);
         }
 
-        $qrData = json_encode([
-            'id' => $qrScan->id,
-            'hash' => $qrScan->qr_code_hash,
-            'employee_id' => $employee->id,
-        ]);
-
-        return view('admin.qr_code.show', compact('qrData', 'qrScan', 'employee'));
+        return redirect()->route('qr-code.index')->with('status', 'QR code generated for ' . $employee->first_name . ' ' . $employee->last_name . '.');
     }
 
     public function show(QrAttendanceScan $qrScan)

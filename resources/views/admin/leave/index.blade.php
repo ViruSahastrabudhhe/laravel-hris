@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@php $hideChat = true; @endphp
 
 @php
     use App\Enums\LeaveStatus;
@@ -26,6 +27,25 @@
 @endphp
 
 @section('page-content')
+
+{{-- Welcome Banner --}}
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+            <h2>Leave & Benefits</h2>
+            <p>{{ config('app.carbon_date') }} &nbsp;·&nbsp; Employee Leave & Benefits</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="leave-search" placeholder="Search employees..." class="recruit-search">
+        </div>
+    </div>
+</div>
 <div id="stats-leaves" class="stats-grid stats-grid-4">
     <div class="stat-card">
         <div class="stat-top">
@@ -161,22 +181,18 @@
                 <p class="table-sub">Track and manage Leave Request requests</p>
             </div>
             <div class="table-actions" style="gap: 10px;">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="leave-search" placeholder="Search requests..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="dept-filter">
                     <option value="">All Departments</option>
                     @foreach(\App\Models\Department::all() as $dept)
                         <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="status-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="status-filter">
                     <option value="">All Status</option>
                     <option value="Approved">Approved</option>
                     <option value="Pending">Pending</option>
                 </select>
-                <a href="#" class="btn-export">
+                <a href="{{ route('leave_requests.archive') }}" class="btn-export">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     View Archive
                 </a>
@@ -282,10 +298,6 @@
                 <p class="table-sub">GSIS · PhilHealth · Pag-IBIG · Leave Credits</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="benefits-search" placeholder="Search benefits..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
                 <button class="btn-export">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Export
@@ -569,7 +581,13 @@
         });
 
         $('#leave-search').on('keyup', function() {
-            leaveTable.search(this.value).draw();
+            const q = this.value;
+            const activeTab = document.querySelector('.tab-pane.active');
+            if (activeTab && activeTab.id === 'tab-benefits') {
+                benefitsTable.search(q).draw();
+            } else {
+                leaveTable.search(q).draw();
+            }
         });
 
         $('#dept-filter').on('change', function() {
@@ -578,10 +596,6 @@
 
         $('#status-filter').on('change', function() {
             leaveTable.column(6).search(this.value).draw();
-        });
-
-        $('#benefits-search').on('keyup', function() {
-            benefitsTable.search(this.value).draw();
         });
     });
 
@@ -594,6 +608,11 @@
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + viewId).classList.add('active');
         btn.classList.add('active');
+
+        // clear search on tab switch
+        $('#leave-search').val('');
+        leaveTable.search('').draw();
+        benefitsTable.search('').draw();
 
         document.getElementById('stats-leaves').style.display = viewId === 'leaves' ? 'grid' : 'none';
         document.getElementById('stats-benefits').style.display = viewId === 'benefits' ? 'grid' : 'none';

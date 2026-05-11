@@ -1,12 +1,11 @@
 @extends('layouts.admin')
+@php $hideChat = true; @endphp
+
+@push('styles')
+    @vite('resources/css/admin/adminAttendance.css')
+@endpush
 
 @section('page-content')
-<div style="margin-bottom:20px">
-    <a href="{{ url()->previous() }}" class="auth-nav-back">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Attendances
-    </a>
-</div>
 
 <div class="welcome-banner">
     <div class="banner-left">
@@ -14,12 +13,15 @@
             <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
         </div>
         <div>
-            <h2>Attendance Records Archive</h2>
-            <p>Archive for employee time and attendance</p>
+            <h2>Attendance Archive</h2>
+            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; Archived Time Records</p>
         </div>
     </div>
     <div class="banner-right">
-        <span class="banner-badge outline">{{ $attendances->count() }} Records</span>
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="archive-search" placeholder="Search archive..." class="recruit-search" oninput="filterArchive()">
+        </div>
     </div>
 </div>
 
@@ -27,7 +29,7 @@
     <div class="table-header">
         <div>
             <p class="table-title">Attendance Archive</p>
-            <p class="table-sub">Archived attendance records</p>
+            <p class="table-sub">{{ config('app.name') }} &nbsp;·&nbsp; <span id="visible-count">{{ $attendances->count() }}</span> of {{ $attendances->count() }} records</p>
         </div>
         <div class="table-actions">
             <form id="bulk-restore-form" action="{{ route('attendances.bulkRestore') }}" method="POST" style="display:inline">
@@ -39,6 +41,14 @@
                     Restore Selected (<span id="bulk-count">0</span>)
                 </button>
             </form>
+            <input type="date" id="archive-date-start" class="filter-select" title="From date">
+            <input type="date" id="archive-date-end" class="filter-select" title="To date">
+            <select class="filter-select" id="archive-status-filter">
+                <option value="">All Status</option>
+                <option value="Present">Present</option>
+                <option value="Late">Late</option>
+                <option value="Absent">Absent</option>
+            </select>
         </div>
     </div>
 
@@ -47,7 +57,6 @@
             <thead>
                 <tr>
                     <th><input type="checkbox" id="select-all" title="Select all"></th>
-                    <th>#</th>
                     <th>Employee</th>
                     <th>Date</th>
                     <th>Time In</th>
@@ -61,9 +70,8 @@
             </thead>
             <tbody>
             @forelse($attendances as $attendance)
-                <tr>
+                <tr data-date="{{ $attendance->date }}" data-status="{{ strtolower($attendance->attendance_status) }}">
                     <td><input type="checkbox" class="row-check" value="{{ $attendance->id }}"></td>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $loop->iteration }}</span></td>
                     <td>
                         <div class="emp-cell">
                             <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($attendance->employee->id % 5)] }}">
@@ -75,11 +83,11 @@
                             </div>
                         </div>
                     </td>
-                    <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($attendance->date)->format('M d, Y') }}</span></td>
+                    <td><span class="date-cell">{{ \Carbon\Carbon::parse($attendance->date)->format(config('app.day_month')) }}</span></td>
                     <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                     <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
-                    <td><span style="font-size:12px;color:#9999bb">{{ $attendance->overtime_in && $attendance->overtime_out ? $attendance->overtime_in . ' - ' . $attendance->overtime_out : 'N/A' }}</span></td>
+                    <td><span class="scan-break">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
+                    <td><span class="scan-overtime">{{ $attendance->overtime_in && $attendance->overtime_out ? $attendance->overtime_in . ' - ' . $attendance->overtime_out : 'N/A' }}</span></td>
                     <td><span class="pay-cell">{{ number_format($attendance->total_minutes / 60, 2) }}h</span></td>
                     <td>
                         @if($attendance->attendance_status === 'Present')
@@ -104,6 +112,9 @@
             @endforelse
             </tbody>
         </table>
+        <div id="empty-state" class="archive-empty" style="display:none">
+            <p>No records match your criteria</p>
+        </div>
     </div>
 </div>
 
@@ -113,9 +124,10 @@
 <script>
 $(function () {
     $('#attendance-table').DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 10] }],
+        columnDefs: [{ orderable: false, targets: [0, 9] }],
         pageLength: 25,
-        language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No archived attendance records found', },
+        language: { lengthMenu: 'Show _MENU_ entries', emptyTable: 'No archived attendance records found' },
+        dom: 'rtip',
     });
 
     $('#select-all').on('change', function () {
@@ -141,5 +153,29 @@ $(function () {
         }
     }
 });
+
+function filterArchive() {
+    const query     = (document.getElementById('archive-search').value || '').toLowerCase();
+    const dateStart = document.getElementById('archive-date-start').value;
+    const dateEnd   = document.getElementById('archive-date-end').value;
+    const status    = document.getElementById('archive-status-filter').value.toLowerCase();
+    let count = 0;
+    document.querySelectorAll('#attendance-table tbody tr').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const d = row.dataset.date || '';
+        const matchSearch = !query || text.includes(query);
+        const matchDate   = (!dateStart || d >= dateStart) && (!dateEnd || d <= dateEnd);
+        const matchStatus = !status || (row.dataset.status || '') === status;
+        const show = matchSearch && matchDate && matchStatus;
+        row.style.display = show ? '' : 'none';
+        if (show) count++;
+    });
+    document.getElementById('visible-count').textContent = count;
+    document.getElementById('empty-state').style.display = count === 0 ? 'block' : 'none';
+}
+
+document.getElementById('archive-date-start').addEventListener('change', filterArchive);
+document.getElementById('archive-date-end').addEventListener('change', filterArchive);
+document.getElementById('archive-status-filter').addEventListener('change', filterArchive);
 </script>
 @endpush

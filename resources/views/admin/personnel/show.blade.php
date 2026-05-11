@@ -2,15 +2,22 @@
 
 @section('page-content')
 
-<div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <a href="{{ url()->previous() }}" class="auth-nav-back">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Employees
-    </a>
-    <a href="{{ route('employees.edit', $employee) }}" class="modal-btn-primary">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Edit Employee
-    </a>
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div>
+            <h2>Employee Details</h2>
+            <p>{{ $employee->first_name }} {{ $employee->last_name }} &nbsp;·&nbsp; EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <a href="{{ route('employees.edit', $employee) }}" class="modal-btn-primary" style="background:#d9bb00;color:#0b044d;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Employee
+        </a>
+    </div>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">

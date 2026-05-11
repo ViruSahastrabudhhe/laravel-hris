@@ -1,15 +1,38 @@
 @extends('layouts.admin')
+@php $hideChat = true; @endphp
+
+@push('styles')
+    @vite('resources/css/admin/adminAttendance.css')
+@endpush
 
 @php
     $totalPresent = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Present->value)->count();
     $totalLate = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Late->value)->count();
     $totalAbsences = $attendances->where('attendance_status', \App\Enums\AttendanceStatus::Absent->value)->count();
-    $totalOT = $attendances->sum('overtime_minutes') / 60;
-
-    $totalOT = round($totalOT, 2);
+    $totalOT = round($attendances->sum('overtime_minutes') / 60, 2);
+    $completeCount = $employeeAttendances->where('is_complete', true)->count();
 @endphp
 
 @section('page-content')
+
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <div>
+            <h2>Attendance Management</h2>
+            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; Daily Time Records</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="banner-search" placeholder="Search attendance..." class="recruit-search" oninput="bannerSearch(this.value)">
+        </div>
+    </div>
+</div>
+
 <div id="stats-attendances" class="stats-grid stats-grid-4">
 
     <div class="stat-card">
@@ -128,36 +151,6 @@
     </div>
 </div>
 
-<div class="view-tabs" hidden>
-    <button class="view-tab active" onclick="switchView('attendances',this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
-        Attendances
-    </button>
-    <button class="view-tab" onclick="switchView('scan-history',this)">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/>
-            <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
-            <rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
-            <rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
-            <line x1="14" y1="14" x2="14" y2="14.01"/>
-            <line x1="17" y1="14" x2="17" y2="14.01"/>
-            <line x1="21" y1="14" x2="21" y2="14.01"/>
-            <line x1="14" y1="17" x2="14" y2="17.01"/>
-            <line x1="21" y1="17" x2="21" y2="17.01"/>
-            <line x1="14" y1="21" x2="14" y2="21.01"/>
-            <line x1="17" y1="21" x2="21" y2="21"/>
-            <line x1="2" y1="12" x2="22" y2="12" stroke-dasharray="3 1"/>
-        </svg>
-        Scan History
-    </button>
-    <button class="view-tab" onclick="switchView('qr-codes',this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
-        QR Codes
-    </button>
-</div>
-
 <div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1.5px solid #eceaf8; padding-bottom: 0;">
     <button class="tab-btn active" onclick="switchView('attendances', this)">Attendances</button>
     <button class="tab-btn" onclick="switchView('scan-history', this)">Scan History</button>
@@ -168,33 +161,23 @@
     <div class="table-section">
         <div class="table-header">
             <div>
-                <p class="table-title">Attendance Summary</p>
-                <p class="table-sub">Overview of employee attendance</p>
+                <p class="table-title">Daily Time Record &mdash; {{ config('app.carbon_month') }}</p>
+                <p class="table-sub">{{ config('app.name') }} &nbsp;&middot;&nbsp; Employee Attendance Summary</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="ea-month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="ea-month-filter">
                     @foreach(range(1,12) as $m)
                         <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
                             {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                         </option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="ea-year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                <select class="filter-select" id="ea-year-filter">
                     @foreach(range(now()->year - 2, now()->year) as $y)
                         <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;" hidden>
-                    <option value="">All Departments</option>
-                    @foreach($departments as $dept)
-                        <option value="{{ $dept->name }}">{{ $dept->name }}</option>
-                    @endforeach
-                </select>
-                <select class="filter-select" id="status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="status-filter">
                     <option value="">All Status</option>
                     <option value="Complete">Complete</option>
                     <option value="Incomplete">Incomplete</option>
@@ -211,13 +194,14 @@
                         <th>Late</th>
                         <th>Absent</th>
                         <th>OT Hours</th>
+                        <th>Rate</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach($employeeAttendances as $attendance)
-                    <tr>
+                    <tr data-status="{{ $attendance->is_complete ? 'complete' : 'incomplete' }}">
                         <td>
                             <div class="emp-cell">
                                 <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($attendance->employee->id % 5)] }}">
@@ -233,6 +217,18 @@
                         <td><span style="color: #a16207; font-weight: 600;">{{ $attendance->total_late }}</span></td>
                         <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_absent }}</span></td>
                         <td><span style="color: #0b044d; font-weight: 600;">{{ number_format(($attendance->total_overtime / 60), 2) }} hrs</span></td>
+                        <td>
+                            @php
+                                $workingDays = $attendance->total_present + $attendance->total_absent;
+                                $rate = $workingDays > 0 ? round(($attendance->total_present / $workingDays) * 100) : 0;
+                            @endphp
+                            <div class="rate-bar-wrap">
+                                <div class="rate-bar-track">
+                                    <div class="rate-bar-fill" style="width:{{ $rate }}%;background:{{ $rate >= 90 ? '#15803d' : ($rate >= 75 ? '#d9bb00' : '#8e1e18') }}"></div>
+                                </div>
+                                <span class="rate-bar-label">{{ $rate }}%</span>
+                            </div>
+                        </td>
                         <td>
                             @if ($attendance->is_complete === true)
                                 <span class="badge-status processed" data-status="complete">Complete</span>
@@ -283,11 +279,9 @@
                         (<span id="bulk-count">0</span>)
                     </button>
                 </form>
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="scan-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="scan-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <input type="date" id="scan-date-start" class="filter-select" title="From date">
+                <input type="date" id="scan-date-end" class="filter-select" title="To date">
+                <select class="filter-select" id="scan-status-filter">
                     <option value="">All Status</option>
                     <option value="Present">Present</option>
                     <option value="Late">Late</option>
@@ -326,7 +320,7 @@
                 </thead>
                 <tbody>
                 @foreach($attendances as $attendance)
-                    <tr>
+                    <tr data-date="{{ $attendance->date }}" data-status="{{ strtolower($attendance->attendance_status) }}">
                         <td><input type="checkbox" class="row-check" value="{{ $attendance->id }}"></td>
                         <td>
                             <div class="emp-cell">
@@ -339,11 +333,11 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($attendance->date)->format(config('app.day_month')) }}</td>
+                                        <td><span class="date-cell">{{ \Carbon\Carbon::parse($attendance->date)->format(config('app.day_month')) }}</span></td>
                         <td><span class="dept-tag" style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">{{ $attendance->time_in ?? '--:--' }}</span></td>
                         <td><span class="dept-tag" style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">{{ $attendance->time_out ?? '--:--' }}</span></td>
-                        <td><span style="font-size:12px;color:#9999bb">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
-                        <td><span style="font-size:12px;color:#9999bb">{{ $attendance->overtime_minutes > 0 ? number_format(($attendance->overtime_minutes / 60), 1) . ' hrs' : 'N/A' }}</span></td>
+                        <td><span class="scan-break">{{ $attendance->break_start && $attendance->break_end ? $attendance->break_start . ' - ' . $attendance->break_end : 'N/A' }}</span></td>
+                        <td><span class="scan-overtime">{{ $attendance->overtime_minutes > 0 ? number_format(($attendance->overtime_minutes / 60), 1) . ' hrs' : 'N/A' }}</span></td>
                         <td><span class="pay-cell">{{ number_format((($attendance->total_minutes / 60) + ($attendance->overtime_minutes / 60)), 2) }} h</span></td>
                         <td>
                             @if($attendance->attendance_status === 'Present')
@@ -398,17 +392,13 @@
                 <p class="table-sub">Overview of QR code generation for employees</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="qr-search" placeholder="Search employees..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="qr-position-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="qr-position-filter">
                     <option value="">All Positions</option>
                     @foreach($positions as $position)
                         <option value="{{ $position->title }}">{{ $position->title }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="qr-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="qr-status-filter">
                     <option value="">All Status</option>
                     <option value="Generated">Generated</option>
                     <option value="Not Generated">Not Generated</option>
@@ -430,7 +420,7 @@
                 <tbody>
                     @foreach($employees as $employee)
                     @php $ws = $employee->employeeWorkSchedule?->workSchedule; @endphp
-                    <tr>
+                    <tr data-position="{{ $employee->position->title ?? '' }}" data-qrstatus="{{ isset($qrScans[$employee->id]) ? 'generated' : 'not generated' }}">
                         <td>
                             <div class="emp-cell">
                                 <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -517,8 +507,8 @@
                     <label>CSV File <span style="color:#dc2626">*</span></label>
                     <input type="file" name="csv_file" accept=".csv" required>
                 </div>
-                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
-                    <strong style="color:#0b044d;display:block;margin-bottom:4px;">CSV Format</strong>
+                <div class="csv-hint">
+                    <strong>CSV Format</strong>
                     date, time_in, time_out, break_start, break_end, overtime_in, overtime_out, employee_id
                 </div>
             </div>
@@ -549,8 +539,8 @@
             @csrf
             <input type="hidden" name="employee_id" id="qr-modal-employee-id">
             <div class="modal-body">
-                <h1 id="qr-modal-sub" style="font-size:25px;color:#0b044d;font-weight:600;margin:0"></h1>
-                <p style="font-size:12px;color:#6b6a8a;margin:6px 0 0">A monthly QR code will be generated for this employee.</p>
+                <h1 id="qr-modal-sub" class="qr-generate-sub"></h1>
+                <p class="qr-generate-hint">A monthly QR code will be generated for this employee.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeModal('qr-modal')">Cancel</button>
@@ -576,22 +566,14 @@
             </button>
         </div>
         <div class="modal-body" style="text-align:center">
-            <div style="background:#f7f6ff;border-radius:12px;padding:24px;display:inline-block;margin-bottom:16px">
-                <div style="background:#fff;padding:16px;border-radius:10px">
+            <div class="qr-modal-body-wrap">
+                <div class="qr-modal-inner">
                     <div id="view-qrcode"></div>
                 </div>
             </div>
-            <div style="text-align:left;background:#f7f6ff;border-radius:10px;padding:16px">
-                <div style="display:grid;gap:8px">
-                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e4e3f0">
-                        <span style="color:#9999bb;font-size:12px;font-weight:600">Employee ID</span>
-                        <strong style="color:#0b044d;font-size:12px" id="view-qr-empid"></strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:6px 0">
-                        <span style="color:#9999bb;font-size:12px;font-weight:600">Valid Until</span>
-                        <strong style="color:#0b044d;font-size:12px" id="view-qr-expires"></strong>
-                    </div>
-                </div>
+            <div class="qr-modal-info">
+                <div class="qr-modal-info-row"><span>Employee ID</span><strong id="view-qr-empid"></strong></div>
+                <div class="qr-modal-info-row"><span>Valid Until</span><strong id="view-qr-expires"></strong></div>
             </div>
         </div>
         <div class="modal-footer">
@@ -619,29 +601,27 @@
             </button>
         </div>
         <div class="modal-body">
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 16px; background: #f7f6ff; border-radius: 12px;">
-                <div class="emp-avatar" id="modal-avatar" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: #0b044d;">
-                    MS
-                </div>
+            <div class="dtr-modal-hero">
+                <div class="emp-avatar dtr-modal-avatar" id="modal-avatar">MS</div>
                 <div>
                     <p id="modal-emp-id" style="font-size: 11px; color: #9999bb; margin: 0 0 4px;">PGS-0000</p>
                     <span class="badge-status" id="modal-status-badge">Complete</span>
                 </div>
             </div>
 
-            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin-bottom: 12px;">ATTENDANCE SUMMARY</p>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Working Days</span><strong style="font-size:13px;color:#0b044d" id="modal-working-days">22 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Present</span><strong style="font-size:13px;color:#15803d" id="modal-present">22 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Absent</span><strong style="font-size:13px;color:#8e1e18" id="modal-absent">0 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Late Arrivals</span><strong style="font-size:13px;color:#a16207" id="modal-late">1 times</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Half Days</span><strong style="font-size:13px;color:#a16207" id="modal-halfday">0 days</strong></div>
+            <p class="dtr-section-label">ATTENDANCE SUMMARY</p>
+            <div class="dtr-modal-row"><span>Working Days</span><strong id="modal-working-days">22 days</strong></div>
+            <div class="dtr-modal-row"><span>Days Present</span><strong style="color:#15803d" id="modal-present">22 days</strong></div>
+            <div class="dtr-modal-row"><span>Days Absent</span><strong style="color:#8e1e18" id="modal-absent">0 days</strong></div>
+            <div class="dtr-modal-row"><span>Late Arrivals</span><strong style="color:#a16207" id="modal-late">1 times</strong></div>
+            <div class="dtr-modal-row"><span>Half Days</span><strong style="color:#a16207" id="modal-halfday">0 days</strong></div>
 
-            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin: 16px 0 12px;">OVERTIME</p>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Total OT Hours</span><strong style="font-size:13px;color:#0b044d" id="modal-overtime">3.5 hrs</strong></div>
+            <p class="dtr-section-label" style="margin-top:16px">OVERTIME</p>
+            <div class="dtr-modal-row"><span>Total OT Hours</span><strong id="modal-overtime">3.5 hrs</strong></div>
 
-            <div style="margin-top: 16px; padding: 12px; background: #f7f6ff; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; font-weight: 700; color: #9999bb; letter-spacing: 1px;">ATTENDANCE RATE</span>
-                <strong style="font-size: 18px; color: #15803d;" id="modal-rate">100%</strong>
+            <div class="dtr-rate-footer">
+                <span>ATTENDANCE RATE</span>
+                <strong class="dtr-rate-value" id="modal-rate">100%</strong>
             </div>
         </div>
         <div class="modal-footer">
@@ -727,8 +707,8 @@
                     <input type="file" name="correction[proof]" accept=".pdf,image/*" required>
                 </div>
 
-                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
-                    <strong style="color:#0b044d;display:block;margin-bottom:4px;">Notes</strong>
+                <div class="dtr-notes">
+                    <strong>Notes</strong>
                     Uploading a new proof will replace the existing file.
                 </div>
 
@@ -819,14 +799,17 @@
 
 <script>
     function switchView(viewId, btn) {
-        if (btn.classList.contains('active')) {
-            return;
-        }
-
+        if (btn.classList.contains('active')) return;
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + viewId).classList.add('active');
         btn.classList.add('active');
+
+        const bannerInput = document.getElementById('banner-search');
+        bannerInput.value = '';
+        if (viewId === 'attendances') bannerInput.placeholder = 'Search attendance...';
+        else if (viewId === 'scan-history') bannerInput.placeholder = 'Search scan history...';
+        else bannerInput.placeholder = 'Search QR codes...';
 
         if (viewId === 'attendances' || viewId === 'scan-history') {
             document.getElementById('stats-attendances').style.display = 'grid';
@@ -836,6 +819,57 @@
             document.getElementById('stats-qr-codes').style.display = 'grid';
         }
     }
+
+    function bannerSearch(q) {
+        const active = document.querySelector('.tab-btn.active');
+        const label = active ? active.textContent.trim() : '';
+        if (label === 'Attendances') filterAttendanceTable(q);
+        else if (label === 'Scan History') filterScanTable(q);
+        else filterQrTable(q);
+    }
+
+    function filterAttendanceTable(q) {
+        const query = q.toLowerCase();
+        const status = document.getElementById('status-filter').value.toLowerCase();
+        document.querySelectorAll('#attendance-table tbody tr').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matchStatus = !status || (row.dataset.status || '') === status;
+            row.style.display = text.includes(query) && matchStatus ? '' : 'none';
+        });
+    }
+
+    function filterScanTable(q) {
+        const query = q.toLowerCase();
+        const status = document.getElementById('scan-status-filter').value.toLowerCase();
+        const dateStart = document.getElementById('scan-date-start').value;
+        const dateEnd   = document.getElementById('scan-date-end').value;
+        document.querySelectorAll('#scan-table tbody tr').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const d = row.dataset.date || '';
+            const matchStatus = !status || (row.dataset.status || '') === status;
+            const matchDate = (!dateStart || d >= dateStart) && (!dateEnd || d <= dateEnd);
+            row.style.display = text.includes(query) && matchStatus && matchDate ? '' : 'none';
+        });
+    }
+
+    function filterQrTable(q) {
+        const query = q.toLowerCase();
+        const pos = document.getElementById('qr-position-filter').value.toLowerCase();
+        const status = document.getElementById('qr-status-filter').value.toLowerCase();
+        document.querySelectorAll('#qr-table tbody tr').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matchPos = !pos || (row.dataset.position || '').toLowerCase() === pos;
+            const matchStatus = !status || (row.dataset.qrstatus || '') === status;
+            row.style.display = text.includes(query) && matchPos && matchStatus ? '' : 'none';
+        });
+    }
+
+    document.getElementById('status-filter').addEventListener('change', () => filterAttendanceTable(document.getElementById('banner-search').value));
+    document.getElementById('scan-date-start').addEventListener('change', () => filterScanTable(document.getElementById('banner-search').value));
+    document.getElementById('scan-date-end').addEventListener('change', () => filterScanTable(document.getElementById('banner-search').value));
+    document.getElementById('scan-status-filter').addEventListener('change', () => filterScanTable(document.getElementById('banner-search').value));
+    document.getElementById('qr-position-filter').addEventListener('change', () => filterQrTable(document.getElementById('banner-search').value));
+    document.getElementById('qr-status-filter').addEventListener('change', () => filterQrTable(document.getElementById('banner-search').value));
 
     $('#add-attendance-btn').on('click', function (e) {
         e.preventDefault();
@@ -859,62 +893,24 @@
 
     $(function () {
         const attendance_table = $('#attendance-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [6] }],
+            columnDefs: [{ orderable: false, targets: [7] }],
             pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
+            language: { lengthMenu: 'Show _MENU_ entries', emptyTable: 'No attendance records found', },
             dom: 'rtip',
         });
 
         const scan_table = $('#scan-table').DataTable({
             columnDefs: [{ orderable: false, targets: [0, 9] }],
             pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No scan records found', },
+            language: { lengthMenu: 'Show _MENU_ entries', emptyTable: 'No scan records found', },
             dom: 'rtip',
         });
 
         const qr_table = $('#qr-table').DataTable({
             columnDefs: [{ orderable: false, targets: [4] }],
             pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR codes found', },
+            language: { lengthMenu: 'Show _MENU_ entries', emptyTable: 'No QR codes found', },
             dom: 'rtip',
-        });
-
-        $('#attendance-search').on('keyup', function() {
-            attendance_table.search(this.value).draw();
-        });
-
-        $('#dept-filter').on('change', function() {
-            attendance_table.column(2).search(this.value).draw();
-        });
-
-        $('#status-filter').on('change', function() {
-            const val = this.value ? '^' + this.value + '$' : '';
-            attendance_table.column(5).search(val, true, false).draw();
-        });
-
-        $('#scan-search').on('keyup', function() {
-            scan_table.search(this.value).draw();
-        });
-
-        $('#scan-dept-filter').on('change', function() {
-            scan_table.column(2).search(this.value).draw();
-        });
-
-        $('#scan-status-filter').on('change', function() {
-            scan_table.column(8).search(this.value).draw();
-        });
-
-        $('#qr-search').on('keyup', function() {
-            qr_table.search(this.value).draw();
-        });
-
-        $('#qr-position-filter').on('change', function() {
-            qr_table.column(1).search(this.value).draw();
-        });
-
-        $('#qr-status-filter').on('change', function() {
-            const val = this.value ? '^' + this.value + '$' : '';
-            qr_table.column(4).search(val, true, false).draw();
         });
 
         $('#select-all').on('change', function () {

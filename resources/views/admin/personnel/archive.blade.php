@@ -1,39 +1,27 @@
 @extends('layouts.admin')
 
 @php
-    $totalEmployees = 0;
-    $activeEmployees = 0;
-    $inactiveEmployees = 0;
-    $regularEmployees = 0;
-    
-    foreach ($employees as $employee) {
-        if ($employee->is_active) {
-            $activeEmployees++;
-        } else {
-            $inactiveEmployees++;
-        }
-        if ($employee->employment_type === \App\Enums\EmploymentType::Regular->value) {
-            $regularEmployees++;
-        }
-        $totalEmployees++;
-    }
-
-    $totalDepartments = $departments->count();
-    $activeDepartments = $departments->where('is_active', true)->count();
-    $inactiveDepartments = $departments->where('is_active', false)->count();
-    $totalEmployeesInDepts = $employees->count();
-
-    $totalPositions = $positions->count();
-    $filledPositions = $employees->pluck('position_id')->filter()->unique()->count();
-    $vacantPositions = max(0, $totalPositions - $filledPositions);
+    $totalArchived = $employees->count();
 @endphp
 
 @section('page-content')
-<div style="margin-bottom:20px">
-    <a href="{{ route('employees.index') }}" class="auth-nav-back">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Employees
-    </a>
+
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><polyline points="3 7 12 2 21 7"/></svg>
+        </div>
+        <div>
+            <h2>Archived Employees</h2>
+            <p>{{ config('app.carbon_date') }} &nbsp;·&nbsp; {{ $totalArchived }} archived {{ $totalArchived === 1 ? 'record' : 'records' }}</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search archived employees..." class="recruit-search" oninput="filterArchive(this.value)">
+        </div>
+    </div>
 </div>
 
 <div id="view-employees" class="tab-pane active">
@@ -44,17 +32,13 @@
                 <p class="table-sub">All archived and inactive personnel</p>
             </div>
             <div class="table-actions" style="gap: 10px;">
-                <div class="search-wrap">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="employee-search" placeholder="Search employees..." class="search-input">
-                </div>
-                <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="dept-filter">
                     <option value="">All Departments</option>
                     @foreach($departments as $dept)
                         <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="position-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="position-filter">
                     <option value="">All Positions</option>
                     @foreach($positions as $position)
                         <option value="{{ $position->title }}">{{ $position->title }}</option>
@@ -152,64 +136,22 @@
 
 @push('scripts')
 <script>
-        $(function () {
-        function escapeRegex(value) {
-            return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        }
-
-        if ($('#attendance-table').length) {
-            const employeeTable = $('#attendance-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [0, 6] }],
-                pageLength: 25,
-                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No employees found' },
-                dom: 'rtip',
-            });
-
-            $('#employee-search').on('keyup', function() {
-                employeeTable.search(this.value).draw();
-            });
-
-            $('#dept-filter').on('change', function() {
-                const value = $(this).val();
-                employeeTable.column(2).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-            });
-
-            $('#position-filter').on('change', function() {
-                const value = $(this).val();
-                employeeTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-            });
-
-            $('#status-filter').on('change', function() {
-                const value = $(this).val();
-                employeeTable.column(5).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-            });
-        }
-
-        if ($('#dept-table').length) {
-            const deptTable = $('#dept-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [5] }],
-                pageLength: 25,
-                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No departments found' },
-                dom: 'rtip',
-            });
-
-            $('#dept-search').on('keyup', function() {
-                deptTable.search(this.value).draw();
-            });
-        }
-
-        if ($('#pos-table').length) {
-            const posTable = $('#pos-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [3] }],
-                pageLength: 25,
-                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No positions found' },
-                dom: 'rtip',
-            });
-
-            $('#position-search').on('keyup', function() {
-                posTable.search(this.value).draw();
-            });
-        }
+function filterArchive(q) {
+    const search = (q || '').toLowerCase();
+    const dept   = document.getElementById('dept-filter').value;
+    const pos    = document.getElementById('position-filter').value;
+    document.querySelectorAll('#attendance-table tbody tr').forEach(row => {
+        const name    = row.querySelector('.emp-name')?.textContent.toLowerCase() || '';
+        const id      = row.querySelector('.emp-id')?.textContent.toLowerCase() || '';
+        const rowDept = row.cells[2]?.textContent.trim() || '';
+        const rowPos  = row.cells[1]?.textContent.trim() || '';
+        const show = (!search || name.includes(search) || id.includes(search))
+                  && (!dept || rowDept.includes(dept))
+                  && (!pos  || rowPos.includes(pos));
+        row.style.display = show ? '' : 'none';
     });
+}
+document.getElementById('dept-filter').addEventListener('change', () => filterArchive(document.querySelector('.recruit-search').value));
+document.getElementById('position-filter').addEventListener('change', () => filterArchive(document.querySelector('.recruit-search').value));
 </script>
 @endpush

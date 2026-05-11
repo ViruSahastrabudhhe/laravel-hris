@@ -1,0 +1,89 @@
+/* ── Reports page — hide default page header ── */
+.page-header { display: none; }
+
+/* ── Report metric grid inside each card ── */
+.report-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-bottom: 14px;
+    padding: 12px;
+    background: #f7f6ff;
+    border-radius: 10px;
+}
+.report-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.metric-label {
+    font-size: 10px;
+    color: #9999bb;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.metric-value {
+    font-size: 13px;
+    color: #0b044d;
+    font-weight: 600;
+}
+
+/* ── Form grid (modal) ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 0; }
+.form-full { grid-column: 1 / -1; }
+.form-field label { font-size: 12px; font-weight: 600; color: #0b044d; }
+.form-field input,
+.form-field select {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #e4e3f0; border-radius: 9px;
+    font-size: 13px; font-family: 'Poppins', sans-serif; color: #0b044d;
+    outline: none; box-sizing: border-box; background: #fff;
+}
+.form-field input:focus,
+.form-field select:focus { border-color: #0b044d; }
+
+/* ── Banner search input ── */
+.recruit-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 420px;
+}
+.recruit-search-wrap svg {
+    position: absolute;
+    left: 14px;
+    pointer-events: none;
+    flex-shrink: 0;
+    stroke: #9999bb;
+}
+.recruit-search {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px 0 38px;
+    background: #ffffff;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.recruit-search::placeholder { color: #9999bb; }
+.recruit-search:focus {
+    border-color: #0b044d;
+    box-shadow: 0 0 0 3px rgba(11,4,77,0.08);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-full { grid-column: 1; }
+    .recruit-search-wrap { width: 260px; }
+}
+@media (max-width: 640px) {
+    .welcome-banner { flex-direction: column; align-items: stretch; }
+    .welcome-banner .banner-right { width: 100%; }
+    .recruit-search-wrap { width: 100%; }
+}

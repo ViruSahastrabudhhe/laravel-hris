@@ -1,22 +1,53 @@
 @extends('layouts.admin')
 
 @php
+    $hideChat = true;
     use Carbon\Carbon;
 
     $grossPayroll = 0;
     $totalNetPay = 0;
     $totalDeductions = 0;
+    $pendingPayroll = 0;
     foreach ($employees as $employee) {
         $grossPayroll += $employee->grossPay();
         $totalNetPay += $employee->netPay();
         $totalDeductions += $employee->totalDeductions();
+
+        $currentRecord = $employee->payrollRecords
+            ->where('month', now()->month)
+            ->where('year', now()->year)
+            ->first();
+
+        if ($currentRecord && $currentRecord->status === 'Pending') {
+            $pendingPayroll++;
+        }
     }
 
     $totalPersonnel = $employees->count();
-    $payDate = 0;
+    $payDate = now()->format('M d, Y');
+    $defaultStartDate = Carbon::now()->copy()->startOfMonth()->format('Y-m-d');
+    $defaultEndDate = Carbon::now()->copy()->endOfMonth()->format('Y-m-d');
 @endphp
 
 @section('page-content')
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+            <h2>Payroll Management</h2>
+            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; Payroll Processing</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="payroll-search" placeholder="Search payroll..." class="recruit-search">
+        </div>
+    </div>
+</div>
+
 <div class="stats-grid stats-grid-4">
 
     <div class="stat-card">
@@ -63,18 +94,17 @@
 
     <div class="stat-card">
         <div class="stat-top">
-            <p class="stat-label">System Status</p>
+            <p class="stat-label">Pending Records</p>
             <div class="stat-icon-wrap" style="background:#fdf0ef">
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
         </div>
-        <p class="stat-value" style="font-size:20px">Active</p>
+        <p class="stat-value stat-value-large">{{ $pendingPayroll }}</p>
         <div class="stat-footer">
-            <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">All systems operational</p>
+            <span class="stat-dot" style="background:#f59e0b"></span>
+            <p class="stat-sub">{{ $totalPersonnel }} processed</p>
         </div>
     </div>
-
 </div>
 
 <div class="table-section">
@@ -83,28 +113,32 @@
             <p class="table-title">Payroll Summary</p>
             <p class="table-sub">Monthly payroll breakdown for all employees</p>
         </div>
-        <div class="table-actions" style="gap: 10px;">
-            <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="payroll-search" placeholder="Search payroll..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-            </div>
-            <select class="filter-select" id="month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+        <div class="table-actions">
+            <input type="date" id="start-date" class="filter-select payroll-date-input" value="{{ $defaultStartDate }}">
+            <input type="date" id="end-date" class="filter-select payroll-date-input" value="{{ $defaultEndDate }}">
+            <select class="filter-select" id="month-filter">
                 @foreach(range(1,12) as $m)
                     <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
                         {{ Carbon::create()->month($m)->format('F') }}
                     </option>
                 @endforeach
             </select>
-            <select class="filter-select" id="year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+            <select class="filter-select" id="year-filter">
                 @foreach(range(now()->year - 2, now()->year) as $y)
                     <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
                 @endforeach
             </select>
-            <select class="filter-select" id="dept-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+            <select class="filter-select" id="dept-filter">
                 <option value="">All Departments</option>
                 @foreach($departments as $dept)
                     <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                 @endforeach
+            </select>
+            <select class="filter-select" id="status-filter">
+                <option value="All">All Status</option>
+                <option value="Processed">Processed</option>
+                <option value="Pending" selected>Pending</option>
+                <option value="Draft">Draft</option>
             </select>
             <a href="{{ route('payroll.exportPayroll') }}" class="btn-export">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -114,6 +148,33 @@
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Run Payroll
             </button>
+        </div>
+    </div>
+
+    <div class="payroll-summary-bar">
+        <div class="psummary-item">
+            <span>Gross Total</span>
+            <strong class="gross-total">₱{{ number_format($grossPayroll, 2) }}</strong>
+        </div>
+        <div class="psummary-divider"></div>
+        <div class="psummary-item">
+            <span>Total Deductions</span>
+            <strong class="deduction">₱{{ number_format($totalDeductions, 2) }}</strong>
+        </div>
+        <div class="psummary-divider"></div>
+        <div class="psummary-item">
+            <span>Total Net Pay</span>
+            <strong class="net-pay">₱{{ number_format($totalNetPay, 2) }}</strong>
+        </div>
+        <div class="psummary-divider"></div>
+        <div class="psummary-item">
+            <span>Pay Date</span>
+            <strong>{{ $payDate }}</strong>
+        </div>
+        <div class="psummary-divider"></div>
+        <div class="psummary-item">
+            <span>Records</span>
+            <strong>{{ $totalPersonnel }}</strong>
         </div>
     </div>
 
@@ -166,14 +227,14 @@
                                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                             <button type="button" class="btn-edit" {{ $record === null ? '' : 'hidden' }}
-                                    onclick="openSinglePayrollModal({
-                                    id: {{ $employee->id }},
-                                    name: '{{ $employee->first_name }} {{ $employee->last_name }}',
-                                    department: '{{ $employee->department->name }}',
-                                    grossPay: '{{ $employee->grossPay() }}',
-                                    totalDeductions: '{{ $employee->totalDeductions() }}',
-                                    netPay: '{{ $employee->netPay() }}'
-                                })" title="Run Payroll">
+                                    onclick="openSinglePayrollModal({{ Js::from([
+                                        'id' => $employee->id,
+                                        'name' => $employee->first_name . ' ' . $employee->last_name,
+                                        'department' => $employee->department->name,
+                                        'grossPay' => number_format($employee->grossPay(), 2, '.', ''),
+                                        'totalDeductions' => number_format($employee->totalDeductions(), 2, '.', ''),
+                                        'netPay' => number_format($employee->netPay(), 2, '.', ''),
+                                    ]) }})" title="Run Payroll">
                                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                     <polygon points="5 3 19 12 5 21 5 3"/>
                                 </svg>
@@ -209,7 +270,7 @@
                             <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
                             <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
                             <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
-                            <div class="modal-section-label" style="margin-top:16px">DEDUCTIONS</div>
+                            <div class="modal-section-label">DEDUCTIONS</div>
                             <div class="modal-row"><span>GSIS</span><span class="modal-deduct">₱{{ number_format($employee->gsisContribution(), 2) }}</span></div>
                             <div class="modal-row"><span>PhilHealth</span><span class="modal-deduct">₱{{ number_format($employee->philHealthContribution(), 2) }}</span></div>
                             <div class="modal-row"><span>Pag-Ibig</span><span class="modal-deduct">₱{{ number_format($employee->pagIbigContribution(), 2) }}</span></div>
@@ -236,6 +297,9 @@
             </tbody>
         </table>
     </div>
+    <div class="table-footer">
+        <p>Showing <strong>{{ $employees->count() }}</strong> of <strong>{{ $totalPersonnel }}</strong> records</p>
+    </div>
 </div>
 
 {{-- Run Payroll Modal --}}
@@ -253,14 +317,14 @@
         <form action="{{ route('payroll.bulkStore') }}" method="POST">
             @csrf
             <div class="modal-body">
-                <div class="modal-confirm-info" style="margin-bottom: 16px;">
+                <div class="modal-confirm-info">
                     <input type="hidden" name="month" id="payroll-run-month">
                     <input type="hidden" name="year" id="payroll-run-year">
                     <div class="modal-row"><span>Total Personnel</span><strong>{{ $totalPersonnel }}</strong></div>
                     <div class="modal-row"><span>Gross Payroll</span><strong>₱{{ number_format($grossPayroll, 2) }}</strong></div>
                     <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
                 </div>
-                <p style="font-size: 13px; color: #8e1e18; background: #8e1e1818; padding: 10px 12px; border-radius: 6px;">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
+                <p class="modal-alert">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeModal('payroll-run-modal')">Cancel</button>
@@ -287,7 +351,7 @@
             <input type="hidden" name="month" id="single-payroll-month">
             <input type="hidden" name="year" id="single-payroll-year">
             <div class="modal-body">
-                <div class="modal-confirm-info" style="margin-bottom:16px">
+                <div class="modal-confirm-info">
                     <input type="hidden" name="employee_id" id="single-payroll-employee-id">
                     <input type="hidden" name="total_earnings" id="single-payroll-total-earnings">
                     <input type="hidden" name="total_deductions" id="single-payroll-total-deductions">
@@ -300,7 +364,7 @@
                     <div class="modal-row total"><span>Net Pay</span><strong id="single-payroll-net"></strong></div>
                     <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
                 </div>
-                <p style="font-size:13px;color:#8e1e18;background:#8e1e1818;padding:10px 12px;border-radius:6px;">⚠ This will finalize payroll for this employee. Ensure DTR and leave records are updated before proceeding.</p>
+                <p class="modal-alert">⚠ This will finalize payroll for this employee. Ensure DTR and leave records are updated before proceeding.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeModal('single-payroll-modal')">Cancel</button>
@@ -330,14 +394,25 @@ $(function () {
     });
 
     const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+    const nowMonth = {{ now()->month }};
+    const nowYear = {{ now()->year }};
+
+    function setDateRangeFromMonthYear(month, year) {
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0);
+
+        $('#start-date').val(start.toISOString().slice(0, 10));
+        $('#end-date').val(end.toISOString().slice(0, 10));
+    }
 
     function fetchPayroll() {
-        const month = parseInt($('#month-filter').val());
-        const year  = parseInt($('#year-filter').val());
+        const startDate = $('#start-date').val();
+        const endDate = $('#end-date').val();
+        const month = startDate ? new Date(startDate).getMonth() + 1 : parseInt($('#month-filter').val());
+        const year = startDate ? new Date(startDate).getFullYear() : parseInt($('#year-filter').val());
 
-        if (month === {{ now()->month }} && year === {{ now()->year }}) {
-            location.reload();
-            return;
+        if (!startDate) {
+            setDateRangeFromMonthYear(month, year);
         }
 
         $.get('{{ route('payroll.filter') }}', { month, year }, function(res) {
@@ -345,8 +420,8 @@ $(function () {
 
             res.employees.forEach(function(e) {
                 const initials = e.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-                const color    = colors[e.id % 5];
-                const empId    = 'EMP-' + String(e.id).padStart(3, '0');
+                const color = colors[e.id % 5];
+                const empId = 'EMP-' + String(e.id).padStart(3, '0');
 
                 payroll_table.row.add([
                     `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.name}</p><p class="emp-id">${empId}</p></div></div>`,
@@ -362,16 +437,56 @@ $(function () {
         });
     }
 
-    $('#month-filter, #year-filter').on('change', fetchPayroll);
+    $('#month-filter, #year-filter').on('change', function() {
+        const month = parseInt($('#month-filter').val());
+        const year = parseInt($('#year-filter').val());
+
+        setDateRangeFromMonthYear(month, year);
+        fetchPayroll();
+    });
+
+    $('#start-date, #end-date').on('change', function() {
+        const startDate = $('#start-date').val();
+        const endDate = $('#end-date').val();
+        const month = startDate ? new Date(startDate).getMonth() + 1 : parseInt($('#month-filter').val());
+        const year = startDate ? new Date(startDate).getFullYear() : parseInt($('#year-filter').val());
+
+        if (startDate) {
+            $('#month-filter').val(month);
+            $('#year-filter').val(year);
+        }
+
+        if (!endDate && startDate) {
+            const end = new Date(year, month, 0).toISOString().slice(0, 10);
+            $('#end-date').val(end);
+        }
+
+        fetchPayroll();
+    });
+
+    $('#status-filter').on('change', function() {
+        const status = this.value;
+        payroll_table.column(5).search(status === 'All' ? '' : '^' + status + '$', true, false).draw();
+    });
 
     window.openPayrollRunModal = function() {
-        const month = $('#month-filter').val();
-        const year = $('#year-filter').val();
-        const monthName = $('#month-filter option:selected').text();
+        const startDate = $('#start-date').val();
+        const endDate = $('#end-date').val();
+        const month = startDate ? new Date(startDate).getMonth() + 1 : parseInt($('#month-filter').val());
+        const year = startDate ? new Date(startDate).getFullYear() : parseInt($('#year-filter').val());
+        const starts = startDate ? new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
+        const ends = endDate ? new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
 
         $('#payroll-run-month').val(month);
         $('#payroll-run-year').val(year);
-        $('#payroll-modal-title').text(`Process ${monthName} ${year} Payroll?`);
+
+        let titleText = startDate ? `Process ${starts}` : 'Process Payroll';
+        if (ends) {
+            titleText += ` — ${ends}`;
+        }
+        titleText += ' Payroll?';
+
+        $('#payroll-modal-title').text(titleText);
 
         openModal('payroll-run-modal');
     };
@@ -384,11 +499,14 @@ $(function () {
     }
 
     function openSinglePayrollModal(data) {
-        const month = document.getElementById('month-filter').value;
-        const year  = document.getElementById('year-filter').value;
-        const monthName = document.getElementById('month-filter').options[document.getElementById('month-filter').selectedIndex].text;
+        const startDate = document.getElementById('start-date').value;
+        const endDate   = document.getElementById('end-date').value;
+        const month     = startDate ? new Date(startDate).getMonth() + 1 : document.getElementById('month-filter').value;
+        const year      = startDate ? new Date(startDate).getFullYear() : document.getElementById('year-filter').value;
+        const startText = startDate ? new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+        const endText   = endDate ? new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
 
-        document.getElementById('single-payroll-modal-title').textContent = `Process ${monthName} ${year} Payroll?`;
+        document.getElementById('single-payroll-modal-title').textContent = `Process ${startText}${endText ? ' — ' + endText : ''} Payroll?`;
         document.getElementById('single-payroll-name').textContent        = data.name;
         document.getElementById('single-payroll-dept').textContent        = data.department;
         document.getElementById('single-payroll-gross').textContent       = formatPeso(data.grossPay);
