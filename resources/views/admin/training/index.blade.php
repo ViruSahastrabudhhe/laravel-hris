@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@php $hideChat = true; @endphp
 
 @php
     $totalPrograms = $trainings->count();
@@ -21,6 +22,24 @@
 @endphp
 
 @section('page-content')
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div>
+            <h2>Training & Development</h2>
+            <p>{{ now()->format('l, F j, Y') }} &nbsp;·&nbsp; Employee Training Programs</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="training-search" placeholder="Search programs..." class="recruit-search" oninput="filterTrainingTable(this.value)">
+        </div>
+    </div>
+</div>
+
 <div class="stats-grid stats-grid-4" style="margin-bottom: 24px;">
     <div class="stat-card" style="--accent-color: #0b044d">
         <div class="stat-top">
@@ -79,45 +98,40 @@
     </div>
 </div>
 
-<div class="view-trainings" class="tab-pane active">
-    <div class="table-section">
-        <div class="table-header">
-            <div>
-                <p class="table-title">Training Programs</p>
-                <p class="table-sub">{{ config('app.name') }} · <span id="showing-count">{{ $totalPrograms }}</span> of {{ $totalPrograms }} programs</p>
-            </div>
-            <div class="table-actions">
-                <div class="search-wrap">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="training-search" placeholder="Search programs..." class="search-input">
-                </div>
-                <select class="filter-select" id="type-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
-                    <option value="">All Types</option>
-                    @foreach($trainingTypes as $type)
-                        <option value="{{ $type }}">{{ $type }}</option>
-                    @endforeach
-                </select>
-                <select class="filter-select" id="status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
-                    <option value="">All Status</option>
-                    @foreach($trainingStatuses as $status)
-                        <option value="{{ $status }}">{{ $status }}</option>
-                    @endforeach
-                </select>
-                <button class="btn-export">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Export
-                </button>
-                <button onclick="openTrainingCreateModal()" class="modal-btn-primary">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add Training
-                </button>
-            </div>
+<div class="table-section" style="margin-bottom:22px">
+    <div class="table-header">
+        <div>
+            <p class="table-title">Training Programs</p>
+            <p class="table-sub">{{ config('app.name') }} · <span id="showing-count">{{ $totalPrograms }}</span> of {{ $totalPrograms }} programs</p>
         </div>
-    
+        <div class="table-actions">
+            <select class="filter-select" id="type-filter">
+                <option value="">All Types</option>
+                @foreach($trainingTypes as $type)
+                    <option value="{{ $type }}">{{ $type }}</option>
+                @endforeach
+            </select>
+            <select class="filter-select" id="status-filter">
+                <option value="">All Status</option>
+                @foreach($trainingStatuses as $status)
+                    <option value="{{ $status }}">{{ $status }}</option>
+                @endforeach
+            </select>
+            <button class="btn-export">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+            </button>
+            <button onclick="openTrainingCreateModal()" class="modal-btn-primary">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Training
+            </button>
+        </div>
+    </div>
         <div class="table-wrapper">
             <table class="payroll-table" id="training-table">
                 <thead>
                     <tr>
+                        <th>Training ID</th>
                         <th>Program Title</th>
                         <th>Type</th>
                         <th>Participants</th>
@@ -128,7 +142,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="training-table-body">
                 @forelse($trainings as $training)
                     @php
                         $fillPct = $training->capacity > 0 ? round(($training->participants / $training->capacity) * 100) : 0;
@@ -138,30 +152,23 @@
                             \App\Enums\TrainingStatus::Canceled->value  => 'pending',
                             default                                     => 'pending',
                         };
-
                         $accent = $typeAccents[$training->type] ?? '#0b044d';
                     @endphp
-                    <tr>
-                        <td>
-                            <div class="emp-cell">
-                                <div>
-                                    <p class="emp-name">{{ $training->program_title }}</p>
-                                    <p class="emp-id">TRN-{{ str_pad($training->id, 3, '0', STR_PAD_LEFT) }}</p>
+                    <tr data-type="{{ $training->type }}" data-status="{{ $training->status }}">
+                        <td style="font-size:12.5px;color:#6b6a8a;font-weight:500">TRN-{{ str_pad($training->id, 3, '0', STR_PAD_LEFT) }}</td>
+                        <td><span class="position-cell">{{ $training->program_title }}</span></td>
+                        <td><span class="badge-emptype" style="border-color:{{ $accent }}40;background:{{ $accent }}10;color:{{ $accent }}">{{ $training->type }}</span></td>
+                        <td style="text-align:center;vertical-align:middle">
+                            <div style="display:inline-flex;align-items:center;gap:8px">
+                                <div style="width:60px;height:6px;background:#f0effe;border-radius:99px;overflow:hidden">
+                                    <div style="height:100%;width:{{ $fillPct }}%;background:{{ $accent }};border-radius:99px"></div>
                                 </div>
+                                <span style="font-size:13px;color:#0b044d;font-weight:600">{{ $training->participants }}</span>
+                                <span style="font-size:11px;color:#9999bb">/ {{ $training->capacity }}</span>
                             </div>
                         </td>
-                        <td><span class="badge-emptype" style="border-color: {{ $accent }}40; background: {{ $accent }}10; color: {{ $accent }}">{{ $training->type }}</span></td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <div style="width: 60px; height: 6px; background: #f0effe; border-radius: 99px; overflow: hidden;">
-                                    <div style="height: 100%; width: {{ $fillPct }}%; background: {{ $accent }}; border-radius: 99px;"></div>
-                                </div>
-                                <span style="font-size: 13px; color: #0b044d; font-weight: 600;">{{ $training->participants }}</span>
-                                <span style="font-size: 11px; color: #9999bb;">/ {{ $training->capacity }}</span>
-                            </div>
-                        </td>
-                        <td>{{ \Carbon\Carbon::parse($training->start_date)->format(config('app.day_month')) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($training->end_date)->format(config('app.day_month')) }}</td>
+                        <td style="font-size:12.5px;color:#6b6a8a;white-space:nowrap">{{ \Carbon\Carbon::parse($training->start_date)->format(config('app.day_month')) }}</td>
+                        <td style="font-size:12.5px;color:#6b6a8a;white-space:nowrap">{{ \Carbon\Carbon::parse($training->end_date)->format(config('app.day_month')) }}</td>
                         <td><span class="dept-tag">{{ $training->venue }}</span></td>
                         <td><span class="badge-status {{ $statusClass }}">{{ $training->status }}</span></td>
                         <td>
@@ -206,9 +213,19 @@
                 @endforelse
                 </tbody>
             </table>
+            <div class="empty-state" id="empty-state" style="display:none;text-align:center;padding:40px 20px">
+                <p style="font-size:13px;color:#9999bb;margin:0">No training programs match your criteria</p>
+            </div>
+        </div>
+
+        <div class="table-footer">
+            <p>Showing <strong id="visible-count">{{ $totalPrograms }}</strong> of <strong>{{ $totalPrograms }}</strong> programs</p>
+            <div class="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">›</button>
+            </div>
         </div>
     </div>
-</div>
 
 {{-- Training View Modal --}}
 <div class="modal-overlay" id="training-view-modal" style="display: none;" onclick="closeModal('training-view-modal')">
@@ -434,26 +451,36 @@
 
 @push('scripts')
     <script>
+        function filterTrainingTable(query) {
+            const q = query.toLowerCase();
+            const type = document.getElementById('type-filter').value.toLowerCase();
+            const status = document.getElementById('status-filter').value.toLowerCase();
+            const rows = document.querySelectorAll('#training-table-body tr');
+            let count = 0;
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const rowType = (row.dataset.type || '').toLowerCase();
+                const rowStatus = (row.dataset.status || '').toLowerCase();
+                const show = text.includes(q)
+                    && (!type || rowType === type)
+                    && (!status || rowStatus === status);
+                row.style.display = show ? '' : 'none';
+                if (show) count++;
+            });
+            document.getElementById('visible-count').textContent = count;
+            document.getElementById('showing-count').textContent = count;
+            document.getElementById('empty-state').style.display = count === 0 ? 'block' : 'none';
+        }
+
+        document.getElementById('type-filter').addEventListener('change', () => filterTrainingTable(document.getElementById('training-search').value));
+        document.getElementById('status-filter').addEventListener('change', () => filterTrainingTable(document.getElementById('training-search').value));
+
         if ($('#training-table').length) {
-            const trainingTable = $('#training-table').DataTable({
-                columnDefs: [{ orderable: false, targets: [7] }],
+            $('#training-table').DataTable({
+                columnDefs: [{ orderable: false, targets: [8] }],
                 pageLength: 25,
-                language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No trainings found' },
+                language: { lengthMenu: 'Show _MENU_ entries', emptyTable: 'No trainings found' },
                 dom: 'rtip',
-            });
-
-            $('#training-search').on('keyup', function() {
-                trainingTable.search(this.value).draw();
-            });
-
-            $('#type-filter').on('change', function() {
-                const value = $(this).val();
-                trainingTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-            });
-
-            $('#status-filter').on('change', function() {
-                const value = $(this).val();
-                trainingTable.column(6).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
             });
         }
     </script>
@@ -490,15 +517,16 @@
             document.getElementById('modal-type-badge').style.color = accent;
             document.getElementById('modal-type-badge').style.background = accent + '18';
             document.getElementById('modal-type-badge').style.borderColor = accent + '40';
-            document.getElementById('modal-icon').style.background = accent;
-            document.getElementById('capacity-icon').style.background = accent;
+            document.getElementById('modal-icon').style.background = 'linear-gradient(135deg, ' + accent + ' 0%, ' + accent + '99 100%)';
+            document.getElementById('capacity-icon').style.background = 'linear-gradient(135deg, ' + accent + ' 0%, ' + accent + '99 100%)';
             document.getElementById('modal-participants').textContent = participants;
             document.getElementById('modal-capacity').textContent = capacity;
             document.getElementById('modal-fill-pct').textContent = fillPct + '%';
             document.getElementById('modal-fill-pct').style.color = accent;
             document.getElementById('modal-progress-pct').textContent = fillPct + '%';
             document.getElementById('modal-progress-bar').style.width = fillPct + '%';
-            document.getElementById('modal-progress-bar').style.background = accent;
+            document.getElementById('modal-progress-bar').style.background = 'linear-gradient(90deg, ' + accent + ', ' + accent + '99)';
+            document.getElementById('modal-progress-pct').style.color = accent;
             document.getElementById('modal-start-date').textContent = startDate;
             document.getElementById('modal-end-date').textContent = endDate;
             document.getElementById('modal-venue').textContent = venue;

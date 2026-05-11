@@ -1,0 +1,204 @@
+/* ── Hide default page header ── */
+.page-header { display: none; }
+
+/* ── Rate bar cell ── */
+.rate-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.rate-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #f0effe;
+    border-radius: 3px;
+    min-width: 50px;
+    overflow: hidden;
+}
+.rate-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+.rate-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0b044d;
+    white-space: nowrap;
+}
+
+/* ── Scan table cell helpers ── */
+.scan-break,
+.scan-overtime {
+    font-size: 12px;
+    color: #9999bb;
+}
+
+/* ── Date cell ── */
+.date-cell {
+    font-size: 12.5px;
+    color: #5a5888;
+}
+
+/* ── Modal avatar (DTR view) ── */
+.dtr-modal-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    background: #0b044d;
+}
+
+/* ── Modal hero row ── */
+.dtr-modal-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f7f6ff;
+    border-radius: 12px;
+}
+
+/* ── Modal section label ── */
+.dtr-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #9999bb;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+/* ── Modal row ── */
+.dtr-modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f7f6ff;
+}
+.dtr-modal-row span {
+    font-size: 12.5px;
+    color: #5a5888;
+}
+.dtr-modal-row strong {
+    font-size: 13px;
+    color: #0b044d;
+}
+
+/* ── Attendance rate footer ── */
+.dtr-rate-footer {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f7f6ff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.dtr-rate-footer span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9999bb;
+    letter-spacing: 1px;
+}
+.dtr-rate-value {
+    font-size: 18px;
+    color: #15803d;
+}
+
+/* ── CSV format hint box ── */
+.csv-hint {
+    background: #f7f6ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: #6b6a8a;
+    line-height: 1.7;
+    margin-top: 14px;
+}
+.csv-hint strong {
+    color: #0b044d;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* ── Edit DTR notes box ── */
+.dtr-notes {
+    background: #f7f6ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: #6b6a8a;
+    line-height: 1.7;
+    margin-top: 14px;
+}
+.dtr-notes strong {
+    color: #0b044d;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* ── QR modal body ── */
+.qr-modal-body-wrap {
+    background: #f7f6ff;
+    border-radius: 12px;
+    padding: 24px;
+    display: inline-block;
+    margin-bottom: 16px;
+}
+.qr-modal-inner {
+    background: #fff;
+    padding: 16px;
+    border-radius: 10px;
+}
+.qr-modal-info {
+    text-align: left;
+    background: #f7f6ff;
+    border-radius: 10px;
+    padding: 16px;
+}
+.qr-modal-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+}
+.qr-modal-info-row + .qr-modal-info-row {
+    border-top: 1px solid #e4e3f0;
+}
+.qr-modal-info-row span {
+    color: #9999bb;
+    font-size: 12px;
+    font-weight: 600;
+}
+.qr-modal-info-row strong {
+    color: #0b044d;
+    font-size: 12px;
+}
+
+/* ── QR generate modal sub ── */
+.qr-generate-sub {
+    font-size: 25px;
+    color: #0b044d;
+    font-weight: 600;
+    margin: 0;
+}
+.qr-generate-hint {
+    font-size: 12px;
+    color: #6b6a8a;
+    margin: 6px 0 0;
+}
+
+/* ── Archive empty state ── */
+.archive-empty {
+    text-align: center;
+    padding: 40px 20px;
+}
+.archive-empty p {
+    font-size: 13px;
+    color: #9999bb;
+    margin: 0;
+}

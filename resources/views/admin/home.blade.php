@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@php $hideChat = true; @endphp
 
 @php
     use App\Enums\LeaveStatus;
@@ -67,19 +68,10 @@
     </a>
 </div>
 
-<div class="view-tabs">
-    <button class="view-tab active" onclick="switchView('overview', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Overview
-    </button>
-    <button class="view-tab" onclick="switchView('directory', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Employee Directory
-    </button>
-    <button class="view-tab" onclick="switchView('leaves', this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Leave Requests
-    </button>
+<div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid #eceaf8;padding-bottom:0">
+    <button class="tab-btn active" onclick="switchView('overview', this)">Overview</button>
+    <button class="tab-btn" onclick="switchView('directory', this)">Employee Directory</button>
+    <button class="tab-btn" onclick="switchView('leaves', this)">Leave Requests</button>
 </div>
 
 <div id="view-overview" class="tab-pane active">
@@ -140,6 +132,120 @@
             </div>
         </div>
     </div>
+
+    {{-- Bottom Row: Pending Leaves + Side Col --}}
+    <div class="bottom-row">
+
+        {{-- Pending Leave Requests --}}
+        <div class="table-section mb-0">
+            <div class="table-header">
+                <div>
+                    <p class="table-title">Pending Leave Requests</p>
+                    <p class="table-sub">Requires your approval</p>
+                </div>
+                <a href="{{ route('leave_requests.index') }}" class="btn-export">View All</a>
+            </div>
+            <div class="table-wrapper">
+                <table class="payroll-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if(isset($leaveRequests) && count($leaveRequests) > 0)
+                        @foreach($leaveRequests->take(5) as $leave)
+                        <tr>
+                            <td>
+                                <div class="emp-cell">
+                                    <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($leave->employee->id % 5)] }};width:30px;height:30px;font-size:10px">
+                                        {{ strtoupper(substr($leave->employee->first_name,0,1).substr($leave->employee->last_name,0,1)) }}
+                                    </div>
+                                    <p class="emp-name" style="margin:0">{{ $leave->employee->first_name }} {{ $leave->employee->last_name }}</p>
+                                </div>
+                            </td>
+                            <td><span class="dept-tag">{{ $leave->leaveType->leave_type ?? 'N/A' }}</span></td>
+                            <td style="font-size:12.5px;color:#5a5888">{{ $leave->leave_duration }} days</td>
+                            <td>
+                                @if($leave->leave_status === 'Approved')
+                                    <span class="badge-status processed">Approved</span>
+                                @elseif($leave->leave_status === 'Pending')
+                                    <span class="badge-status pending">Pending</span>
+                                @else
+                                    <span class="badge-status on-hold">{{ $leave->leave_status }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="4" style="text-align:center;padding:32px;color:#9999bb;font-size:13px">No pending leave requests</td>
+                        </tr>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Side Column --}}
+        <div class="side-col">
+
+            {{-- Department Breakdown --}}
+            <div class="table-section mb-0">
+                <div class="table-header" style="padding:16px 20px">
+                    <p class="table-title" style="font-size:13px">Department Breakdown</p>
+                </div>
+                @php
+                    $deptCounts = isset($employees) ? $employees->groupBy(fn($e) => $e->department->name ?? 'N/A') : collect();
+                    $deptTotal  = $deptCounts->sum(fn($g) => $g->count());
+                    $deptColors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+                @endphp
+                <div style="padding:4px 20px 16px">
+                    @forelse($deptCounts->take(5) as $deptName => $deptGroup)
+                    @php $deptCount = $deptGroup->count(); $deptPct = $deptTotal > 0 ? round($deptCount/$deptTotal*100) : 0; $deptColor = $deptColors[$loop->index % 5]; @endphp
+                    <div style="margin-bottom:10px">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                            <span style="font-weight:600;color:#0b044d">{{ $deptName }}</span>
+                            <span style="color:#9999bb">{{ $deptCount }}</span>
+                        </div>
+                        <div style="height:6px;background:#f0effe;border-radius:99px;overflow:hidden">
+                            <div style="height:100%;width:{{ $deptPct }}%;background:{{ $deptColor }};border-radius:99px"></div>
+                        </div>
+                    </div>
+                    @empty
+                    <p style="font-size:12px;color:#9999bb;text-align:center;padding:12px 0">No department data</p>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Upcoming Events --}}
+            <div class="stat-card no-margin">
+                <p class="stat-label" style="margin-bottom:12px">Upcoming Events</p>
+                @php
+                $events = [
+                    ['label'=>'Payroll Release','date'=>'15','color'=>'#0b044d'],
+                    ['label'=>'CSC Training','date'=>'18','color'=>'#8e1e18'],
+                    ['label'=>'Performance Review','date'=>'25','color'=>'#15803d'],
+                ];
+                @endphp
+                @foreach($events as $ev)
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f7f6ff">
+                    <div style="width:36px;height:36px;background:{{ $ev['color'] }};border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div style="flex:1">
+                        <p style="font-size:12.5px;font-weight:600;color:#0b044d;margin:0 0 2px">{{ $ev['label'] }}</p>
+                        <p style="font-size:11px;color:#9999bb;margin:0">{{ config('app.carbon_month', date('M')) }} {{ $ev['date'] }}, {{ date('Y') }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <!-- ================== TAB: EMPLOYEE DIRECTORY ================== -->
@@ -151,6 +257,15 @@
                 <p class="table-sub">All active government personnel</p>
             </div>
             <div class="table-actions">
+                <div class="search-wrap">
+                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="dir-search" placeholder="Search employees..." class="search-input" oninput="filterDirectory()">
+                </div>
+                <select class="filter-select" id="dir-type" onchange="filterDirectory()">
+                    <option value="">All Types</option>
+                    <option value="Permanent">Permanent</option>
+                    <option value="Job Order">Job Order</option>
+                </select>
                 <a href="{{ route('employees.index') }}" class="btn-export">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     Manage Employees
@@ -162,7 +277,7 @@
             <table class="payroll-table" id="attendance-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th>Employee</th>
                         <th>Position</th>
                         <th>Department</th>
                         <th>Employment Type</th>
@@ -171,10 +286,10 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="dir-tbody">
                 @if(isset($employees) && count($employees) > 0)
                     @foreach ($employees as $employee)
-                        <tr>
+                        <tr data-name="{{ strtolower($employee->first_name.' '.$employee->last_name) }}" data-type="{{ $employee->employment_type }}">
                             <td>
                                 <div class="emp-cell">
                                     <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($employee->id % 5)] }}">
@@ -193,7 +308,7 @@
                                     {{ $employee->employment_type }}
                                 </span>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($employee->created_at)->format('M d, Y') }}</td>
+                            <td style="font-size:12.5px;color:#6b6a8a">{{ \Carbon\Carbon::parse($employee->created_at)->format('M d, Y') }}</td>
                             <td>
                                 @if($employee->is_active)
                                     <span class="badge-status processed">Active</span>
@@ -225,11 +340,9 @@
                 @else
                     <a href="{{ $employees->previousPageUrl() }}" class="page-btn">‹</a>
                 @endif
-
                 @foreach($employees->getUrlRange(1, $employees->lastPage()) as $page => $url)
                     <a href="{{ $url }}" class="page-btn {{ $page == $employees->currentPage() ? 'active' : '' }}">{{ $page }}</a>
                 @endforeach
-
                 @if($employees->hasMorePages())
                     <a href="{{ $employees->nextPageUrl() }}" class="page-btn">›</a>
                 @else
@@ -314,30 +427,21 @@
 @push('scripts')
     <script>
         function switchView(viewId, btn) {
-            if (btn.classList.contains('active')) {
-                return;
-            }
-
-            // Hide all tab panes
+            if (btn.classList.contains('active')) return;
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-            // Remove active class from all buttons
-            document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
-
-            // Show active tab
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
-            // Set active button
             btn.classList.add('active');
         }
 
-        $(function () {
-            if ($.fn.DataTable) {
-                $('#attendance-table').DataTable({
-                    columnDefs: [{ orderable: false, targets: [0, 6] }],
-                    pageLength: 5,
-                    lengthMenu: [5, 10],
-                    language: { search: 'Search:', lengthMenu: 'Show _MENU_ Entries', emptyTable: 'No employees found' },
-                });
-            }
-        });
+        function filterDirectory() {
+            const search = document.getElementById('dir-search').value.toLowerCase();
+            const type   = document.getElementById('dir-type').value;
+            document.querySelectorAll('#dir-tbody tr').forEach(row => {
+                const matchName = !search || row.dataset.name.includes(search);
+                const matchType = !type  || row.dataset.type === type;
+                row.style.display = matchName && matchType ? '' : 'none';
+            });
+        }
     </script>
 @endpush

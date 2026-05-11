@@ -32,31 +32,28 @@
 <aside class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-        <a href="{{ route('home') }}">
-        <div class="logo">
+        <a href="{{ route('home') }}" class="logo">
             <div class="logo-mark">
-                <div class="pub-logo-seal sm" style="background:#0b044d">
-                    <!-- <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> -->
-                    <img src="{{ asset('images/municipal-of-pagsanjan-logo.jpg') }}" alt="Municipal of Pagsanjan Logo" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
+                <img src="{{ asset('images/municipal-of-pagsanjan-logo.jpg') }}" alt="Pagsanjan Logo"
+                     style="width:32px;height:32px;border-radius:50%;object-fit:cover"
+                     onerror="this.style.display='none'">
             </div>
-                <div class="logo-text-wrap" id="logo-text">
-                    <span class="logo-text">{{ config('app.name', 'Prime HRIS') }}</span>
-                    <span class="logo-sub">Pagsanjan, Laguna</span>
-                </div>
+            <div class="logo-text-wrap" id="logo-text">
+                <span class="logo-text">{{ config('app.name', 'PRIME HRIS') }}</span>
+                <span class="logo-sub">Pagsanjan, Laguna</span>
             </div>
         </a>
         <button class="toggle-btn" id="toggle-btn" aria-label="Toggle sidebar">‹</button>
     </div>
 
+    <p class="nav-section-label" id="nav-label">NAVIGATION</p>
+
     <nav class="sidebar-nav" id="sidebar-nav">
         @foreach($navItems as $item)
         @php
-            $isActive = str_starts_with($currentRoute, $item['id']) || $currentRoute === $item['route'];
+            $routePrefix = explode('.', $item['route'])[0];
+            $isActive = str_starts_with($currentRoute, $routePrefix) || $currentRoute === $item['route'];
         @endphp
-        @if($item['section'])
-        <p class="nav-section-label">{{ $item['section'] }}</p>
-        @endif
         <a href="{{ route($item['route']) }}"
            class="nav-item {{ $isActive ? 'active' : '' }}"
            title="{{ $item['label'] }}">

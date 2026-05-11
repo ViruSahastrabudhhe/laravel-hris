@@ -32,8 +32,11 @@ class EmployeeController extends Controller
         $employees = Employee::paginate(25);
         $positions = Position::paginate(25);
         $departments = Department::paginate(25);
+        $employmentTypes = EmploymentType::cases();
+        $workSchedules = WorkSchedule::paginate(25);
+        $salaryTypes = SalaryType::cases();
 
-        return view('admin.personnel.index', compact('employees', 'positions', 'departments'));
+        return view('admin.personnel.index', compact('employees', 'positions', 'departments', 'employmentTypes', 'workSchedules', 'salaryTypes'));
     }
 
     /**

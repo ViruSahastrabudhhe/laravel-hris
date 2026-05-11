@@ -46,7 +46,8 @@
             <h1 class="page-header">{{ $pageHeader }}</h1>
             @yield('page-content')
 
-            @include('admin.chatbot.chat')
+            @include('admin.notification.adminchatnotification')
+            @include('admin.chatbot.adminchatbot')
         </main>
 
     </div>

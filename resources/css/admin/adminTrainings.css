@@ -1,0 +1,69 @@
+/* Training page — hide the default page header injected by the admin layout */
+.page-header { display: none; }
+
+/* Search */
+.search-wrap { position: relative; display: flex; align-items: center; }
+.search-wrap svg { position: absolute; left: 10px; pointer-events: none; }
+.search-input {
+    height: 34px; padding: 0 10px 0 30px;
+    border: 1.5px solid #e4e3f0; border-radius: 8px;
+    font-size: 12.5px; font-family: 'Poppins', sans-serif;
+    color: #0b044d; background: #fafafe;
+    outline: none; width: 180px; transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #0b044d; }
+
+/* Modal large */
+.modal-lg { max-width: 560px; }
+
+/* Form grid */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-full { grid-column: 1 / -1; }
+.form-field label { font-size: 12px; font-weight: 600; color: #0b044d; }
+.form-field input,
+.form-field select {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid #e4e3f0; border-radius: 9px;
+    font-size: 13px; font-family: 'Poppins', sans-serif;
+    color: #0b044d; outline: none; box-sizing: border-box; background: #fff;
+}
+.form-field input:focus,
+.form-field select:focus { border-color: #0b044d; }
+
+/* Training type badge */
+.badge-emptype {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    background: #f7f6ff; color: #0b044d; border: 1px solid #e4e3f0;
+}
+
+/* Edit button */
+.btn-edit {
+    padding: 5px 14px; border: 1.5px solid #0b044d; border-radius: 7px;
+    background: #0b044d; font-size: 12px; font-weight: 600;
+    font-family: 'Poppins', sans-serif; color: #fff;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px;
+}
+.btn-edit:hover { background: #1a0f6e; border-color: #1a0f6e; }
+
+/* Danger button */
+.btn-danger {
+    padding: 5px 10px; border: 1.5px solid #dc2626; border-radius: 7px;
+    background: #dc2626; font-size: 12px; font-weight: 600;
+    font-family: 'Poppins', sans-serif; color: #fff;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px;
+}
+.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+/* pmodal hero */
+.pmodal-hero { display: flex; gap: 16px; align-items: flex-start; }
+.pmodal-hero-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pmodal-badges { display: flex; gap: 8px; margin-top: 8px; }
+
+@media (max-width: 900px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-full { grid-column: 1; }
+}

@@ -105,6 +105,21 @@ class LeaveRequestController extends Controller
         return redirect()->route('leave_requests.index')->with('success', __('leave_request.success_deleting'));
     }
 
+    public function archive()
+    {
+        $archivedLeaves = LeaveRequest::onlyTrashed()->with(['employee.department', 'leaveType'])->get();
+        $total = $archivedLeaves->count();
+
+        return view('admin.leave.archive', compact('archivedLeaves', 'total'));
+    }
+
+    public function restore($id)
+    {
+        LeaveRequest::onlyTrashed()->findOrFail($id)->restore();
+
+        return redirect()->route('leave_requests.archive')->with('success', __('leave_request.success_restoring'));
+    }
+
     public function approve(LeaveRequest $leaveRequest) {
         $leaveRequest->update(['leave_status' => LeaveStatus::Approved->value]);
 

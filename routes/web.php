@@ -75,6 +75,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('leave_types', LeaveTypeController::class);
     Route::put('leave_requests/{leave_request}/approve', [LeaveRequestController::class, 'approve'])->name('leave_requests.approve');
     Route::put('leave_requests/{leave_request}/deny', [LeaveRequestController::class, 'deny'])->name('leave_requests.deny');
+    Route::get('leave_requests/archive', [LeaveRequestController::class, 'archive'])->name('leave_requests.archive');
+    Route::put('leave_requests/{id}/restore', [LeaveRequestController::class, 'restore'])->name('leave_requests.restore');
     Route::resource('leave_requests', LeaveRequestController::class);
     Route::get('trainings/{training}/participants', [TrainingController::class, 'participants'])->name('trainings.participants');
     Route::patch('trainings/{employeeTraining}/approve', [TrainingController::class, 'approveParticipant'])->name('trainings.approve');

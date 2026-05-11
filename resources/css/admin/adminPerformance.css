@@ -1,0 +1,61 @@
+/* ── Hide default page header ── */
+.page-header { display: none; }
+
+/* ── Evaluate button ── */
+.btn-evaluate {
+    padding: 5px 14px;
+    border: 1.5px solid #0b044d;
+    border-radius: 7px;
+    background: #0b044d;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-evaluate:hover { background: #1a0f6e; border-color: #1a0f6e; }
+
+/* ── Star rating row ── */
+.star-wrap { display: flex; align-items: center; gap: 6px; }
+.stars { display: flex; gap: 2px; }
+
+/* ── Period / evaluator cells ── */
+.perf-period,
+.perf-evaluator { font-size: 12.5px; color: #6b6a8a; white-space: nowrap; }
+
+/* ── View modal hero ── */
+.perf-modal-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f7f6ff;
+    border-radius: 12px;
+}
+.perf-modal-empid { font-size: 11px; color: #9999bb; margin: 0 0 4px; }
+
+/* ── Evaluate modal form ── */
+.eval-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.eval-field label { font-size: 12px; font-weight: 600; color: #0b044d; }
+.eval-field input,
+.eval-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 9px;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    outline: none;
+    box-sizing: border-box;
+    background: #fff;
+    resize: vertical;
+}
+.eval-field input:focus,
+.eval-field textarea:focus { border-color: #0b044d; }
+
+/* ── Empty state ── */
+.perf-empty { display: none; text-align: center; padding: 40px 20px; }
+.perf-empty p { font-size: 13px; color: #9999bb; margin: 0; }
