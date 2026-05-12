@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
+@php
+    use App\Enums\EmploymentType;
+    $authEmployee = \App\Models\Employee::where('user_id', auth()->id())->first();
+    $isJobOrder   = $authEmployee && $authEmployee->employment_type === EmploymentType::JobOrder->value;
+@endphp
+
 @section('content')
+
+{{-- Redirect Job Order away from leave routes --}}
+@if($isJobOrder && str_contains(Route::currentRouteName(), 'my_leaves'))
+    <script>window.location.href = '{{ route('home') }}';</script>
+@endif
+
 <div class="app-layout">
 
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
@@ -34,14 +46,21 @@
         </div>
         @endif
 
-        @if (str_contains(Route::currentRouteName(), 'employee_profile'))
-        @else
+        @php
+            $hideHeader = ['employee_profile','home','my_attendances','my_leaves','my_payslips','my_performance','my_trainings'];
+            $showHeader = !collect($hideHeader)->contains(fn($r) => str_contains(Route::currentRouteName(), $r));
+        @endphp
+        @if($showHeader)
         <h1 class="page-header">{{ $pageHeader }}</h1>
         @endif
+
         @yield('page-content')
     </main>
 
 </div>
+
+@include('employee.notification.employeeNotification')
+@include('employee.chatbot.employeeChatbot')
 
 @yield('page-modals')
 

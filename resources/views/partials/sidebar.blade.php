@@ -12,15 +12,24 @@
             ['id' => 'reports',   'label' => 'Reports',       'route' => 'reports.index',       'icon' => 'reports', 'section' => null],
         ];
     } else {
+        $employee = \App\Models\Employee::where('user_id', auth()->id())->first();
+        $isJobOrder = $employee && $employee->employment_type === \App\Enums\EmploymentType::JobOrder->value;
+
         $navItems = [
-            ['id' => 'home',        'label' => 'Dashboard',       'route' => 'home',                  'icon' => 'dashboard', 'section' => 'NAVIGATION'],
-            ['id' => 'profile',        'label' => 'Profile',       'route' => 'my_profile.index',                  'icon' => 'profile', 'section' => null],
-            ['id' => 'leaves',        'label' => 'Leave & Benefits',       'route' => 'my_leaves.index',                  'icon' => 'leave', 'section' => null],
-            ['id' => 'training',        'label' => 'Trainings',       'route' => 'my_trainings.index',                  'icon' => 'training', 'section' => null],
-            ['id' => 'attendances',        'label' => 'Attendances',       'route' => 'my_attendances.index',                  'icon' => 'attendance', 'section' => null],
-            ['id' => 'performance',        'label' => 'Performance',       'route' => 'my_performance.index',                  'icon' => 'performance', 'section' => null],
-            ['id' => 'payslip',        'label' => 'Payslips',       'route' => 'my_payslips.index',                  'icon' => 'payslip', 'section' => null],
+            ['id' => 'home',        'label' => 'Dashboard',        'route' => 'home',                 'icon' => 'dashboard', 'section' => 'NAVIGATION'],
+            ['id' => 'profile',     'label' => 'Profile',          'route' => 'my_profile.index',     'icon' => 'profile',   'section' => null],
         ];
+
+        if (!$isJobOrder) {
+            $navItems[] = ['id' => 'leaves', 'label' => 'Leave & Benefits', 'route' => 'my_leaves.index', 'icon' => 'leave', 'section' => null];
+        }
+
+        $navItems = array_merge($navItems, [
+            ['id' => 'training',    'label' => 'Trainings',        'route' => 'my_trainings.index',   'icon' => 'training',  'section' => null],
+            ['id' => 'attendances', 'label' => 'Attendances',      'route' => 'my_attendances.index', 'icon' => 'attendance','section' => null],
+            ['id' => 'performance', 'label' => 'Performance',      'route' => 'my_performance.index', 'icon' => 'performance','section' => null],
+            ['id' => 'payslip',     'label' => 'Payslips',         'route' => 'my_payslips.index',    'icon' => 'payslip',   'section' => null],
+        ]);
     }
 
     $currentRoute = Route::currentRouteName();
