@@ -1,0 +1,105 @@
+/* Summary Bar */
+.att-summary-bar {
+    background: linear-gradient(135deg, #fafafe 0%, #f7f6ff 100%);
+    border: 1.5px solid #e4e3f0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(11, 4, 77, 0.04);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.att-summary-item {
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+}
+
+.att-summary-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #9999bb;
+    letter-spacing: 1px;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+.att-summary-value {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.att-summary-unit {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9999bb;
+    margin: 4px 0 0;
+}
+
+.att-summary-divider {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #e4e3f0, transparent);
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .att-summary-bar {
+        gap: 16px;
+    }
+
+    .att-summary-divider {
+        display: none;
+    }
+
+    .att-summary-item {
+        min-width: calc(50% - 16px);
+    }
+}
+
+@media (max-width: 480px) {
+    .att-summary-item {
+        min-width: calc(50% - 16px);
+    }
+}
+
+/* Date Filter */
+.att-date-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.att-date-wrap svg {
+    position: absolute;
+    left: 10px;
+    pointer-events: none;
+}
+
+.att-date-input {
+    height: 34px;
+    padding: 0 10px 0 30px;
+    border: 1.5px solid #e4e3f0;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-family: 'Poppins', sans-serif;
+    color: #0b044d;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 150px;
+}
+
+.att-date-input:focus {
+    border-color: #0b044d;
+}
+
+@media (max-width: 768px) {
+    .att-date-input { width: 130px; }
+}

@@ -1,70 +1,5 @@
 @extends('layouts.employee')
 
-@push('styles')
-    <style>
-        .quick-action-btn { display:flex; align-items:center; gap:9px; padding:10px 14px; border:1.5px solid #eceaf8; border-radius:10px; background:#fafafe; cursor:pointer; font-size:13px; font-weight:600; color:#0b044d; transition:border-color 0.18s; }
-        .quick-action-btn:hover { border-color:#0b044d; }
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(11,4,77,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-        .modal-box { background:#fff; border-radius:16px; width:100%; max-width:480px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); animation:slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        .modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0; }
-        .pmodal-hero { display:flex; gap:14px; align-items:flex-start; }
-        .pmodal-hero-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .pmodal-badges { display:flex; gap:6px; margin-top:8px; }
-        .modal-eyebrow { font-size:10.5px; color:#9999bb; font-weight:700; letter-spacing:1px; }
-        .modal-title { font-size:18px; font-weight:700; color:#0b044d; margin:4px 0 2px; }
-        .modal-sub { font-size:13px; color:#6b6a8a; margin:0 0 8px; }
-        .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:#9999bb; }
-        .modal-close:hover { color:#0b044d; }
-        .modal-body { padding:20px 24px; }
-        .modal-progress { margin-bottom:20px; padding:16px; background:#f7f6ff; border-radius:12px; }
-        .modal-progress-label { display:flex; justify-content:space-between; font-size:10.5px; font-weight:700; letter-spacing:1px; margin-bottom:8px; }
-        .modal-progress-label span:first-child { color:#9999bb; }
-        .modal-section-label { font-size:10.5px; font-weight:700; color:#9999bb; letter-spacing:1px; margin-bottom:12px; }
-        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0effe; }
-        .modal-row span { font-size:13px; color:#9999bb; font-weight:600; }
-        .modal-row strong { font-size:13px; color:#0b044d; font-weight:600; }
-        .slots-card { display:flex; align-items:center; gap:14px; padding:16px; background:#f7f6ff; border-radius:12px; margin-bottom:20px; }
-        .slots-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .slots-card p { font-size:11px; color:#9999bb; font-weight:600; margin:0 0 4px; }
-        .slots-card span { font-size:22px; font-weight:800; color:#0b044d; }
-        .slots-card small { font-size:14px; color:#9999bb; font-weight:600; }
-        .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 24px; }
-        .modal-btn-ghost { padding:9px 18px; border-radius:9px; border:1.5px solid #dddcf0; background:#fff; font-size:13px; font-weight:600; color:#6b6a8a; cursor:pointer; }
-        .modal-btn-ghost:hover { border-color:#0b044d; color:#0b044d; }
-        .modal-btn-primary { padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
-        .training-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; padding:16px 20px; }
-        .training-card { background:#fff; border-radius:14px; border:1.5px solid #e5e4f0; padding:20px; position:relative; }
-        .training-card .type-badge { position:absolute; top:16px; right:16px; font-size:10px; font-weight:600; padding:4px 10px; border-radius:20px; background:#f0effe; color:#6b3fa0; }
-        .training-card .type-badge.technical { background:#fefce8; color:#a16207; }
-        .training-card .type-badge.safety { background:#fef3c7; color:#92400e; }
-        table .type-badge { font-size:10px; font-weight:600; padding:4px 10px; border-radius:20px; background:#f0effe; color:#6b3fa0; display:inline-block; }
-        table .type-badge.technical { background:#fefce8; color:#a16207; }
-        table .type-badge.safety { background:#fef3c7; color:#92400e; }
-        table .type-badge.leadership { background:#f0effe; color:#6b3fa0; }
-        table .type-badge.soft-skills { background:#fefce8; color:#a16207; }
-        .card-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-        .card-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:800; flex-shrink:0; }
-        .card-id { font-size:10px; color:#9999bb; font-weight:600; margin:0 0 2px; }
-        .card-title { font-size:14px; font-weight:700; color:#0b044d; margin:0; }
-        .card-venue { font-size:12px; color:#6b6a8a; margin:0 0 14px; }
-        .capacity-bar { margin-bottom:14px; }
-        .capacity-label { display:flex; justify-content:space-between; font-size:10px; font-weight:700; letter-spacing:0.5px; margin-bottom:6px; }
-        .capacity-label span:first-child { color:#9999bb; }
-        .progress-bar { height:6px; background:#f0effe; border-radius:99px; overflow:hidden; }
-        .progress-fill { height:100%; border-radius:99px; }
-        .card-footer { display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid #f0effe; }
-        .card-footer > div:first-child p:first-child { font-size:10px; color:#9999bb; font-weight:600; margin:0 0 2px; }
-        .card-footer > div:first-child p:last-child { font-size:12.5px; color:#0b044d; font-weight:600; margin:0; }
-        .card-actions { display:flex; gap:6px; }
-        .btn-enroll { padding:7px 14px; border-radius:8px; border:none; background:linear-gradient(135deg,#0b044d,#1a0f6e); font-size:12px; font-weight:600; color:#fff; cursor:pointer; }
-        .btn-enroll:hover { background:linear-gradient(135deg,#1a0f6e,#0b044d); }
-        .btn-certificate { padding:7px 10px; border-radius:8px; border:none; background:#15803d; font-size:12px; font-weight:600; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .btn-certificate:hover { background:#166534; }
-        .btn-certificate svg { stroke:#fff; }
-    </style>
-@endpush
-
 @php
     $totalTrainings = $myTrainings->count();
     $completedTrainings = $myTrainings->where('status', \App\Enums\EmployeeTrainingStatus::Completed->value)->count();
@@ -86,7 +21,27 @@
 @endphp
 
 @section('page-content')
-<div class="stats-grid stats-grid-4" style="margin-bottom: 24px;">
+
+{{-- Welcome Banner --}}
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div>
+            <h2>My Training</h2>
+            <p>{{ now()->format('l, F j, Y') }}</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="training-search" placeholder="Search programs..." class="recruit-search">
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid stats-grid-4">
     <div class="stat-card">
         <div class="stat-top">
             <p class="stat-label">Total Trainings</p>
@@ -153,17 +108,13 @@
                 <p class="table-sub">Your enrolled and completed training programs</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="training-search" placeholder="Search programs..." class="search-input">
-                </div>
-                <select class="filter-select" id="type-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="type-filter">
                     <option value="">All Types</option>
                     @foreach($trainingTypes as $type)
                         <option value="{{ $type }}">{{ $type }}</option>
                     @endforeach
                 </select>
-                <select class="filter-select" id="status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
+                <select class="filter-select" id="status-filter">
                     <option value="">All Status</option>
                     @foreach($trainingStatuses as $status)
                         <option value="{{ $status }}">{{ $status }}</option>
@@ -197,7 +148,7 @@
 
                         $accent = $typeAccents[$training->training->type] ?? '#0b044d';
                     @endphp
-                    <tr>
+                    <tr data-type="{{ $training->training->type }}" data-status="{{ $training->status }}">
                         <td>
                             <div class="emp-cell">
                                 <div>
@@ -464,28 +415,27 @@
 
 @push('scripts')
 <script>
-    if ($('#training-table').length) {
-        const trainingTable = $('#training-table').DataTable({
-            columnDefs: [{ orderable: false, targets: [5] }],
-            pageLength: 25,
-            language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No trainings found' },
-            dom: 'rtip',
-        });
-
-        $('#training-search').on('keyup', function() {
-            trainingTable.search(this.value).draw();
-        });
-
-        $('#type-filter').on('change', function() {
-            const value = $(this).val();
-            trainingTable.column(1).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
-        });
-
-        $('#status-filter').on('change', function() {
-            const value = $(this).val();
-            trainingTable.column(6).search(value ? '^' + escapeRegex(value) + '$' : '', true, false).draw();
+    function filterTrainingTable(query) {
+        const q = query.toLowerCase();
+        const type = document.getElementById('type-filter').value.toLowerCase();
+        const status = document.getElementById('status-filter').value.toLowerCase();
+        document.querySelectorAll('#training-table tbody tr').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const rowType = (row.dataset.type || '').toLowerCase();
+            const rowStatus = (row.dataset.status || '').toLowerCase();
+            row.style.display = (text.includes(q) && (!type || rowType === type) && (!status || rowStatus === status)) ? '' : 'none';
         });
     }
+
+    document.getElementById('training-search').addEventListener('input', function() {
+        filterTrainingTable(this.value);
+    });
+    document.getElementById('type-filter').addEventListener('change', function() {
+        filterTrainingTable(document.getElementById('training-search').value);
+    });
+    document.getElementById('status-filter').addEventListener('change', function() {
+        filterTrainingTable(document.getElementById('training-search').value);
+    });
 </script>
 
 <script>
