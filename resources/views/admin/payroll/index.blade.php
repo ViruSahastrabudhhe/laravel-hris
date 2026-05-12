@@ -18,7 +18,7 @@
             ->where('year', now()->year)
             ->first();
 
-        if ($currentRecord && $currentRecord->status === 'Pending') {
+        if ($currentRecord && $currentRecord->status === 'Draft') {
             $pendingPayroll++;
         }
     }
@@ -43,7 +43,7 @@
     <div class="banner-right">
         <div class="recruit-search-wrap">
             <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="payroll-search" placeholder="Search payroll..." class="recruit-search">
+            <input type="text" id="banner-search" placeholder="Search..." class="recruit-search" oninput="$('.tab-pane.active table').DataTable().search(this.value).draw()">
         </div>
     </div>
 </div>
@@ -114,9 +114,7 @@
             <p class="table-sub">Monthly payroll breakdown for all employees</p>
         </div>
         <div class="table-actions">
-            <input type="date" id="start-date" class="filter-select payroll-date-input" value="{{ $defaultStartDate }}">
-            <input type="date" id="end-date" class="filter-select payroll-date-input" value="{{ $defaultEndDate }}">
-            <select class="filter-select" id="month-filter">
+                <select class="filter-select" id="month-filter">
                 @foreach(range(1,12) as $m)
                     <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
                         {{ Carbon::create()->month($m)->format('F') }}
@@ -137,7 +135,6 @@
             <select class="filter-select" id="status-filter">
                 <option value="All">All Status</option>
                 <option value="Processed">Processed</option>
-                <option value="Pending" selected>Pending</option>
                 <option value="Draft">Draft</option>
             </select>
             <a href="{{ route('payroll.exportPayroll') }}" class="btn-export">
@@ -151,7 +148,7 @@
         </div>
     </div>
 
-    <div class="payroll-summary-bar">
+    <div class="payroll-summary-bar" hidden>
         <div class="psummary-item">
             <span>Gross Total</span>
             <strong class="gross-total">₱{{ number_format($grossPayroll, 2) }}</strong>
@@ -297,9 +294,6 @@
             </tbody>
         </table>
     </div>
-    <div class="table-footer">
-        <p>Showing <strong>{{ $employees->count() }}</strong> of <strong>{{ $totalPersonnel }}</strong> records</p>
-    </div>
 </div>
 
 {{-- Run Payroll Modal --}}
@@ -441,6 +435,11 @@ $(function () {
         const month = parseInt($('#month-filter').val());
         const year = parseInt($('#year-filter').val());
 
+        if (month === {{ now()->month }} && year === {{ now()->year }}) {
+            location.reload();
+            return;
+        }
+
         setDateRangeFromMonthYear(month, year);
         fetchPayroll();
     });
@@ -468,6 +467,11 @@ $(function () {
         const status = this.value;
         payroll_table.column(5).search(status === 'All' ? '' : '^' + status + '$', true, false).draw();
     });
+
+    const q = $('#banner-search').val();
+    if (q) {
+        $('#tab-' + viewId + ' table').DataTable().search(q).draw();
+    }
 
     window.openPayrollRunModal = function() {
         const startDate = $('#start-date').val();

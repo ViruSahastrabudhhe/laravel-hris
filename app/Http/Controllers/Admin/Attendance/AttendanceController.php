@@ -225,36 +225,21 @@ class AttendanceController extends Controller
 
     public function filterEmployeeAttendance(Request $request)
     {
-        $month = $request->integer('month', now()->month);
-        $year  = $request->integer('year', now()->year);
-        $isCurrentMonth = $month === now()->month && $year === now()->year;
+        $month = (int) $request->integer('month', now()->month);
+        $year  = (int) $request->integer('year', now()->year);
 
-        if ($isCurrentMonth) {
-            $employees = Employee::with(['employeeAttendance'])->get();
-
-            return response()->json([
-                'source' => 'live',
-                'employees' => $employees->map(fn($e) => [
-                    'id' => $e->id,
-                    'first_name' => $e->first_name,
-                    'last_name' => $e->last_name,
-                    'department' => $e->department->name,
-                    'position' => $e->position->title,
-                    'total_present' => $e->employeeAttendance->total_present,
-                    'total_late' => $e->employeeAttendance->total_late,
-                    'total_absent' => $e->employeeAttendance->total_absent,
-                    'total_overtime' => $e->employeeAttendance->total_overtime,
-                    'is_complete' => $e->employeeAttendance->is_complete,
-                ]),
-            ]);
-        }
+        $employeeAttendances = EmployeeAttendance::with([
+            'employee.department',
+            'employee.position'
+        ])
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get();
 
         $employeeAttendances = EmployeeAttendance::with(['employee'])
             ->where('month', $month)
             ->where('year', $year)
             ->get();
-
-        $daysInMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth()->diffInWeekdays(Carbon::createFromDate($year, $month, 1)->endOfMonth()) + 1;
 
         return response()->json([
             'source' => 'snapshot',
@@ -272,6 +257,7 @@ class AttendanceController extends Controller
             ]),
         ]);
     }
+
     public function filterDetailedAttendance(Request $request)
     {
         $month = $request->integer('month', now()->month);
@@ -301,7 +287,7 @@ class AttendanceController extends Controller
                 'overtime_minutes' => $a->overtime_minutes,
                 'total_minutes' => $a->total_minutes,
                 'attendance_status' => $a->attendance_status,
-                'raw_date' => $a->date, // for modal
+                'raw_date' => $a->date,
             ]),
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
@@ -27,13 +28,47 @@ class HomeController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('admin')) {
-            $employees = Employee::with(['department', 'position', 'attendance'])->get();
-            $leaveRequests = LeaveRequest::with('employee')->where('leave_status', LeaveStatus::Pending->value)->orderByDesc('created_at')->limit(3)->get();
+            $month = now()->month;
+            $year  = now()->year;
 
-            return view('admin.home', [
-                'employees' => $employees,
-                'leaveRequests' => $leaveRequests,
-            ]);
+            $employees = Employee::with(['department', 'position'])->get();
+
+            $leaveRequests = LeaveRequest::with('employee')
+                ->where('leave_status', LeaveStatus::Pending->value)
+                ->latest()
+                ->limit(3)
+                ->get();
+
+            $departments = Department::withCount('employees')->get();
+
+            $totalGross = 0;
+            $totalDeductions = 0;
+            $totalNet = 0;
+
+            foreach ($employees as $employee) {
+                $totalGross += $employee->grossPay();
+                $totalDeductions += $employee->totalDeductions();
+                $totalNet += $employee->netPay();
+            }
+
+            $attendanceStats = Department::withCount(['employees as attendance_count' => function ($query) use ($month, $year) {
+                $query->whereHas('attendance', function ($q) use ($month, $year) {
+                    $q->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                });
+            }])->get();
+
+            $attendanceData = $attendanceStats->pluck('attendance_count');
+
+            return view('admin.home', compact(
+                'employees',
+                'leaveRequests',
+                'departments',
+                'totalGross',
+                'totalDeductions',
+                'totalNet',
+                'attendanceData'
+            ));
         }
 
         if (auth()->user()->hasRole('employee')) {

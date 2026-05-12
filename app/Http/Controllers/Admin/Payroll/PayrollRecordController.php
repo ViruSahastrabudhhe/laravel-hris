@@ -58,15 +58,15 @@ class PayrollRecordController extends Controller
         $record->items()->delete();
 
         $items = [
-            ['name' => 'Basic Pay',    'type' => 'Allowance',   'amount' => $employee->salary->amount ?? 0],
-            ['name' => 'Overtime Pay', 'type' => 'Allowance',   'amount' => $employee->overtimePay($data['month'], $data['year'])],
-            ['name' => 'Absent/Late',  'type' => 'Deduction', 'amount' => $employee->absentDeductions($month, $year)],
+            ['name' => 'Basic Pay',    'type' => 'Earning',   'amount' => $employee->salary->amount ?? 0],
+            ['name' => 'Overtime Pay', 'type' => 'Earning',   'amount' => $employee->overtimePay($data['month'], $data['year'])],
+            ['name' => 'Absent/Late',  'type' => 'Earning', 'amount' => $employee->absentDeductions($month, $year)],
         ];
 
         foreach ($employee->employeeCompensation as $item) {
             $items[] = [
                 'name'   => $item->compensation->name,
-                'type'   => $item->compensation->type === CompensationType::Allowance->value ? 'Allowance' : 'Deduction',
+                'type'   => $item->compensation->type === CompensationType::Earning->value ? 'Earning' : 'Deduction',
                 'amount' => $item->amount,
             ];
         }
@@ -100,15 +100,15 @@ class PayrollRecordController extends Controller
             $record->items()->delete();
 
             $items = [
-                ['name' => 'Basic Pay',    'type' => 'Allowance',   'amount' => $employee->salary->amount ?? 0],
-                ['name' => 'Overtime Pay', 'type' => 'Allowance',   'amount' => $employee->overtimePay($month, $year)],
+                ['name' => 'Basic Pay',    'type' => 'Earning',   'amount' => $employee->salary->amount ?? 0],
+                ['name' => 'Overtime Pay', 'type' => 'Earning',   'amount' => $employee->overtimePay($month, $year)],
                 ['name' => 'Absent/Late',  'type' => 'Deduction', 'amount' => $employee->absentDeductions($month, $year)],
             ];
 
             foreach ($employee->employeeCompensation as $item) {
                 $items[] = [
                     'name'   => $item->compensation->name,
-                    'type'   => $item->compensation->type === CompensationType::Allowance->value ? 'Allowance' : 'Deduction',
+                    'type'   => $item->compensation->type === CompensationType::Earning->value ? 'Earning' : 'Deduction',
                     'amount' => $item->amount,
                 ];
             }

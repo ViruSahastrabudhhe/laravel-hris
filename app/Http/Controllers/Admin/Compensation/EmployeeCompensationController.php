@@ -62,7 +62,7 @@ class EmployeeCompensationController extends Controller
             ['amount' => $data['amount'], 'user_id' => $data['user_id']]
         );
 
-        return redirect()->route('employee_compensations.index')->with('success', __('deduction.success_creating'));
+        return redirect()->route('leave_requests.index')->with('success', __('deduction.success_creating'));
     }
 
     /**
@@ -86,7 +86,25 @@ class EmployeeCompensationController extends Controller
      */
     public function update(UpdateEmployeeCompensationRequest $request, EmployeeCompensation $employeeCompensation)
     {
-        //
+        $data = $request->validated();
+
+        // Salary guard: make sure deductions don't push net pay negative
+        $employee = Employee::with('salary')->findOrFail($employeeCompensation->employee_id);
+        $salary   = $employee->salary->amount ?? 0;
+
+        $existingTotal = EmployeeCompensation::where('employee_id', $employeeCompensation->employee_id)
+            ->where('id', '!=', $employeeCompensation->id)
+            ->sum('amount');
+ 
+        if (($salary - ($existingTotal + $data['amount'])) < 0) {
+            return back()->withInput()->withErrors([
+                'amount' => "This amount would reduce the employee's salary to a negative value."
+            ]);
+        }
+
+        $employeeCompensation->update(['amount' => $data['amount']]);
+
+        return redirect()->route('leave_requests.index')->with('success', 'Compensation updated successfully.');
     }
 
     /**
@@ -96,6 +114,6 @@ class EmployeeCompensationController extends Controller
     {
         $employeeCompensation->delete();
 
-        return redirect()->route('employee_compensations.index')->with('success', __('deduction.success_deleting'));
+        return redirect()->route('leave_requests.index')->with('success', 'Compensation deleted successfully.');
     }
 }

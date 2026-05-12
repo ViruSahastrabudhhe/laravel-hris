@@ -49,7 +49,7 @@ class Employee extends Model
     public function employeeTraining() { return $this->hasMany(EmployeeTraining::class); }
     public function address() { return $this->hasOne(Address::class); }
     public function leaves() { return $this->hasMany(LeaveRequest::class); }
-    public function employeeLeaveBalance() { return $this->hasOne(EmployeeLeaveBalance::class); }
+    public function employeeLeaveBalance() { return $this->hasMany(EmployeeLeaveBalance::class); }
     public function employeeWorkSchedule() { return $this->hasOne(EmployeeWorkSchedule::class); }
     public function qrAttendanceScans() { return $this->hasMany(QrAttendanceScan::class); }
     public function payrollRecords() { return $this->hasMany(PayrollRecord::class); }
@@ -107,11 +107,11 @@ class Employee extends Model
     }
 
     public function allowances(): float {
-        $allowances = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+        $earnings = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
             ->where('employee_compensations.employee_id', $this->id)
-            ->where('compensations.type', CompensationType::Allowance->value)
+            ->where('compensations.type', CompensationType::Earning->value)
             ->get();
-        return round($allowances->sum('amount'), 2);
+        return round($earnings->sum('amount'), 2);
     }
 
     public function daysLate(?int $month = null, ?int $year = null) {

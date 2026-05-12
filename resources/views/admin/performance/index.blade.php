@@ -195,14 +195,6 @@ if (!function_exists('perfInitials')) {
             <p>No evaluations found</p>
         </div>
     </div>
-
-    <div class="table-footer">
-        <p>Showing <strong id="visible-count">{{ $totalEvaluations }}</strong> of <strong>{{ $totalEvaluations }}</strong> evaluations</p>
-        <div class="pagination">
-            <button class="page-btn active">1</button>
-            <button class="page-btn">›</button>
-        </div>
-    </div>
 </div>
 
 {{-- View Modal --}}

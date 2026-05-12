@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('decline_reason')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
+            $table->softDeletes();
             $table->foreign('employee_id')
                 ->references('id')->on('employees')
                 ->onUpdate('set null')

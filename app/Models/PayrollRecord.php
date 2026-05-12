@@ -32,7 +32,7 @@ class PayrollRecord extends Model
 
     public function earnings()
     {
-        return $this->items()->where('type', CompensationType::Allowance->value);
+        return $this->items()->where('type', CompensationType::Earning->value);
     }
 
     public function deductions()

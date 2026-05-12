@@ -68,7 +68,7 @@
     </a>
 </div>
 
-<div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid #eceaf8;padding-bottom:0">
+<div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid #eceaf8;padding-bottom:0" hidden>
     <button class="tab-btn active" onclick="switchView('overview', this)">Overview</button>
     <button class="tab-btn" onclick="switchView('directory', this)">Employee Directory</button>
     <button class="tab-btn" onclick="switchView('leaves', this)">Leave Requests</button>
@@ -131,6 +131,34 @@
                 <p class="stat-sub">For {{ config('app.carbon_month', date('F')) }}</p>
             </div>
         </div>
+    </div>
+
+    <div class="charts-row">
+
+        <!-- Department Chart -->
+        <div class="chart-card">
+            <p class="chart-title">Department Distribution</p>
+            <div class="chart-body">
+                <canvas id="departmentPieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Budget Chart -->
+        <div class="chart-card">
+            <p class="chart-title">Payroll Budget Overview</p>
+            <div class="chart-body">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Attendance Chart -->
+        <div class="chart-card">
+            <p class="chart-title">Monthly Attendance Per Department</p>
+            <div class="chart-body">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+
     </div>
 
     {{-- Bottom Row: Pending Leaves + Side Col --}}
@@ -330,27 +358,6 @@
                 </tbody>
             </table>
         </div>
-
-        @if(isset($employees) && method_exists($employees, 'hasPages') && $employees->hasPages())
-        <div class="table-footer">
-            <span>Showing <strong>{{ $employees->firstItem() }}–{{ $employees->lastItem() }}</strong> of <strong>{{ $employees->total() }}</strong> employees</span>
-            <div class="pagination">
-                @if($employees->onFirstPage())
-                    <button class="page-btn" disabled>‹</button>
-                @else
-                    <a href="{{ $employees->previousPageUrl() }}" class="page-btn">‹</a>
-                @endif
-                @foreach($employees->getUrlRange(1, $employees->lastPage()) as $page => $url)
-                    <a href="{{ $url }}" class="page-btn {{ $page == $employees->currentPage() ? 'active' : '' }}">{{ $page }}</a>
-                @endforeach
-                @if($employees->hasMorePages())
-                    <a href="{{ $employees->nextPageUrl() }}" class="page-btn">›</a>
-                @else
-                    <button class="page-btn" disabled>›</button>
-                @endif
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 
@@ -425,6 +432,127 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const departments = @json($departments);
+
+        const labels = departments.map(dept => dept.name);
+        const data = departments.map(dept => dept.employees_count);
+
+        const ctx = document.getElementById('departmentPieChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Personnel per Department',
+                    data: data,
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#8b5cf6',
+                        '#14b8a6',
+                        '#eab308',
+                        '#ec4899'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        align: 'center'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Personnel Distribution per Department'
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script>
+        const budgetChart = new Chart(
+            document.getElementById('budgetChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: ['Gross Pay', 'Deductions', 'Net Pay'],
+                    datasets: [{
+                        label: 'Amount (₱)',
+                        data: [
+                            {{ $totalGross }},
+                            {{ $totalDeductions }},
+                            {{ $totalNet }}
+                        ],
+                        backgroundColor: [
+                            '#0b044d',
+                            '#f59e0b',
+                            '#22c55e'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+
+    <script>
+        const attendanceChart = new Chart(
+            document.getElementById('attendanceChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: @json($departments->pluck('name')),
+                    datasets: [{
+                        label: 'Total Attendance',
+                        data: @json($attendanceData),
+                        backgroundColor: '#15803d'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+
     <script>
         function switchView(viewId, btn) {
             if (btn.classList.contains('active')) return;

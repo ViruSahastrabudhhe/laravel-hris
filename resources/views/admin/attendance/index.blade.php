@@ -10,6 +10,38 @@
 @endphp
 
 @section('page-content')
+<div class="welcome-banner">
+    <div class="banner-left">
+        <div class="banner-icon">
+            <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+            <h2>{{ __('common.app_attendance') }}</h2>
+            <p>{{ config('app.carbon_date') }}</p>
+        </div>
+    </div>
+    <div class="banner-right">
+        <div>
+            <select class="filter-select" id="global-month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                @foreach(range(1,12) as $m)
+                    <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                    </option>
+                @endforeach
+            </select>
+            <select class="filter-select" id="global-year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
+                @foreach(range(now()->year - 2, now()->year) as $y)
+                    <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="recruit-search-wrap">
+            <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="banner-search" placeholder="Search..." class="recruit-search" oninput="$('.tab-pane.active table').DataTable().search(this.value).draw()">
+        </div>
+    </div>
+</div>
+
 <div id="stats-attendances" class="stats-grid stats-grid-4">
 
     <div class="stat-card">
@@ -153,7 +185,7 @@
         Scan History
     </button>
     <button class="view-tab" onclick="switchView('qr-codes',this)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBofx="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 7h10v10H7z"/></svg>
         QR Codes
     </button>
 </div>
@@ -172,22 +204,6 @@
                 <p class="table-sub">Overview of employee attendance</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="attendance-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="ea-month-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
-                    @foreach(range(1,12) as $m)
-                        <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
-                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
-                        </option>
-                    @endforeach
-                </select>
-                <select class="filter-select" id="ea-year-filter" style="padding:7px 12px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;color:#0b044d;outline:none;background:#fff">
-                    @foreach(range(now()->year - 2, now()->year) as $y)
-                        <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endforeach
-                </select>
                 <select class="filter-select" id="dept-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;" hidden>
                     <option value="">All Departments</option>
                     @foreach($departments as $dept)
@@ -242,18 +258,19 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <button class="btn-view" onclick='openViewDTRModal({{json_encode([
-                                    "id" => $attendance->employee->id,
-                                    "first_name" => $attendance->employee->first_name,
-                                    "last_name" => $attendance->employee->last_name,
-                                    "department" => $attendance->employee->department->name ?? null,
-                                    "position" => $attendance->employee->position->title ?? null,
-                                    "present" => $attendance->total_present,
-                                    "late" => $attendance->total_late,
-                                    "absent" => $attendance->total_absent,
-                                    "overtime" => $attendance->total_overtime,
-                                    "is_complete" => (bool) $attendance->is_complete
-                                ])}})'>
+                                <button type="button" class="btn-view"
+                                    data-id="{{ $attendance->employee->id }}"
+                                    data-first_name="{{ $attendance->employee->first_name }}"
+                                    data-last_name="{{ $attendance->employee->last_name }}"
+                                    data-position="{{ $attendance->employee->position->title ?? null }}"
+                                    data-department="{{ $attendance->employee->department->name ?? null }}"
+                                    data-present="{{ $attendance->total_present }}"
+                                    data-late="{{ $attendance->total_late }}"
+                                    data-absent="{{ $attendance->total_absent }}"
+                                    data-overtime="{{ $attendance->total_overtime }}"
+                                    data-is_complete="{{ (int) $attendance->is_complete }}"
+                                    onclick="openViewDTRModal(this)"
+                                >
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>
                             </div>
@@ -283,10 +300,6 @@
                         (<span id="bulk-count">0</span>)
                     </button>
                 </form>
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="scan-search" placeholder="Search attendance..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
                 <select class="filter-select" id="scan-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Status</option>
                     <option value="Present">Present</option>
@@ -398,16 +411,6 @@
                 <p class="table-sub">Overview of QR code generation for employees</p>
             </div>
             <div class="table-actions">
-                <div class="search-wrap" style="position:relative;display:flex;align-items:center">
-                    <svg width="13" height="13" fill="none" stroke="#9999bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="qr-search" placeholder="Search employees..." style="height:34px;padding:0 10px 0 30px;border:1.5px solid #e4e3f0;border-radius:8px;font-size:12.5px;font-family:'Poppins',sans-serif;color:#0b044d;background:#fafafe;outline:none;width:180px">
-                </div>
-                <select class="filter-select" id="qr-position-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
-                    <option value="">All Positions</option>
-                    @foreach($positions as $position)
-                        <option value="{{ $position->title }}">{{ $position->title }}</option>
-                    @endforeach
-                </select>
                 <select class="filter-select" id="qr-status-filter" style="padding: 7px 12px; border: 1.5px solid #e4e3f0; border-radius: 8px; font-size: 12.5px; color: #0b044d; outline: none; background: #fff;">
                     <option value="">All Status</option>
                     <option value="Generated">Generated</option>
@@ -835,6 +838,16 @@
             document.getElementById('stats-attendances').style.display = 'none';
             document.getElementById('stats-qr-codes').style.display = 'grid';
         }
+
+        $('#banner-search').on('input', function () {
+            const value = this.value;
+
+            $('.tab-pane.active table').each(function () {
+                if ($.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable().search(value).draw();
+                }
+            });
+        });
     }
 
     $('#add-attendance-btn').on('click', function (e) {
@@ -940,16 +953,34 @@
             }
         }
 
-        const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
-
-        function fetchEmployeeAttendance() {
-            const month = parseInt($('#ea-month-filter').val());
-            const year  = parseInt($('#ea-year-filter').val());
+        function applyGlobalFilters() {
+            const month = $('#global-month-filter').val();
+            const year  = $('#global-year-filter').val();
 
             if (month === {{ now()->month }} && year === {{ now()->year }}) {
                 location.reload();
                 return;
             }
+
+            if (typeof fetchEmployeeAttendance === 'function') {
+                fetchEmployeeAttendance(month, year);
+            }
+
+            if (typeof fetchDetailedAttendance === 'function') {
+                fetchDetailedAttendance(month, year);
+            }
+        }
+
+        $('#global-month-filter, #global-year-filter').on('change', function () {
+            applyGlobalFilters();
+        });
+
+        const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];
+
+        function fetchEmployeeAttendance(month = null, year = null) {
+            month = month ?? parseInt($('#global-month-filter').val());
+            year  = year  ?? parseInt($('#global-year-filter').val());
+
 
             $.get('{{ route('attendances.filterEmployeeAttendance') }}', { month, year }, function(res) {
                 attendance_table.clear();
@@ -995,11 +1026,159 @@
         }
 
         $('#ea-month-filter, #ea-year-filter').on('change', fetchEmployeeAttendance);
+
+        function fetchDetailedAttendance(month = null, year = null) {
+            month = month ?? parseInt($('#global-month-filter').val());
+            year  = year  ?? parseInt($('#global-year-filter').val());
+
+            $.get('{{ route('attendances.filterDetailedAttendance') }}', { month, year }, function(res) {
+                scan_table.clear();
+
+                res.attendances.forEach(function(a) {
+                    const emp = a.employee;
+                    const initials = (emp.first_name[0] + emp.last_name[0]).toUpperCase();
+                    const color    = colors[emp.id % 5];
+                    const empId    = 'EMP-' + String(emp.id).padStart(3, '0');
+
+                    let status = '';
+
+                    if (a.attendance_status === 'Present') {
+                        status = '<span class="badge-status processed">Present</span>';
+                    } else if (a.attendance_status === 'Late') {
+                        status = '<span class="badge-status pending">Late</span>';
+                    } else if (a.attendance_status === 'Absent') {
+                        status = '<span class="badge-status on-hold">Absent</span>';
+                    } else {
+                        status = '<span class="badge-status on-hold">Missing</span>';
+                    }
+
+                    const breakTime = (a.break_start && a.break_end)
+                        ? a.break_start + ' - ' + a.break_end
+                        : 'N/A';
+
+                    const overtime = a.overtime_minutes > 0
+                        ? (a.overtime_minutes / 60).toFixed(1) + ' hrs'
+                        : 'N/A';
+
+                    const totalHours = (
+                        (a.total_minutes / 60) +
+                        (a.overtime_minutes / 60)
+                    ).toFixed(2) + ' h';
+
+                    const modalData = {
+                        employee_id: emp.id,
+                        first_name: emp.first_name,
+                        last_name: emp.last_name,
+                        attendance_id: a.id,
+                        date: a.raw_date,
+                        time_in: a.time_in,
+                        time_out: a.time_out,
+                        break_start: a.break_start,
+                        break_end: a.break_end,
+                        overtime_in: a.overtime_in,
+                        overtime_out: a.overtime_out,
+                    };
+
+                    const deleteUrl = "{{ url('attendances') }}/" + a.id;
+
+                    const actions = `
+                    <div class="row-actions">
+                        <button class="btn-edit"
+                            onclick='openEditDTRModal(${JSON.stringify(modalData)})'>
+                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+
+                        <form action="${deleteUrl}"
+                              method="POST"
+                              style="display:inline"
+                              onsubmit="return confirm('Archive this attendance record?')">
+
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="_method" value="DELETE">
+
+                            <button type="submit" class="btn-danger"
+                                style="display:inline-flex;align-items:center;gap:4px">
+
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    `;
+
+                    scan_table.row.add([
+
+                        // 1. Checkbox
+                        `<input type="checkbox" class="row-check" value="${a.id}">`,
+
+                        // 2. Employee
+                        `
+                        <div class="emp-cell">
+                            <div class="emp-avatar" style="background:${color}">
+                                ${initials}
+                            </div>
+                            <div>
+                                <p class="emp-name">${emp.first_name} ${emp.last_name}</p>
+                                <p class="emp-id">${empId}</p>
+                            </div>
+                        </div>
+                        `,
+
+                        // 3. Date
+                        `${a.date}`,
+
+                        // 4. Time In
+                        `<span class="dept-tag"
+                    style="background:#e8f9ef;color:#15803d;border-color:#bbf7d0">
+                    ${a.time_in}
+                </span>`,
+
+                        // 5. Time Out
+                        `<span class="dept-tag"
+                    style="background:#fdf0ef;color:#8e1e18;border-color:#f5d0ce">
+                    ${a.time_out}
+                </span>`,
+
+                        // 6. Break
+                        `<span style="font-size:12px;color:#9999bb">
+                    ${breakTime}
+                </span>`,
+
+                        // 7. Overtime
+                        `<span style="font-size:12px;color:#9999bb">
+                    ${overtime}
+                </span>`,
+
+                        // 8. Total Hours
+                        `<span class="pay-cell">${totalHours}</span>`,
+
+                        // 9. Status
+                        status,
+
+                        // 10. Actions
+                        actions
+                    ]);
+                });
+
+                scan_table.draw();
+            });
+        }
+
+        $('#scan-month-filter, #scan-year-filter').on('change', fetchDetailedAttendance);
     });
 </script>
 
 <script>
-    function openViewDTRModal(data) {
+    function openViewDTRModal(button) {
+        const data = button.dataset;
+
         const month = document.getElementById('ea-month-filter').value;
         const year = document.getElementById('ea-year-filter').value;
 
@@ -1007,24 +1186,30 @@
         const colors = ['#0b044d', '#8e1e18', '#15803d', '#a16207', '#7c3aed'];
         const color = colors[data.id % 5];
 
+        const present = Number(data.present) || 0;
+        const late = Number(data.late) || 0;
+        const absent = Number(data.absent) || 0;
+        const overtime = Number(data.overtime) || 0;
+
         document.getElementById('modal-avatar').innerText = initials;
         document.getElementById('modal-avatar').style.background = color;
-
         document.getElementById('modal-emp-id').innerText = 'EMP-' + String(data.id).padStart(3, '0');
 
         const badge = document.getElementById('modal-status-badge');
-        badge.innerText = data.is_complete ? 'Complete' : 'Incomplete';
-        badge.className = data.is_complete ? 'badge-status processed' : 'badge-status pending';
+        const isComplete = data.is_complete === "1";
+
+        badge.innerText = isComplete ? 'Complete' : 'Incomplete';
+        badge.className = isComplete ? 'badge-status processed' : 'badge-status pending';
 
         document.getElementById('modal-name').textContent = `${data.first_name} ${data.last_name}`;
         document.getElementById('modal-position').textContent = `${data.position} · ${data.department}`;
         document.getElementById('modal-period').textContent = `DTR · ${month} ${year}`;
-        document.getElementById('modal-present').textContent = `${data.present} ${data.present === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-absent').textContent = `${data.absent} ${data.absent === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-late').textContent = `${data.late} ${data.late === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-overtime').textContent = `${data.overtime / 60} ${data.overtime === 1 ? 'hr' : 'hrs'}`;
+        document.getElementById('modal-present').textContent = `${present} ${present === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-absent').textContent = `${absent} ${absent === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-late').textContent = `${late} ${late === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-overtime').textContent = `${(overtime / 60).toFixed(2)} hrs`;
 
-        const rate = (data.present / 22 ) * 100;
+        const rate = (present / 22) * 100;
         const rateColor = rate === 100 ? '#15803d' : rate === 0 ? '#8e1e18' : '#a16207';
 
         document.getElementById('modal-rate').innerText = rate.toFixed(0) + '%';
@@ -1032,7 +1217,6 @@
 
         document.getElementById('view-attendance-modal').style.display = 'flex';
     }
-
     function openEditDTRModal(data) {
         var url = "{{ route('attendances.update', ':id') }}".replace(':id', data.attendance_id);
         document.getElementById('edit-dtr-form').action = url;

@@ -217,14 +217,6 @@
                 <p style="font-size:13px;color:#9999bb;margin:0">No training programs match your criteria</p>
             </div>
         </div>
-
-        <div class="table-footer">
-            <p>Showing <strong id="visible-count">{{ $totalPrograms }}</strong> of <strong>{{ $totalPrograms }}</strong> programs</p>
-            <div class="pagination">
-                <button class="page-btn active">1</button>
-                <button class="page-btn">›</button>
-            </div>
-        </div>
     </div>
 
 {{-- Training View Modal --}}

@@ -23,8 +23,8 @@ class LeaveRequestController extends Controller
      */
     public function index()
     {
-        $leaveRequests = LeaveRequest::paginate(25);
-        $employees = Employee::paginate(25);
+        $leaveRequests = LeaveRequest::with(['employee.department', 'leaveType'])->paginate(25);
+        $employees = Employee::with(['department', 'employeeCompensation', 'employeeCompensation.compensation', 'employeeLeaveBalance'])->paginate(25);
         $leaveTypes = LeaveType::paginate(25);
         $leaveStatuses = LeaveStatus::cases();
         $holidays = Holiday::paginate(25);
