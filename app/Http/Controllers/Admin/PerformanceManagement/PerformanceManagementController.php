@@ -59,12 +59,9 @@ class PerformanceManagementController extends Controller
         $cycleId = $validated['performance_cycle_id'];
 
         DB::transaction(function () use ($cycleId) {
-
-            // Get all employees
             $employees = Employee::all();
 
             foreach ($employees as $employee) {
-
                 $exists = IpcrForm::where('employee_id', $employee->id)
                     ->where('performance_cycle_id', $cycleId)
                     ->exists();
@@ -76,20 +73,14 @@ class PerformanceManagementController extends Controller
                 IpcrForm::create([
                     'employee_id' => $employee->id,
                     'performance_cycle_id' => $cycleId,
-
-                    // adjust these based on your schema
-                    'status' => 'draft',
                 ]);
             }
         });
 
-        return redirect()
-            ->back()
-            ->with('success', 'IPCR forms successfully created for all employees.');
+        return redirect()->back()->with('success', 'IPCR forms successfully created for all employees.');
     }
 
-    public function updateIpcr(UpdateIPCREntryRequest $request, IPCREntry $entry)
-    {
+    public function updateIpcr(UpdateIPCREntryRequest $request, IPCREntry $entry) {
         $data = $request->validated();
 
         foreach ($data['entries'] as $id => $data) {
@@ -111,8 +102,7 @@ class PerformanceManagementController extends Controller
         return back()->with('success', 'Ratings updated.');
     }
 
-    public function computeFinalRating(IPCRForm $form)
-    {
+    public function computeFinalRating(IPCRForm $form) {
         if ($form->entries->isEmpty()) {
             return back()->with('error', 'No entries found!');
         }
@@ -124,20 +114,27 @@ class PerformanceManagementController extends Controller
         return back()->with('success', 'Final rating computed.');
     }
 
-    public function submit(IPCRForm $form)
-    {
+    public function submit(IPCRForm $form) {
         $form->update(['status' => 'Submitted']);
         return back()->with('success', 'IPCREntry submitted.');
     }
 
-    public function approve(IPCRForm $form)
-    {
+    public function approve(IPCRForm $form) {
+        $request->validate([
+            'ipcr_form_id' => 'required',
+            'development_needs' => 'required',
+        ]);
+
+        IPCRDevelopmentNeed::create([
+            'ipcr_form_id' => $request->ipcr_form_id,
+            'development_needs' => $request->development_needs,
+            'recommended_training' => $request->recommended_training,
+        ]);
         $form->update(['status' => 'Approved']);
         return back()->with('success', 'IPCR Form approved!');
     }
 
-    public function storeDevelopmentNeed(Request $request)
-    {
+    public function storeDevelopmentNeed(Request $request) {
         $request->validate([
             'ipcr_form_id' => 'required',
             'development_needs' => 'required',

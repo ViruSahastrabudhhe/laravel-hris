@@ -53,16 +53,20 @@
                         >
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
+                        @if ($form->entries->isEmpty())
+                        @else
                         <form action="{{ route('performance_management.computeFinalRating', $form->id) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <button class="btn-edit" type="submit">Compute</button>
                         </form>
-                        <form action="{{ route('performance_management.approve', $form->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <button class="btn-success" type="submit">Approve</button>
-                        </form>
+                        @endif
+                        <button class="btn-success" onclick="openApproveIPCRForm(this)"
+                            data-form_id="{{ $form->id }}"
+                            data-employee_name="{{ $form->employee->first_name }} {{ $form->employee->last_name }}"
+                        >
+                            Approve
+                        </button>
                         <form action="{{ route('performance_management.destroy', $form->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
@@ -208,7 +212,7 @@
                             <p style="margin-bottom: 1rem; color: #4b5563;">You need to create a Performance Cycle before creating an IPCR form.</p>
                         </div>
                     @else
-                        <h1 id="qr-modal-sub" style="font-size:25px;color:#0b044d;font-weight:600;margin:0">For All Employees</h1>
+                        <h1 style="font-size:25px;color:#0b044d;font-weight:600;margin:0">For All Employees</h1>
                         <p style="font-size:12px;color:#6b6a8a;margin:6px 0 0">IPCR forms will be created for every employee.</p>
                         <div style="margin-top: 1.5rem;" class="form-field">
                             <label>Performance Cycle <span style="color:#dc2626">*</span></label>
@@ -287,7 +291,7 @@
                     <button type="button" class="modal-btn-ghost" onclick="closeModal('editIPCRFormModal')">
                         Cancel
                     </button>
-                    <button type="submit" class="modal-btn-primary">
+                    <button type="submit" id="editIPCRSubmitBtn" class="modal-btn-primary">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2.5">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/>
@@ -298,6 +302,56 @@
                     </button>
                 </div>
 
+            </form>
+        </div>
+    </div>
+
+    {{-- Approve IPCR Modal --}}
+    <div class="modal-overlay" id="approveIPCRFormModal" style="display:none">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-eyebrow">APPROVE IPCR FORM</span>
+                    <h3 class="modal-title">Approve Employee's IPCR Form</h3>
+                </div>
+                <button class="modal-close" onclick="closeModal('approveIPCRFormModal')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="ipcr-approve-form" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                    <h1 id="approveIPCRTitle" style="font-size:25px;color:#0b044d;font-weight:600;margin:0">For All Employees</h1>
+                    <p style="font-size:12px;color:#6b6a8a;margin:6px 0 0">This employee's IPCR form will be approved.</p>
+                    <input type="hidden" name="ipcr_form_id" id="editIPCRFormID" readonly placeholder="IPCR Form ID"><br>
+                    <div class="form-field">
+                        <label>Development Needs <span style="color:#dc2626">*</span></label>
+                        <textarea name="development_needs" rows="3" placeholder="Type your development needs here..." required></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label>Recommended Training <span style="color:#dc2626">*</span></label>
+                        <input type="text" name="recommended_training" required></input>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn-ghost" onclick="closeModal('approveIPCRFormModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="modal-btn-primary">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Approve Form
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -316,6 +370,15 @@
         function openBulkCreateIPCRForm() {
             document.getElementById('bulkCreateIPCRFormModal').style.display = 'flex';
         }
+        function openApproveIPCRForm(button) {
+            const data = button.dataset;
+            const formId = Number(button.dataset.form_id);
+
+            document.getElementById('approveIPCRTitle').textContent = `For ${data.employee_name ?? 'Employee'}`;
+
+            var url = "{{ route('performance_management.approve', ':id') }}".replace(':id', formId);
+            document.getElementById('approveIPCRFormModal').style.display = 'flex';
+        }
         function openEditIPCRForm(button) {
             const employeeId = Number(button.dataset.employeeId);
 
@@ -328,6 +391,17 @@
             }
 
             const entries = form.entries ?? [];
+
+            if (entries.length === 0) {
+                const editIPCRSubmitBtn = document.getElementById('editIPCRSubmitBtn');
+                
+                editIPCRSubmitBtn.style.pointerEvents = 'none';
+                editIPCRSubmitBtn.classList.add('btn-export');
+                editIPCRSubmitBtn.classList.remove('modal-btn-primary');
+                editIPCRSubmitBtn.addEventListener("click", function() {
+                    e.preventDefault();
+                });
+            }
 
             var url = "{{ route('performance_management.updateIPCRForm', ':id') }}".replace(':id', employeeId);
             document.getElementById('ipcr-update-form').action = url;
@@ -345,31 +419,106 @@
                         <td>
                             <input type="text"
                                 name="entries[${entry.id}][actual_accomplishments]"
-                                value="${entry.actual_accomplishments ?? ''}">
+                                value="${entry.actual_accomplishments ?? ''}"
+                                required>   
                         </td>
 
                         <td>
                             <input type="number"
+                                class="ipcr_rating"
                                 name="entries[${entry.id}][quality_rating]"
-                                value="${entry.quality_rating ?? 0}">
+                                value="${entry.quality_rating ?? 0}"
+                                min="0"
+                                max="5"
+                                required
+                                id="quality_rating">
                         </td>
 
                         <td>
                             <input type="number"
+                                class="ipcr_rating"
                                 name="entries[${entry.id}][efficiency_rating]"
-                                value="${entry.efficiency_rating ?? 0}">
+                                value="${entry.efficiency_rating ?? 0}"
+                                min="0"
+                                max="5"
+                                required
+                                id="efficiency_rating">
                         </td>
 
                         <td>
                             <input type="number"
+                                class="ipcr_rating"
                                 name="entries[${entry.id}][timeliness_rating]"
-                                value="${entry.timeliness_rating ?? 0}">
+                                value="${entry.timeliness_rating ?? 0}"
+                                min="0"
+                                max="5"
+                                required
+                                id="timeliness_rating">
                         </td>
                     </tr>
                 `;
+
+                document.querySelectorAll('.ipcr_rating').forEach(input => {
+                    input.addEventListener('input', () => {
+                        const max = parseInt(input.max, 10) || 5;
+                        const min = parseInt(input.min, 10) || 0;
+                        const currentVal = parseInt(input.value, 10);
+
+                        if (isNaN(currentVal)) return;
+
+                        if (currentVal > max) {
+                            input.value = max;
+                        } else if (currentVal < min) {
+                            input.value = min;
+                        }
+                    });
+                });
             });
 
             document.getElementById('editIPCRFormModal').style.display = 'flex';
+        }
+    </script>
+
+    <script>
+        function openEditIPCRFormModal(button) {
+            const data = button.dataset;
+
+            document.getElementById('editIPCRFormID').value = data.ipcr_form_id;
+            document.getElementById('editIPCRFormIDSpan').textContent = data.ipcr_form_id;
+            document.getElementById('editIPCRFormModal').style.display = 'flex';
+        }
+    </script>
+
+    <script>
+        document.getElementById('addRowBtn').addEventListener('click', function() {
+            const tbody = document.getElementById('kraTable').getElementsByTagName('tbody')[0];
+
+            // Create a new row element
+            const newRow = document.createElement('tr');
+
+            // Define the HTML structure for the new row fields
+            newRow.innerHTML = `
+                    <td><input type="text" name="kra[]" placeholder="KRA" required></td>
+                    <td><input type="text" name="objectives[]" placeholder="Objectives" required></td>
+                    <td><input type="text" name="success_indicators[]" placeholder="Success Indicators" required></td>
+                    <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+                `;
+
+            // Append the row to the table body
+            tbody.appendChild(newRow);
+        });
+
+        // Function to delete a row if the user changes their mind
+        function removeRow(button) {
+            const row = button.closest('tr');
+            const tbody = row.parentNode;
+
+            // Prevent deleting the last remaining row if you want to enforce at least one entry
+            if (tbody.rows.length > 1) {
+                row.remove();
+            } else {
+                alert("You must keep at least one row.");
+            }
         }
     </script>
 @endpush
