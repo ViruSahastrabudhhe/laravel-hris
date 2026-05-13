@@ -204,22 +204,16 @@ class AttendanceController extends Controller
     }
 
     public function stats(Request $request) {
-        $stats = EmployeeAttendance::where('month', $request->month)
+        $attendances = EmployeeAttendance::where('month', $request->month)
             ->where('year', $request->year)
-            ->first();
-
-        $statMonth = Carbon::createFromDate(
-            $request->year,
-            $request->month,
-            1
-        )->format('F Y');
+            ->get();
 
         return response()->json([
-            'total_present' => $stats->total_present ?? 0,
-            'total_late' => $stats->total_late ?? 0,
-            'total_absent' => $stats->total_absent ?? 0,
-            'total_overtime' => $stats->total_overtime ?? 0,
-            'stat_month' => $statMonth,
+            'total_present'  => $attendances->sum('total_present'),
+            'total_late'     => $attendances->sum('total_late'),
+            'total_absent'   => $attendances->sum('total_absent'),
+            'total_overtime' => $attendances->sum('total_overtime'),
+            'stat_month'     => Carbon::createFromDate($request->year, $request->month, 1)->format('F Y'),
         ]);
     }
 

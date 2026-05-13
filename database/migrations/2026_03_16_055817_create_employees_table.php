@@ -29,16 +29,16 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreign('position_id')
                     ->references('id')->on('positions')
-                    ->onUpdate('set null')
-                    ->onDelete('set null');
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
             $table->foreign('department_id')
                     ->references('id')->on('departments')
-                    ->onUpdate('set null')
-                    ->onDelete('set null');
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
             $table->foreign('user_id')
                     ->references('id')->on('users')
-                    ->onUpdate('set null')
-                    ->onDelete('set null');
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
 
         });
     }

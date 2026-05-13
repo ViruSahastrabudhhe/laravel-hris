@@ -690,6 +690,7 @@
         </div>
     </div>
 </div>
+
 {{-- Edit Compensation Modal --}}
 <div class="modal-overlay" id="compensation-edit-modal" style="display:none">
     <div class="modal-box" style="max-width:420px" onclick="event.stopPropagation()">

@@ -29,7 +29,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreignId('employee_id')
                     ->references('id')->on('employees')
-                    ->onDelete('set null');
+                    ->onDelete('cascade');
         });
     }
 

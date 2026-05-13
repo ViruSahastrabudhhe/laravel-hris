@@ -77,12 +77,11 @@
     </div>
 </div>
 
-{{-- Evaluation History Table --}}
 <div class="table-section">
     <div class="table-header">
         <div>
-            <p class="table-title">Evaluation History</p>
-            <p class="table-sub">Your complete performance evaluation records</p>
+            <p class="table-title">IPCR Forms</p>
+            <p class="table-sub">Your IPCR Forms</p>
         </div>
     </div>
 
@@ -90,27 +89,36 @@
         <table class="payroll-table" id="eval-table">
             <thead>
                 <tr>
-                    <th>Evaluation ID</th>
-                    <th>Period</th>
-                    <th>Evaluator</th>
-                    <th>Completed Date</th>
-                    <th>Rating</th>
+                    <th>Form ID</th>
+                    <th>Employee</th>
+                    <th>Performance Cycle</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="eval-table-body">
+            <tbody>
+            @foreach($ipcrForms as $form)
                 <tr>
-                    <td colspan="7" style="text-align:center;padding:40px;color:#9999bb;font-size:13px">
-                        No performance evaluations found.
+                    <td>{{$form->id}}</td>
+                    <td>{{$form->employee->first_name}} {{$form->employee->last_name}}</td>
+                    <td>{{$form->cycle->start_date}} - {{$form->cycle->end_date}}</td>
+                    <td>{{$form->status}}</td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="btn-view">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                            <button class="btn-edit" onclick="openEditIPCRFormModal(this)"
+                                data-ipcr_form_id="{{$form->id}}"
+                            >
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
+            @endforeach
             </tbody>
         </table>
-    </div>
-
-    <div class="table-footer" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid #f0effe;">
-        <span style="font-size:12px;color:#6b6a8a">Showing <strong id="eval-count">0</strong> evaluation records</span>
     </div>
 </div>
 
@@ -143,9 +151,101 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="editIPCRFormModal" style="display: none;">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <span class="modal-eyebrow">EDIT IPCR FORM</span>
+                <h3 class="modal-title">Input KRAs, Objectives, etc.</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal('editIPCRFormModal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" style="max-height:60vh;overflow:auto;">
+            <form action="{{ route('my_performance.storeIPCREntry') }}" method="POST">
+                @csrf
+                <!-- Main Form Identifier -->
+                <div class="form-field">
+                    <label>IPCR Form ID: <span style="color:#dc2626" id="editIPCRFormIDSpan">*</span></label>
+                    <input type="hidden" name="ipcr_form_id" id="editIPCRFormID" readonly placeholder="IPCR Form ID"><br>
+                </div>
+
+                <table id="kraTable" border="1" style="width: 100%; text-align: left; margin-bottom: 15px;">
+                    <thead>
+                    <tr>
+                        <th>KRA</th>
+                        <th>Objectives</th>
+                        <th>Success Indicators</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Row 1 (Default) -->
+                    <tr>
+                        <td><input type="text" name="kra[]" placeholder="KRA" required></td>
+                        <td><input type="text" name="objectives[]" placeholder="Objectives" required></td>
+                        <td><input type="text" name="success_indicators[]" placeholder="Success Indicators" required></td>
+                        <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Control Buttons -->
+                <button type="button" id="addRowBtn">Add New Row</button>
+                <button type="submit">Submit All Rows</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
+<script>
+    function openEditIPCRFormModal(button) {
+        const data = button.dataset;
+
+        document.getElementById('editIPCRFormID').value = data.ipcr_form_id;
+        document.getElementById('editIPCRFormIDSpan').textContent = data.ipcr_form_id;
+        document.getElementById('editIPCRFormModal').style.display = 'flex';
+    }
+</script>
+
+<script>
+    document.getElementById('addRowBtn').addEventListener('click', function() {
+        // Reference the table body
+        const tbody = document.getElementById('kraTable').getElementsByTagName('tbody')[0];
+
+        // Create a new row element
+        const newRow = document.createElement('tr');
+
+        // Define the HTML structure for the new row fields
+        newRow.innerHTML = `
+                <td><input type="text" name="kra[]" placeholder="KRA" required></td>
+                <td><input type="text" name="objectives[]" placeholder="Objectives" required></td>
+                <td><input type="text" name="success_indicators[]" placeholder="Success Indicators" required></td>
+                <td><button type="button" onclick="removeRow(this)">Delete</button></td>
+            `;
+
+        // Append the row to the table body
+        tbody.appendChild(newRow);
+    });
+
+    // Function to delete a row if the user changes their mind
+    function removeRow(button) {
+        const row = button.closest('tr');
+        const tbody = row.parentNode;
+
+        // Prevent deleting the last remaining row if you want to enforce at least one entry
+        if (tbody.rows.length > 1) {
+            row.remove();
+        } else {
+            alert("You must keep at least one row.");
+        }
+    }
+</script>
+
 <script>
     function filterEvalTable(query) {
         const q = query.toLowerCase();

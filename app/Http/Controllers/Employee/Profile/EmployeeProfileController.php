@@ -34,12 +34,12 @@ class EmployeeProfileController extends Controller
         //
     }
 
-    public function update(UpdateEmployeeProfileRequest $request, Employee $profile) {
+    public function update(UpdateEmployeeProfileRequest $request, Employee $my_profile) {
         $data = $request->validated();
 
-        $profile->update($data);
+        $my_profile->update($data);
 
-        Log::info('Employee profile updated: ' . $profile);
+        Log::info('Employee profile updated: ' . $my_profile);
 
         return back()->with('success', __('profile.success_creating'));
     }

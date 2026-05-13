@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\Payroll\PayrollRecordController;
 use App\Http\Controllers\Admin\Compensation\EmployeeCompensationController;
 use App\Http\Controllers\Admin\Leave\LeaveRequestController;
 use App\Http\Controllers\Admin\Leave\EmployeeLeaveBalanceController;
-use App\Http\Controllers\Admin\Leave\HolidayController;
 use App\Http\Controllers\Admin\Leave\LeaveTypeController;
 use App\Http\Controllers\Admin\Salary\SalaryController;
 use App\Http\Controllers\Admin\QrCode\QrCodeController;
@@ -84,7 +83,17 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::resource('trainings', TrainingController::class);
     Route::resource('reports', ReportController::class);
     Route::resource('recruitments', RecruitmentController::class);
-    Route::resource('performance_managements', PerformanceManagementController::class);
+    Route::prefix('performance_management')->group(function () {
+        Route::get('/', [PerformanceManagementController::class, 'index'])->name('performance_management.index');
+        Route::post('/store/performance_cycle', [PerformanceManagementController::class, 'storePerformanceCycle'])->name('performance_management.storePerformanceCycle');
+        Route::post('/store/ipcr_form', [PerformanceManagementController::class, 'storeIpcr'])->name('performance_management.storeIPCRForm');
+        Route::post('/bulk-store/ipcr_form', [PerformanceManagementController::class, 'bulkStoreIpcr'])->name('performance_management.bulkStoreIPCRForm');
+        Route::put('/entries/update/{entry}', [PerformanceManagementController::class, 'updateIpcr'])->name('performance_management.updateIPCRForm');
+        Route::put('/compute/{form}', [PerformanceManagementController::class, 'computeFinalRating'])->name('performance_management.computeFinalRating');
+        Route::post('/submit/{form}', [PerformanceManagementController::class, 'submit']);
+        Route::put('/approve/{form}', [PerformanceManagementController::class, 'approve'])->name('performance_management.approve');
+        Route::delete('/delete/{form}', [PerformanceManagementController::class, 'destroy'])->name('performance_management.destroy');
+    });
 
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');
@@ -96,7 +105,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('qr-code/scan', [QrCodeController::class, 'scan'])->name('qr-code.scan');
     Route::get('qr-scanner', [QrScannerController::class, 'index'])->name('qr-scanner.index');
-    Route::post('qr-scanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
+    Route::post('qr-sanner/process', [QrScannerController::class, 'process'])->name('qr-scanner.process');
 });
 
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
@@ -109,5 +118,8 @@ Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee'])->gr
     Route::resource('my_leaves', EmployeeLeaveRequestController::class);
     Route::resource('my_payslips', EmployeePayslipController::class);
     Route::resource('my_performance', EmployeePerformanceController::class);
+    Route::prefix('my_performance')->group(function() {
+        Route::post('/store/ipcr_entry', [EmployeePerformanceController::class, 'storeIpcrEntry'])->name('my_performance.storeIPCREntry');
+    });
     Route::resource('my_attendances', EmployeeAttendanceController::class);
 });

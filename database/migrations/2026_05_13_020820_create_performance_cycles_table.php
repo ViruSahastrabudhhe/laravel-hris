@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_corrections', function (Blueprint $table) {
+        Schema::create('performance_cycles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attendance_id')->references('id')->on('attendances')->onDelete('cascade');
-            $table->foreignId('employee_id')->references('id')->on('employees')->onDelete('cascade');
-            $table->text('remarks');
-            $table->string('proof');
+            $table->string('name'); // e.g. "2026 First Semester"
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_corrections');
+        Schema::dropIfExists('performance_cycles');
     }
 };

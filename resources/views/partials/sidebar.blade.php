@@ -7,7 +7,7 @@
             ['id' => 'training',   'label' => 'Training & Development',       'route' => 'trainings.index',       'icon' => 'training', 'section' => null],
             ['id' => 'attendances', 'label' => 'Time & Attendance',      'route' => 'attendances.index',     'icon' => 'attendance', 'section' => null],
             ['id' => 'leaves',      'label' => 'Leave & Benefits','route' => 'leave_requests.index', 'icon' => 'leave', 'section' => null],
-            ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'performance_managements.index',       'icon' => 'performance', 'section' => null],
+            ['id' => 'performance',   'label' => 'Performance Management',       'route' => 'performance_management.index',       'icon' => 'performance', 'section' => null],
             ['id' => 'payroll',     'label' => 'Payroll',         'route' => 'payroll.index',         'icon' => 'payroll', 'section' => null],
             ['id' => 'reports',   'label' => 'Reports',       'route' => 'reports.index',       'icon' => 'reports', 'section' => null],
         ];

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('employee_id')
                     ->references('id')->on('employees')
-                    ->onUpdate('set null')
-                    ->onDelete('set null');
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
             $table->foreign('work_schedule_id')
                     ->references('id')->on('work_schedules')
-                    ->onUpdate('set null')
-                    ->onDelete('set null');
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
         });
     }
 

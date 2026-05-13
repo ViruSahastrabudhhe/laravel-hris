@@ -11,12 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_corrections', function (Blueprint $table) {
+        Schema::create('ipcr_development_needs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attendance_id')->references('id')->on('attendances')->onDelete('cascade');
-            $table->foreignId('employee_id')->references('id')->on('employees')->onDelete('cascade');
-            $table->text('remarks');
-            $table->string('proof');
+
+            $table->foreignId('ipcr_form_id')
+                ->constrained('ipcr_forms')
+                ->onDelete('cascade');
+
+            $table->text('development_needs');
+
+            $table->text('recommended_training')->nullable();
+
             $table->timestamps();
         });
     }
@@ -26,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_corrections');
+        Schema::dropIfExists('ipcr_development_needs');
     }
 };

@@ -107,7 +107,7 @@
                         <option value="{{ $status->value }}">{{ $status->value }}</option>
                     @endforeach
                 </select>
-                <button class="btn-export" onclick="openLeaveCreateModal()">+ File Leave</button>
+                <button class="modal-btn-primary" onclick="openLeaveCreateModal()">+ File Leave</button>
             </div>
         </div>
 

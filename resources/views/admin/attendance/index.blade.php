@@ -1179,8 +1179,8 @@
     function openViewDTRModal(button) {
         const data = button.dataset;
 
-        const month = document.getElementById('ea-month-filter').value;
-        const year = document.getElementById('ea-year-filter').value;
+        const month = document.getElementById('global-month-filter').value;
+        const year = document.getElementById('global-year-filter').value;
 
         const initials = (data.first_name[0] + data.last_name[0]).toUpperCase();
         const colors = ['#0b044d', '#8e1e18', '#15803d', '#a16207', '#7c3aed'];
@@ -1241,15 +1241,15 @@
     }
 
     function fetchStats() {
-        const month = document.getElementById('ea-month-filter').value;
-        const year = document.getElementById('ea-year-filter').value;
+        const month = document.getElementById('global-month-filter').value;
+        const year = document.getElementById('global-year-filter').value;
 
         fetch(`{{ route('attendances.stats') }}?month=${month}&year=${year}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('stat-total-present').textContent = `${data.total_present ?? 0}`;
                 document.getElementById('stat-total-absent').textContent = `${data.total_absent ?? 0}`;
-                document.getElementById('stat-total-overtime').textContent = `${data.total_overtime / 60 ?? 0}`;
+                document.getElementById('stat-total-overtime').textContent = `${data.total_overtime / 60 ?? 0} hrs`;
                 const late = data.total_late ?? 0;
                 document.getElementById('stat-total-late').textContent = `${late} ${late === 1 ? 'late arrival' : 'late arrivals'}`;
 
@@ -1260,7 +1260,7 @@
             });
     }
 
-    document.getElementById('ea-month-filter').addEventListener('change', fetchStats);
-    document.getElementById('ea-year-filter').addEventListener('change', fetchStats);
+    document.getElementById('global-month-filter').addEventListener('change', fetchStats);
+    document.getElementById('global-year-filter').addEventListener('change', fetchStats);
 </script>
 @endpush

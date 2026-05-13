@@ -27,12 +27,12 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreign('employee_id')
                 ->references('id')->on('employees')
-                ->onUpdate('set null')
-                ->onDelete('set null');
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->foreign('user_id')
                 ->references('id')->on('users')
-                ->onUpdate('set null')
-                ->onDelete('set null');
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

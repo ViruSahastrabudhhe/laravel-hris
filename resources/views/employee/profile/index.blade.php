@@ -6,7 +6,7 @@
 
     $yearsOfService = 0;
     $performanceRating = 0;
-    $leaveBalance = $employee->EmployeeLeaveBalance->amount;
+    $leaveBalance = $employee->EmployeeLeaveBalance->where('type', 'Sick')->first()->amount;
     $trainingsCompleted = 0;
 
     foreach ($employee->employeeTraining as $et) {
@@ -39,7 +39,9 @@
             </div>
         </div>
     </div>
-    <button class="btn-edit-profile" onclick="openProfileEditModal()">
+    <button class="btn-edit-profile" onclick="openProfileEditModal(this)"
+        data-employee_id="{{ $employee->id }}"
+    >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit Profile
     </button>
@@ -159,7 +161,7 @@
             </button>
         </div>
 
-        <form id="profile-edit-form" method="POST" action="{{ route('my_profile.update', $employee->id) }}">
+        <form id="profile-edit-form" method="POST">
             @csrf
             @method('PUT')
 
@@ -255,8 +257,15 @@
     let editCurrentPage = 1;
     const editTotalPages = 2;
 
-    function openProfileEditModal() {
+    function openProfileEditModal(button) {
+        const data = button.dataset;
         editCurrentPage = 1;
+
+        const employeeId = data.employee_id;
+
+        var url = "{{ route('my_profile.update', ':id') }}".replace(':id', employeeId);
+        document.getElementById('profile-edit-form').action = url;
+
         updateEditModal();
         document.getElementById('profile-edit-modal').style.display = 'flex';
     }
@@ -265,6 +274,7 @@
         for (let i = 1; i <= editTotalPages; i++) {
             document.getElementById('edit-page-' + i).style.display = i === editCurrentPage ? 'block' : 'none';
         }
+
         document.getElementById('modal-page-label').textContent = `Page ${editCurrentPage} of ${editTotalPages}`;
         document.getElementById('modal-page-title').textContent = editPageTitles[editCurrentPage - 1];
         document.getElementById('btn-prev').style.display = editCurrentPage > 1 ? 'inline-flex' : 'none';

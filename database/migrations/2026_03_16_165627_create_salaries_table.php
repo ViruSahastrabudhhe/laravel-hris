@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('employee_id')
                 ->references('id')->on('employees')
-                ->onDelete('set null');
+                ->onDelete('cascade');
         });
     }
 

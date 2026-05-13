@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('qr_attendance_scans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees')->onDelete('set null');
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
             $table->string('qr_code_hash')->unique();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
