@@ -246,6 +246,7 @@ class AttendanceController extends Controller
                 'present' => $ea->total_present,
                 'late' => $ea->total_late,
                 'absent' => $ea->total_absent,
+                'leaves' => $ea->total_leaves,
                 'ot_hours' => $ea->total_overtime / 60,
                 'is_complete' => $ea->is_complete,
             ]),

@@ -177,6 +177,10 @@
                         <input type="text" name="last_name" value="{{ $employee->last_name }}" required>
                     </div>
                     <div class="form-field">
+                        <label>Middle Name Name</label>
+                        <input type="text" name="middle_name" value="{{ $employee->middle_name }}">
+                    </div>
+                    <div class="form-field">
                         <label>Gender</label>
                         <select name="gender" required>
                             <option value="">Select gender</option>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin\Payroll;
 
 use App\Enums\CompensationType;
+use App\Http\Requests\Payroll\StorePayPeriodRequest;
 use App\Models\Department;
+use App\Models\PayPeriod;
 use App\Models\PayrollRecord;
 use App\Models\Compensation;
 use App\Models\Employee;
@@ -24,10 +26,17 @@ class PayrollRecordController extends Controller
      */
     public function index()
     {
+        $periods = PayPeriod::all();
+        $records = PayrollRecord::with('items')->get();
         $employees = Employee::paginate(25);
         $departments = Department::get();
 
-        return view('admin.payroll.index', compact('employees', 'departments'));
+        return view('admin.payroll.index', compact(
+            'periods',
+            'records',
+            'employees',
+            'departments',
+        ));
     }
 
     /**
@@ -38,7 +47,7 @@ class PayrollRecordController extends Controller
         //
     }
 
-    public function store(StorePayrollRecordRequest $request) {
+    public function storeRecord(StorePayrollRecordRequest $request) {
         $data = $request->validated();
 
         $month = $data['month'];
@@ -48,6 +57,7 @@ class PayrollRecordController extends Controller
         $record = PayrollRecord::updateOrCreate(
             ['employee_id' => $data['employee_id'], 'month' => $data['month'], 'year' => $data['year']],
             [
+                'pay_period_id' => $data['pay_period_id'],
                 'total_earnings' => $data['total_earnings'],
                 'total_deductions' => $data['total_deductions'],
                 'net_pay' => $data['net_pay'],
@@ -76,10 +86,18 @@ class PayrollRecordController extends Controller
         return redirect()->route('payroll.index');
     }
 
+    public function storePeriod(StorePayPeriodRequest $request) {
+        $data = $request->validated();
+
+        PayPeriod::create($data);
+
+        return redirect()->route('payroll.index')->with('success', 'Period successfully created');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function bulkStore(BulkStorePayrollRecordRequest $request)
+    public function bulkStoreRecord(BulkStorePayrollRecordRequest $request)
     {
         $month = $request->integer('month');
         $year  = $request->integer('year');
@@ -118,6 +136,20 @@ class PayrollRecordController extends Controller
 
         return redirect()->route('payroll.index');
 //        return response()->json(['message' => 'Payroll processed successfully.']);
+    }
+
+    public function activatePeriod(PayPeriod $period) {
+        $periods = PayPeriod::all();
+        $periods->update(['is_active' => false]);
+
+        $period->update(['is_active' => true]);
+
+        return redirect()->route('payroll.index')->with('success', 'Period successfully activated.');
+    }
+    public function deactivatePeriod(PayPeriod $period) {
+        PayPeriod::update(['is_active' => false]);
+
+        return redirect()->route('payroll.index')->with('success', 'Period successfully activated.');
     }
 
     /**
@@ -212,50 +244,72 @@ class PayrollRecordController extends Controller
     {
         $month = $request->integer('month', now()->month);
         $year  = $request->integer('year', now()->year);
-        $isCurrentMonth = $month === now()->month && $year === now()->year;
 
-        if ($isCurrentMonth) {
-            $employees = Employee::with(['salary', 'leaveBalance', 'employeeDeduction', 'department'])->get();
+        $start = $request->start_date;
+        $end   = $request->end_date;
+
+        $isCurrentMonth =
+            $month === now()->month &&
+            $year === now()->year;
+
+        if ($isCurrentMonth && !$start && !$end) {
+
+            $employees = Employee::with([
+                'salary',
+                'leaveBalance',
+                'employeeDeduction',
+                'department'
+            ])->get();
 
             return response()->json([
-                'source'    => 'live',
+                'source' => 'live',
                 'employees' => $employees->map(fn($e) => [
-                    'id'         => $e->id,
-                    'name'       => $e->first_name . ' ' . $e->last_name,
-                    'department' => $e->department->name,
-                    'gross_pay'  => number_format($e->grossPay(), 2),
-                    'compensations' => number_format($e->totalDeductions(), 2),
-                    'net_pay'    => number_format($e->netPay(), 2),
+                    'id'           => $e->id,
+                    'name'         => $e->first_name . ' ' . $e->last_name,
+                    'department'   => $e->department->name,
+                    'gross_pay'    => number_format($e->grossPay(), 2),
+                    'compensations'=> number_format($e->totalDeductions(), 2),
+                    'net_pay'      => number_format($e->netPay(), 2),
                 ]),
             ]);
         }
 
-        $records = PayrollRecord::with(['employee.department', 'items'])
-            ->where('month', $month)
-            ->where('year', $year)
+        $records = PayrollRecord::with([
+            'employee.department',
+            'items'
+        ])
+            ->when($start && $end, function ($q) use ($start, $end) {
+                $q->whereBetween('date', [$start, $end]);
+            })
+            ->when(!($start && $end), function ($q) use ($month, $year) {
+                $q->where('month', $month)
+                    ->where('year', $year);
+            })
             ->get();
 
         if ($records->isEmpty()) {
-            return response()->json(['source' => 'unprocessed', 'employees' => []]);
+            return response()->json([
+                'source' => 'unprocessed',
+                'employees' => []
+            ]);
         }
 
         return response()->json([
-            'source'    => 'snapshot',
+            'source' => 'snapshot',
             'employees' => $records->map(fn($r) => [
-                'id'         => $r->employee->id,
-                'name'       => $r->employee->first_name . ' ' . $r->employee->last_name,
-                'department' => $r->employee->department->name,
-                'gross_pay'  => number_format($r->total_earnings, 2),
+                'id'            => $r->employee->id,
+                'name'          => $r->employee->first_name . ' ' . $r->employee->last_name,
+                'department'    => $r->employee->department->name,
+                'gross_pay'     => number_format($r->total_earnings, 2),
                 'compensations' => number_format($r->total_deductions, 2),
-                'net_pay'    => number_format($r->net_pay, 2),
-                'items'      => $r->items->groupBy('type')->map(fn($g) => $g->map(fn($i) => [
+                'net_pay'       => number_format($r->net_pay, 2),
+                'items'         => $r->items->groupBy('type')->map(fn($g) => $g->map(fn($i) => [
                     'name'   => $i->name,
                     'amount' => number_format($i->amount, 2),
                 ])),
             ]),
         ]);
     }
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -275,8 +329,14 @@ class PayrollRecordController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PayrollRecord $payroll)
+    public function destroyRecord(PayrollRecord $payroll)
     {
         //
+    }
+
+    public function destroyPeriod(PayPeriod $period) {
+        $period->delete();
+
+        return redirect()->route('payroll.index')->with('success', 'Period successfully deleted.');
     }
 }

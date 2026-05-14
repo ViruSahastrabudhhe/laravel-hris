@@ -11,7 +11,7 @@ class PerformanceCycleObserver
      */
     public function created(PerformanceCycle $performanceCycle): void
     {
-        $this->setOthersToInactive();
+        $this->setOthersToInactive($performanceCycle);
     }
 
     /**
@@ -19,7 +19,7 @@ class PerformanceCycleObserver
      */
     public function updated(PerformanceCycle $performanceCycle): void
     {
-        $this->setOthersToInactive();
+        $this->setOthersToInactive($performanceCycle);
     }
 
     /**
@@ -46,7 +46,11 @@ class PerformanceCycleObserver
         //
     }
 
-    private function setOthersToInactive() {
+    private function setOthersToInactive(PerformanceCycle $performanceCycle) {
+        if (!$performanceCycle->is_active) {
+            return;
+        }
+
         $performanceCycles = PerformanceCycle::all();
         $latestPerformanceCycle = PerformanceCycle::latest()->first();
 

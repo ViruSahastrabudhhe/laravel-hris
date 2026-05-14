@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PerformanceCycle extends Model
+class PayPeriod extends Model
 {
-    protected $table = 'performance_cycles';
+    protected $table = 'pay_periods';
 
     protected $fillable = [
         'name',
@@ -15,8 +15,7 @@ class PerformanceCycle extends Model
         'is_active',
     ];
 
-    public function ipcrForms()
-    {
-        return $this->hasMany(IPCRForm::class, 'performance_cycle_id');
+    public function payrollRecords() {
+        return $this->hasMany(PayrollRecord::class, 'pay_period_id');
     }
 }

@@ -36,7 +36,7 @@
                 <svg width="22" height="22" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
-                <h2>{{ __('common.app_attendance') }}</h2>
+                <h2>{{ __('common.app_personnel') }}</h2>
                 <p>{{ config('app.carbon_date') }}</p>
             </div>
         </div>
@@ -278,7 +278,7 @@
                                     {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <p class="emp-name">{{ $employee->first_name }} {{ $employee->last_name }}</p>
+                                    <p class="emp-name">{{ $employee->first_name }} {{ substr($employee->middle_name, 0, 1) . '.' }} {{ $employee->last_name }}</p>
                                     <p class="emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</p>
                                 </div>
                             </div>
@@ -303,7 +303,7 @@
                                 <a href="{{ route('employees.show', $employee) }}" class="btn-view">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <button type="button" onclick="openEditEmpModal({{ $employee->id }},'{{ addslashes($employee->first_name) }}','{{ addslashes($employee->last_name) }}','{{ $employee->gender }}','{{ $employee->date_of_birth }}','{{ addslashes($employee->email) }}','{{ addslashes($employee->phone_number) }}','{{ addslashes($employee->address->address ?? '') }}','{{ addslashes($employee->address->city ?? '') }}','{{ addslashes($employee->address->province ?? '') }}','{{ addslashes($employee->address->country ?? '') }}','{{ $employee->address->zip_code ?? '' }}','{{ $employee->position_id }}','{{ $employee->department_id }}','{{ $employee->employment_type }}','{{ $employee->employeeWorkSchedule->workSchedule->id ?? '' }}','{{ $employee->is_active }}','{{ $employee->salary->salary_grade ?? '' }}','{{ $employee->salary->step ?? '' }}','{{ $employee->salary->salary_type->value ?? '' }}','{{ $employee->salary->amount ?? '' }}')" class="btn-edit">
+                                <button type="button" onclick="openEditEmpModal({{ $employee->id }},'{{ addslashes($employee->first_name) }}','{{ addslashes($employee->last_name) }}','{{ addslashes($employee->middle_name) }}','{{ $employee->gender }}','{{ $employee->date_of_birth }}','{{ addslashes($employee->email) }}','{{ addslashes($employee->phone_number) }}','{{ addslashes($employee->address->address ?? '') }}','{{ addslashes($employee->address->city ?? '') }}','{{ addslashes($employee->address->province ?? '') }}','{{ addslashes($employee->address->country ?? '') }}','{{ $employee->address->zip_code ?? '' }}','{{ $employee->position_id }}','{{ $employee->department_id }}','{{ $employee->employment_type }}','{{ $employee->employeeWorkSchedule->workSchedule->id ?? '' }}','{{ $employee->is_active }}','{{ $employee->salary->salary_grade ?? '' }}','{{ $employee->salary->step ?? '' }}','{{ $employee->salary->salary_type->value ?? '' }}','{{ $employee->salary->amount ?? '' }}')" class="btn-edit">
                                     <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                                 <form action="{{ route('employees.destroy', $employee) }}" method='post' style="display:inline" onsubmit="return confirm('Archive this employee?')">
@@ -752,6 +752,10 @@
                         <div class="form-field">
                             <label>Last Name <span style="color:#dc2626">*</span></label>
                             <input type="text" name="last_name" id="eemp-last_name" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Middle Name <span style="color:#dc2626">*</span></label>
+                            <input type="text" name="middle_name" id="eemp-middle_name">
                         </div>
                         <div class="form-field">
                             <label>Gender <span style="color:#dc2626">*</span></label>
@@ -1222,10 +1226,6 @@
     }
 
     $(function () {
-        function escapeRegex(value) {
-            return value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        }
-
         if ($('#dept-table').length) {
             $('#dept-table').DataTable({
                 columnDefs: [{ orderable: false, targets: [5] }],
@@ -1320,7 +1320,7 @@
 let eempStep = 0;
 const eempTotal = 4;
 
-function openEditEmpModal(id, firstName, lastName, gender, dob, email, phone, address, city, province, country, zip, positionId, deptId, empType, scheduleId, isActive, salGrade, salStep, salType, salAmount) {
+function openEditEmpModal(id, firstName, lastName, middleName, gender, dob, email, phone, address, city, province, country, zip, positionId, deptId, empType, scheduleId, isActive, salGrade, salStep, salType, salAmount) {
     eempStep = 0;
     eempRender();
 
@@ -1332,6 +1332,7 @@ function openEditEmpModal(id, firstName, lastName, gender, dob, email, phone, ad
     document.getElementById('eemp-title').textContent = 'Edit: ' + firstName + ' ' + lastName;
     document.getElementById('eemp-first_name').value = firstName;
     document.getElementById('eemp-last_name').value  = lastName;
+    document.getElementById('eemp-middle_name').value  = middleName;
     document.getElementById('eemp-dob').value         = dob;
     document.getElementById('eemp-email').value       = email;
     document.getElementById('eemp-phone').value       = phone;

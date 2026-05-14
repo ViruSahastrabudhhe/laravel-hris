@@ -146,6 +146,8 @@
                             <span class="badge-status on-hold">Absent</span>
                         @elseif($a->attendance_status === \App\Enums\AttendanceStatus::Late->value)
                             <span class="badge-status pending">Late</span>
+                        @elseif($a->attendance_status === \App\Enums\AttendanceStatus::Leave->value)
+                            <span class="badge-status processed">{{ $a->attendance_status }}</span>
                         @else
                             <span class="badge-status pending">{{ $a->attendance_status }}</span>
                         @endif

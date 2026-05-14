@@ -33,7 +33,7 @@
 
 /* ── Modal form fields ── */
 .form-field {
-    display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px;
+    display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px;
 }
 .form-field label { font-size: 12px; font-weight: 600; color: #0b044d; }
 .form-field input,

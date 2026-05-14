@@ -50,6 +50,18 @@
     <script src="{{ asset('/js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('/js/jquery.dataTables.min.js') }}"></script>
     <script>
+        function switchView(viewId, btn) {
+            if (btn.classList.contains('active')) {
+                return;
+            }
+
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + viewId).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+    <script>
         function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; document.body.style.overflow = ''; }
         function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 

@@ -27,6 +27,7 @@ class EmployeeFactory extends Factory
     {
         return [
             'first_name' => 'John',
+            'middle_name' => 'Vertulo',
             'last_name' => 'Doe',
             'gender' => 'Male',
             'email' => 'johndoe@example.com',

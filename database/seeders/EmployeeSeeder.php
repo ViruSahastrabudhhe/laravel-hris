@@ -29,6 +29,7 @@ class EmployeeSeeder extends Seeder
         $employees = [
             [
                 'first_name' => 'John',
+                'middle_name' => 'Best',
                 'last_name' => 'Doe',
                 'gender' => 'Male',
                 'email' => 'johndoe@example.com',
@@ -42,6 +43,7 @@ class EmployeeSeeder extends Seeder
             ],
             [
                 'first_name' => 'Jane',
+                'middle_name' => 'Last',
                 'last_name' => 'Mary',
                 'gender' => 'Female',
                 'email' => 'maryjane@example.com',
@@ -55,6 +57,7 @@ class EmployeeSeeder extends Seeder
             ],
             [
                 'first_name' => 'Job',
+                'middle_name' => 'Good',
                 'last_name' => 'Order',
                 'gender' => 'Female',
                 'email' => 'joborder@example.com',

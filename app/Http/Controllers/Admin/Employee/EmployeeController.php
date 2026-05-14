@@ -199,8 +199,14 @@ class EmployeeController extends Controller
         $address = Address::where('employee_id', $employee->id)->first();
         $sickLeave = EmployeeLeaveBalance::where('employee_id', $employee->id)->where('type', 'Sick')?->first()?->amount;
         $vacationLeave = EmployeeLeaveBalance::where('employee_id', $employee->id)->where('type', 'Vacation')?->first()?->amount;
+        $positions = Position::paginate(25);
+        $departments = Department::paginate(25);
+        $workSchedules = WorkSchedule::paginate(25);
+        $employmentTypes = EmploymentType::cases();
+        $employees = Employee::all();
+        $salaryTypes = SalaryType::cases();
 
-        return view('admin.personnel.show', compact('address', 'employee', 'sickLeave', 'vacationLeave'));
+        return view('admin.personnel.show', compact('address', 'employee', 'sickLeave', 'vacationLeave', 'positions', 'employmentTypes', 'departments', 'workSchedules', 'employees', 'salaryTypes'));
     }
 
     /**

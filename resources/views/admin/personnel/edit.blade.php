@@ -31,6 +31,10 @@
                     <label>Last Name <span style="color:#dc2626">*</span></label>
                     <input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" required>
                 </div>
+                <div class="auth-field">
+                    <label>Middle Name <span style="color:#dc2626">*</span></label>
+                    <input type="text" name="middle_name" value="{{ old('middle_name', $employee->middle_name) }}">
+                </div>
             </div>
 
             <div class="auth-row-2">

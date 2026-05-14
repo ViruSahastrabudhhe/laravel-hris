@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('payroll_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id');
             $table->decimal('total_earnings', 10, 2)->default(0);
             $table->decimal('total_deductions', 10, 2)->default(0);
             $table->decimal('net_pay', 10, 2)->default(0);
@@ -21,7 +20,9 @@ return new class extends Migration
             $table->unsignedTinyInteger('month');
             $table->unsignedSmallInteger('year');
             $table->timestamps();
-            $table->foreign('employee_id')
+            $table->foreignId('pay_period_id')
+                ->references('id')->on('pay_periods');
+            $table->foreignId('employee_id')
                 ->references('id')->on('employees');
             $table->unique(['employee_id', 'month', 'year']);
         });

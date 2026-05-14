@@ -15,6 +15,7 @@ class StorePayrollRecordRequest extends FormRequest
     {
         return [
             'employee_id' => 'required|integer',
+            'pay_period_id' => 'required|integer',
             'month' => 'required|integer',
             'year' => 'required|integer',
             'total_earnings' => 'required|numeric|min:0',

@@ -17,12 +17,8 @@ class AttendanceObserver
      */
     public function created(Attendance $attendance): void
     {
-        $this->calculateWorkMinutes($attendance);
-        $this->calculateOvertimeMinutes($attendance);
-        $this->determineAttendanceStatus($attendance);
-        $this->processLeaveDeduction($attendance);
-        $this->recalculateEmployeeMonthlySummary($attendance);
-        $this->recalculateMonthlyOvertime($attendance);
+        $this->syncAttendance($attendance);
+        $this->deductLeaveCredits($attendance);
     }
 
     /**
@@ -30,11 +26,8 @@ class AttendanceObserver
      */
     public function updated(Attendance $attendance): void
     {
-        $this->calculateWorkMinutes($attendance);
-        $this->calculateOvertimeMinutes($attendance);
-        $this->determineAttendanceStatus($attendance);
-        $this->recalculateEmployeeMonthlySummary($attendance);
-        $this->recalculateMonthlyOvertime($attendance);
+        $this->syncAttendance($attendance);
+        $this->deductLeaveCredits($attendance);
     }
 
     /**
@@ -42,11 +35,7 @@ class AttendanceObserver
      */
     public function deleted(Attendance $attendance): void
     {
-        $this->calculateWorkMinutes($attendance);
-        $this->calculateOvertimeMinutes($attendance);
-        $this->determineAttendanceStatus($attendance);
         $this->recalculateEmployeeMonthlySummary($attendance);
-        $this->recalculateMonthlyOvertime($attendance);
     }
 
     /**
@@ -54,11 +43,8 @@ class AttendanceObserver
      */
     public function restored(Attendance $attendance): void
     {
-        $this->calculateWorkMinutes($attendance);
-        $this->calculateOvertimeMinutes($attendance);
-        $this->determineAttendanceStatus($attendance);
-        $this->recalculateEmployeeMonthlySummary($attendance);
-        $this->recalculateMonthlyOvertime($attendance);
+        $this->syncAttendance($attendance);
+        $this->deductLeaveCredits($attendance);
     }
 
     /**
@@ -67,6 +53,14 @@ class AttendanceObserver
     public function forceDeleted(Attendance $attendance): void
     {
         //
+    }
+
+    private function syncAttendance(Attendance $attendance): void {
+        $this->calculateWorkMinutes($attendance);
+        $this->calculateOvertimeMinutes($attendance);
+        $this->determineAttendanceStatus($attendance);
+        $this->recalculateEmployeeMonthlySummary($attendance);
+        $this->recalculateMonthlyOvertime($attendance);
     }
 
     private function recalculateEmployeeMonthlySummary(Attendance $attendance): void {
@@ -83,6 +77,7 @@ class AttendanceObserver
                 'total_late' => 0,
                 'total_absent' => 0,
                 'total_overtime' => 0,
+                'total_leaves' => 0,
                 'is_complete' => false,
             ]
         );
@@ -96,18 +91,18 @@ class AttendanceObserver
             'total_present' => (clone $query)->where('attendance_status', AttendanceStatus::Present->value)->count(),
             'total_late'    => (clone $query)->where('attendance_status', AttendanceStatus::Late->value)->count(),
             'total_absent'  => (clone $query)->where('attendance_status', AttendanceStatus::Absent->value)->count(),
+            'total_leaves'  => (clone $query)->where('attendance_status', AttendanceStatus::Leave->value)->count(),
             'total_overtime'=> (clone $query)->sum('overtime_minutes'),
         ]);
 
-        $totalDays = $employeeAttendance->total_present + $employeeAttendance->total_late + $employeeAttendance->total_absent;
+        $totalDays = $employeeAttendance->total_present + $employeeAttendance->total_late + $employeeAttendance->total_absent + $employeeAttendance->total_leaves;
 
         $employeeAttendance->update([
             'is_complete' => $totalDays >= 22
         ]);
     }
 
-    private function recalculateMonthlyOvertime(Attendance $attendance): void
-    {
+    private function recalculateMonthlyOvertime(Attendance $attendance): void {
         $date = Carbon::parse($attendance->date);
 
         $employeeAttendance = EmployeeAttendance::firstOrCreate(
@@ -121,6 +116,7 @@ class AttendanceObserver
                 'total_late' => 0,
                 'total_absent' => 0,
                 'total_overtime' => 0,
+                'total_leaves' => 0,
                 'is_complete' => false,
             ]
         );
@@ -173,6 +169,12 @@ class AttendanceObserver
     }
 
     private function determineAttendanceStatus(Attendance $attendance) {
+        $date = Carbon::parse($attendance->date);
+
+        if ($attendance->attendance_status == AttendanceStatus::Leave->value) {
+            return;
+        }
+
         if (!$attendance->time_in || !$attendance->time_out || !$attendance->break_start || !$attendance->break_end) {
             $attendance->attendance_status = AttendanceStatus::Absent->value;
             $attendance->saveQuietly();
@@ -202,21 +204,35 @@ class AttendanceObserver
         $attendance->saveQuietly();
     }
 
-    private function processLeaveDeduction(Attendance $attendance) {
-        $leaveBalance = EmployeeLeaveBalance::where('employee_id', $attendance->employee_id)
+    private function deductLeaveCredits(Attendance $attendance) {
+        $vacationLeave = EmployeeLeaveBalance::where('employee_id', $attendance->employee_id)
                 ->where('type', 'Vacation')
                 ->first();
+        $sickLeave = EmployeeLeaveBalance::where('employee_id', $attendance->employee_id)
+                ->where('type', 'Sick')
+                ->first();
 
-        if (!$leaveBalance) {
+        if (!$vacationLeave || !$sickLeave) {
+            return;
+        }
+
+        if ($vacationLeave->amount <= 0) {
+            if ($attendance->attendance_status==AttendanceStatus::Late->value) {
+                $sickLeave->amount -= 0.5;
+                $sickLeave->save();
+            } elseif ($attendance->attendance_status==AttendanceStatus::Absent->value) {
+                $sickLeave->amount -= 1;
+                $sickLeave->save();
+            }
             return;
         }
 
         if ($attendance->attendance_status==AttendanceStatus::Late->value) {
-            $leaveBalance->amount -= 0.5;
-            $leaveBalance->save();
+            $vacationLeave->amount -= 0.5;
+            $vacationLeave->save();
         } elseif ($attendance->attendance_status==AttendanceStatus::Absent->value) {
-            $leaveBalance->amount -= 1;
-            $leaveBalance->save();
+            $vacationLeave->amount -= 1;
+            $vacationLeave->save();
         }
     }
 }

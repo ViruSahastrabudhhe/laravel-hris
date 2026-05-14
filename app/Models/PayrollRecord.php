@@ -12,6 +12,7 @@ class PayrollRecord extends Model
 {
     protected $fillable = [
         'employee_id',
+        'pay_period_id',
         'total_earnings',
         'total_deductions',
         'net_pay',
@@ -28,6 +29,10 @@ class PayrollRecord extends Model
     public function items()
     {
         return $this->hasMany(PayrollItem::class);
+    }
+
+    public function payPeriod() {
+        return $this->belongsTo(PayPeriod::class, 'pay_period_id');
     }
 
     public function earnings()

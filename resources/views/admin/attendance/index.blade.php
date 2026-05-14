@@ -226,6 +226,7 @@
                         <th>Present</th>
                         <th>Late</th>
                         <th>Absent</th>
+                        <th>Leaves</th>
                         <th>OT Hours</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -248,6 +249,7 @@
                         <td><span style="color: #15803d; font-weight: 600;">{{ $attendance->total_present }}</span></td>
                         <td><span style="color: #a16207; font-weight: 600;">{{ $attendance->total_late }}</span></td>
                         <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_absent }}</span></td>
+                        <td><span style="color: #8e1e18; font-weight: 600;">{{ $attendance->total_leaves }}</span></td>
                         <td><span style="color: #0b044d; font-weight: 600;">{{ number_format(($attendance->total_overtime / 60), 2) }} hrs</span></td>
                         <td>
                             @if ($attendance->is_complete === true)
@@ -268,6 +270,7 @@
                                     data-late="{{ $attendance->total_late }}"
                                     data-absent="{{ $attendance->total_absent }}"
                                     data-overtime="{{ $attendance->total_overtime }}"
+                                    data-leaves="{{ $attendance->total_leaves }}"
                                     data-is_complete="{{ (int) $attendance->is_complete }}"
                                     onclick="openViewDTRModal(this)"
                                 >
@@ -365,6 +368,8 @@
                                 <span class="badge-status pending">{{ App\Enums\AttendanceStatus::Late->value }}</span>
                             @elseif($attendance->attendance_status === 'Absent')
                                 <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Absent->value }}</span>
+                            @elseif($attendance->attendance_status === 'Leave')
+                                <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Leave->value }}</span>
                             @else
                                 <span class="badge-status on-hold">{{ App\Enums\AttendanceStatus::Missing->value }}</span>
                             @endif
@@ -637,6 +642,7 @@
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Present</span><strong style="font-size:13px;color:#15803d" id="modal-present">22 days</strong></div>
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Absent</span><strong style="font-size:13px;color:#8e1e18" id="modal-absent">0 days</strong></div>
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Late Arrivals</span><strong style="font-size:13px;color:#a16207" id="modal-late">1 times</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Leave Days</span><strong style="font-size:13px;color:#a16207" id="modal-leaves">1 times</strong></div>
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Half Days</span><strong style="font-size:13px;color:#a16207" id="modal-halfday">0 days</strong></div>
 
             <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin: 16px 0 12px;">OVERTIME</p>
@@ -993,28 +999,28 @@
                         ? '<span class="badge-status processed">Complete</span>'
                         : '<span class="badge-status pending">Incomplete</span>';
 
-                    const modalData = {
-                        id: e.id,
-                        first_name: e.first_name,
-                        last_name: e.last_name,
-                        department: e.department,
-                        position: e.position,
-                        present: e.present,
-                        late: e.late,
-                        absent: e.absent,
-                        overtime: e.ot_hours,
-                        is_complete: e.is_complete
-                    };
-
                     attendance_table.row.add([
                         `<div class="emp-cell"><div class="emp-avatar" style="background:${color}">${initials}</div><div><p class="emp-name">${e.first_name} ${e.last_name}</p><p class="emp-id">${empId}</p></div></div>`,
                         `<span style="color:#15803d;font-weight:600">${e.present}</span>`,
                         `<span style="color:#8e1e18;font-weight:600">${e.late}</span>`,
                         `<span style="color:#a16207;font-weight:600">${e.absent}</span>`,
+                        `<span style="color:#a16207;font-weight:600">${e.leaves}</span>`,
                         `<span class="pay-cell" style="color:#0b044d;font-weight:600">${e.ot_hours} hrs</span>`,
                         status,
                         `<div class="row-actions">
-                            <button class="btn-view" onclick='openViewDTRModal(${JSON.stringify(modalData)})'>
+                            <button class="btn-view" onclick='openViewDTRModal(this)'
+                                data-id="${ e.id }"
+                                data-first_name="${ e.first_name }"
+                                data-last_name="${ e.last_name }"
+                                data-position="${ e.department }"
+                                data-department="${ e.position }"
+                                data-present="${ e.present }"
+                                data-late="${ e.late }"
+                                data-absent="${ e.absent }"
+                                data-leaves="${ e.leaves }"
+                                data-overtime="${ e.ot_hours }"
+                                data-is_complete="${ e.is_complete }"
+                            >
                                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                         </div>`,
@@ -1190,6 +1196,7 @@
         const late = Number(data.late) || 0;
         const absent = Number(data.absent) || 0;
         const overtime = Number(data.overtime) || 0;
+        const leaves = Number(data.leaves) || 0;
 
         document.getElementById('modal-avatar').innerText = initials;
         document.getElementById('modal-avatar').style.background = color;
@@ -1207,6 +1214,7 @@
         document.getElementById('modal-present').textContent = `${present} ${present === 1 ? 'day' : 'days'}`;
         document.getElementById('modal-absent').textContent = `${absent} ${absent === 1 ? 'day' : 'days'}`;
         document.getElementById('modal-late').textContent = `${late} ${late === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-leaves').textContent = `${leaves} ${leaves === 1 ? 'day' : 'days'}`;
         document.getElementById('modal-overtime').textContent = `${(overtime / 60).toFixed(2)} hrs`;
 
         const rate = (present / 22) * 100;

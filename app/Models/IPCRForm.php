@@ -39,4 +39,8 @@ class IPCRForm extends Model
     {
         return round($this->entries()->avg('average_rating'), 2);
     }
+
+    public function isApproved() {
+        return $this->status=='Approved';
+    }
 }

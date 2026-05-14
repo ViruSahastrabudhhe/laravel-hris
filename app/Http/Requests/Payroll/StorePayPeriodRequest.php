@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Performance;
+namespace App\Http\Requests\Payroll;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ApproveIPCRFormRequest extends FormRequest
+class StorePayPeriodRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +23,10 @@ class ApproveIPCRFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ipcr_form_id' => 'required',
-            'development_needs' => 'required',
-            'recommended_training' => 'required',
+            'name' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'is_active' => 'required|boolean',
         ];
     }
 }

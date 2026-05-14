@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('payroll_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payroll_record_id')->references('id')->on('payroll_records')->cascadeOnDelete();
-            $table->string('name'); // e.g. "Basic Pay", "Withholding Tax"
+            $table->string('name');
             $table->enum('type', CompensationType::cases());
             $table->decimal('amount', 10, 2);
             $table->timestamps();

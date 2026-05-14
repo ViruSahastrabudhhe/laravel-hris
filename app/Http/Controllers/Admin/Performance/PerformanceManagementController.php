@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Admin\PerformanceManagement;
+namespace App\Http\Controllers\Admin\Performance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Performance\ApproveIPCRFormRequest;
 use App\Http\Requests\Performance\StoreIPCREntryRequest;
 use App\Http\Requests\Performance\StoreIPCRFormRequest;
 use App\Http\Requests\Performance\StorePerformanceCycleRequest;
 use App\Http\Requests\Performance\UpdateIPCREntryRequest;
 use App\Models\Department;
+use App\Models\PayPeriod;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ class PerformanceManagementController extends Controller
     public function index()
     {
         return view('admin.performance.index', [
-            'ipcrForms' => IPCRForm::with('employee', 'entries')->latest()->get(),
+            'ipcrForms' => IPCRForm::with('employee', 'entries', 'developmentNeeds')->latest()->get(),
             'cycles' => PerformanceCycle::all(),
             'employees' => Employee::all(),
         ]);
@@ -114,23 +116,32 @@ class PerformanceManagementController extends Controller
         return back()->with('success', 'Final rating computed.');
     }
 
+    public function activateCycle(PerformanceCycle $cycle) {
+        $cycles = PerformanceCycle::all();
+        $cycles->update(['is_active' => false]);
+
+        $cycle->update(['is_active' => true]);
+
+        return redirect()->route('performance_management.index')->with('success', 'Cycle toggled on.');
+    }
+
+    public function deactivateCycle(PerformanceCycle $cycle) {
+        $cycle->update(['is_active' => false]);
+
+        return redirect()->route('performance_management.index')->with('success', 'Cycle toggled off.');
+    }
+
     public function submit(IPCRForm $form) {
         $form->update(['status' => 'Submitted']);
         return back()->with('success', 'IPCREntry submitted.');
     }
 
-    public function approve(IPCRForm $form) {
-        $request->validate([
-            'ipcr_form_id' => 'required',
-            'development_needs' => 'required',
-        ]);
+    public function approve(ApproveIPCRFormRequest $request, IPCRForm $form) {
+        $data = $request->validated();
 
-        IPCRDevelopmentNeed::create([
-            'ipcr_form_id' => $request->ipcr_form_id,
-            'development_needs' => $request->development_needs,
-            'recommended_training' => $request->recommended_training,
-        ]);
+        IPCRDevelopmentNeed::create($data);
         $form->update(['status' => 'Approved']);
+
         return back()->with('success', 'IPCR Form approved!');
     }
 
@@ -153,5 +164,11 @@ class PerformanceManagementController extends Controller
         $form->delete();
 
         return back()->with('success', 'IPCR Form deleted.');
+    }
+
+    public function destroyCycle(PerformanceCycle $cycle) {
+        $cycle->delete();
+
+        return redirect()->route('performance_management.index')->with('success', 'Cycle deleted.');
     }
 }

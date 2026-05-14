@@ -22,6 +22,7 @@ class BulkStorePayrollRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'pay_period_id' => 'required',
             'month' => ['required', 'integer', 'min:1', 'max:12'],
             'year'  => ['required', 'integer', 'min:2000', 'max:' . now()->year],
         ];

@@ -23,6 +23,7 @@ class EmployeeAttendance extends Model
         'total_present',
         'total_late',
         'total_absent',
+        'total_leaves',
         'total_overtime',
         'month',
         'year',
