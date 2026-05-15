@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Employees',
+    'title' => 'Personnel',
 
     'sidebar' => 'Employees List',
 
@@ -16,7 +16,7 @@ return [
     'success_restoring' => 'Successfully restored employee!',
     'success_activating' => 'Successfully activated employee!',
     'success_deactivating' => 'Successfully deactivated employee!',
-    
+
     'error_creating' => 'Error creating new employee!',
     'error_deleting' => 'Error archiving employee!',
     'error_editing' => 'Error editing employee!',

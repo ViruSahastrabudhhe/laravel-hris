@@ -1151,7 +1151,7 @@
                 </div>
                 <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b6a8a;line-height:1.7;margin-top:14px;">
                     <strong style="color:#0b044d;display:block;margin-bottom:4px;">CSV Format</strong>
-                    first_name, last_name, gender, email, password, date_of_birth, phone_number, employment_type, is_active, position_id, department_id, salary_type, amount, salary_grade, step, country, zip_code, city, address, province, work_schedule_id
+                    first_name, middle_name, last_name, gender, email, password, date_of_birth, phone_number, employment_type, is_active, position_id, department_id, salary_type, amount, salary_grade, step, country, zip_code, city, address, province, work_schedule_id
                 </div>
             </div>
             <div class="modal-footer">

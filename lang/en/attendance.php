@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Attendances',
+    'title' => 'Time & Attendance',
 
     'sidebar' => 'Attendances List',
 
@@ -14,7 +14,7 @@ return [
     'success_deleting' => 'Successfully archived attendance!',
     'success_editing' => 'Successfully edited attendance!',
     'success_restoring' => 'Successfully restored attendance!',
-    
+
     'error_creating' => 'Error creating new attendance!',
     'error_deleting' => 'Error archiving attendance!',
     'error_editing' => 'Error editing attendance!',

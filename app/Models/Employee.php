@@ -53,6 +53,7 @@ class Employee extends Model
     public function employeeWorkSchedule() { return $this->hasOne(EmployeeWorkSchedule::class); }
     public function qrAttendanceScans() { return $this->hasMany(QrAttendanceScan::class); }
     public function payrollRecords() { return $this->hasMany(PayrollRecord::class); }
+    public function user() { return $this->belongsTo(User::class, 'user_id'); }
 
     public function isJobOrder() {
         return $this->employment_type == EmploymentType::JobOrder->value;

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Leave Requests',
+    'title' => 'Leave & Benefits',
 
     'sidebar' => 'Leave Requests List',
 
@@ -16,7 +16,7 @@ return [
     'success_restoring' => 'Successfully restored leave request!',
     'success_approving' => 'Successfully approved leave request!',
     'success_denying' => 'Successfully denied leave request!',
-    
+
     'error_creating' => 'Error creating new leave request!',
     'error_deleting' => 'Error archiving leave request!',
     'error_editing' => 'Error editing leave request!',

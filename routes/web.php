@@ -41,7 +41,7 @@ Route::get('/', function () {
 });
 
 Route::view('/landing', 'landing')->name('landing');
-Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified', 'active'])->name('home');
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
     Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
@@ -67,7 +67,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::prefix('payroll')->group(function() {
         Route::get('/', [PayrollRecordController::class, 'index'])->name('payroll.index');
         Route::get('/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
-        Route::post('/store', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
+        Route::post('/store/record', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
+        Route::post('/store/period', [PayrollRecordController::class, 'storePeriod'])->name('payroll.storePeriod');
         Route::post('/bulk-store', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');
         Route::put('/activate/{period}', [PayrollRecordController::class, 'activatePeriod'])->name('payroll.activatePeriod');
         Route::put('/deactivate/{period}', [PayrollRecordController::class, 'deactivatePeriod'])->name('payroll.deactivatePeriod');
@@ -120,7 +121,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
 Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat');
 
-Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee'])->group(function() {
+Route::prefix('employee')->middleware(['auth', 'verified', 'role:employee', 'active'])->group(function() {
     Route::resource('my_profile', EmployeeProfileController::class);
     Route::get('my_trainings/{employeeTraining}/certificate', [EmployeeTrainingController::class, 'downloadCertificate'])->name('my_trainings.certificate');
     Route::resource('my_trainings', EmployeeTrainingController::class);

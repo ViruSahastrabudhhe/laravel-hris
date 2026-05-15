@@ -27,7 +27,10 @@ class PayrollRecordController extends Controller
     public function index()
     {
         $periods = PayPeriod::all();
-        $records = PayrollRecord::with('items')->get();
+        $records = PayrollRecord::with(['items', 'employee.department', 'employee.position', 'employee.salary'])
+            ->where('month', now()->month)
+            ->where('year', now()->year)
+            ->get();
         $employees = Employee::paginate(25);
         $departments = Department::get();
 
@@ -99,16 +102,22 @@ class PayrollRecordController extends Controller
      */
     public function bulkStoreRecord(BulkStorePayrollRecordRequest $request)
     {
+        $data = $request->validated();
         $month = $request->integer('month');
         $year  = $request->integer('year');
 
-        $employees = Employee::with(['salary', 'leaveBalance', 'employeeCompensation.compensation'])->get();
+        $employees = Employee::with([
+            'salary',
+            'employeeLeaveBalance',
+            'employeeCompensation.compensation'
+        ])->get();
 
         foreach ($employees as $employee) {
             $record = PayrollRecord::updateOrCreate(
                 ['employee_id' => $employee->id, 'month' => $month, 'year' => $year],
                 [
-                    'status'           => 'Processed',
+                    'pay_period_id'    => $data['pay_period_id'],
+                    'status'           => 'Draft',
                     'total_earnings'   => $employee->grossPay($month, $year),
                     'total_deductions' => $employee->totalDeductions($month, $year),
                     'net_pay'          => $employee->netPay($month, $year),
@@ -165,8 +174,7 @@ class PayrollRecordController extends Controller
     {
         $employee = Employee::findOrFail($employeeID);
 
-        $attendances = Attendance::where('user_id', auth()->user()->id)
-            ->where('employee_id', $employee->id)
+        $attendances = Attendance::where('employee_id', $employee->id)
             ->betweenCurrentMonth()
             ->whereNull('deleted_at')
             ->orderBy('date')

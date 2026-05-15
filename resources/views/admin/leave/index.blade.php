@@ -24,6 +24,27 @@
     $totalHolidayDays = $holidays->sum('holiday_duration');
     $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolidays, 1) : 0;
 
+    $totalEarnings = 0;
+    $totalDeductions = 0;
+    $totalBenefitsCount = $employees->sum(function ($employee) {
+        return $employee->employeeCompensation->count();
+    });
+
+    foreach ($employees as $employee) {
+
+        $totalEarnings += $employee->employeeCompensation
+            ->filter(fn ($comp) =>
+                optional($comp->compensation)->type === 'Earnings'
+            )
+            ->sum('amount');
+
+        $totalDeductions += $employee->employeeCompensation
+            ->filter(fn ($comp) =>
+                optional($comp->compensation)->type === 'Deductions'
+            )
+            ->sum('amount');
+    }
+
     $allCompensations = \App\Models\Compensation::all();
 @endphp
 
@@ -104,15 +125,15 @@
 <div id="stats-benefits" class="stats-grid stats-grid-4" style="display:none">
     <div class="stat-card">
         <div class="stat-top">
-            <p class="stat-label">Total Leave Types</p>
+            <p class="stat-label">Total Records</p>
             <div class="stat-icon-wrap" style="background:#f0effe">
                 <svg width="17" height="17" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalLeaveTypes }}</p>
+        <p class="stat-value">{{ $totalBenefitsCount }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
-            <p class="stat-sub">Configured leave categories</p>
+            <p class="stat-sub">Configured benefits</p>
         </div>
     </div>
     <div class="stat-card">
@@ -130,28 +151,28 @@
     </div>
     <div class="stat-card">
         <div class="stat-top">
-            <p class="stat-label">Inactive Types</p>
+            <p class="stat-label">Total Earnings</p>
             <div class="stat-icon-wrap" style="background:#fefce8">
                 <svg width="17" height="17" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $inactiveLeaveTypes }}</p>
+        <p class="stat-value">₱{{ $totalEarnings }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">Disabled categories</p>
+            <p class="stat-sub">Total earnings</p>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-top">
-            <p class="stat-label">Total Allowance Days</p>
+            <p class="stat-label">Total Deductions</p>
             <div class="stat-icon-wrap" style="background:#fdf0ef">
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalLeaveTypeDays }} days</p>
+        <p class="stat-value">₱{{ $totalDeductions }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
-            <p class="stat-sub">Total leave allowance</p>
+            <p class="stat-sub">Total deductions</p>
         </div>
     </div>
 </div>
@@ -298,7 +319,7 @@
                 <p class="table-sub">Earnings · Deductions · Leave Credits</p>
             </div>
             <div class="table-actions">
-                <button class="btn-export">
+                <button class="btn-export" hidden>
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Export
                 </button>

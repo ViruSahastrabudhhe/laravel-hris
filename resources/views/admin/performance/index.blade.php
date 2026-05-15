@@ -248,10 +248,10 @@
                     <p class="table-sub">{{ config('app.name') }} · <span id="showing-count">{{ $totalForms }}</span> of {{ $totalForms }} forms</p>
                 </div>
                 <div class="table-actions">
-                    <select class="filter-select" id="status-filter">
+                    <select class="filter-select" id="cycle-status-filter">
                         <option value="">All Status</option>
-                        <option value="Draft">Draft</option>
-                        <option value="Approved">Approved</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
                     </select>
                     <button class="btn-export" hidden>
                         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -679,6 +679,13 @@
 
             const val = this.value ? '^' + this.value + '$' : '';
             performanceTable.column(3).search(val, true, false).draw();
+        });
+
+        $('#cycle-status-filter').on('change', function() {
+            if (!cyclesTable) return;
+
+            const val = this.value ? '^' + this.value + '$' : '';
+            cyclesTable.column(4).search(val, true, false).draw();
         });
 
         $('#cycle-filter').on('change', function () {

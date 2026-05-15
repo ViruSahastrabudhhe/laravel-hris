@@ -216,7 +216,7 @@
                 <p class="stat-label">GSIS Premium</p>
                 <div class="stat-icon-wrap" style="background:#0b044d15"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b044d" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
             </div>
-            <h2 class="stat-value">₱3,046</h2>
+            <h2 class="stat-value">₱{{ number_format($employee->gsisContribution(), 2) }}</h2>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#0b044d"></span>
                 <p class="stat-sub">Monthly contribution</p>
@@ -227,7 +227,7 @@
                 <p class="stat-label">PhilHealth</p>
                 <div class="stat-icon-wrap" style="background:#15803d15"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
             </div>
-            <h2 class="stat-value">₱850</h2>
+            <h2 class="stat-value">₱{{ number_format($employee->philHealthContribution(), 2) }}</h2>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#15803d"></span>
                 <p class="stat-sub">Monthly contribution</p>
@@ -238,7 +238,7 @@
                 <p class="stat-label">Pag-IBIG</p>
                 <div class="stat-icon-wrap" style="background:#8e1e1815"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8e1e18" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
             </div>
-            <h2 class="stat-value">₱100</h2>
+            <h2 class="stat-value">₱{{ number_format($employee->pagIbigContribution(), 2) }}</h2>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#8e1e18"></span>
                 <p class="stat-sub">Monthly contribution</p>
@@ -249,7 +249,7 @@
                 <p class="stat-label">Withholding Tax</p>
                 <div class="stat-icon-wrap" style="background:#d9bb0015"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9bb00" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             </div>
-            <h2 class="stat-value">₱2,772</h2>
+            <h2 class="stat-value">₱{{ number_format($employee->withholdingTax(), 2) }}</h2>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#d9bb00"></span>
                 <p class="stat-sub">Monthly deduction</p>
@@ -279,29 +279,29 @@
                     <tr>
                         <td style="font-weight:600;">GSIS Premium</td>
                         <td><span class="dept-tag">Retirement & Insurance</span></td>
-                        <td class="deduction">₱3,046</td>
-                        <td style="font-weight:600;color:#5a5888;">₱36,552</td>
+                        <td class="deduction">₱{{ number_format($employee->gsisContribution(), 2) }}</td>
+                        <td style="font-weight:600;color:#5a5888;">₱{{ number_format(($employee->gsisContribution() * 12), 2) }}</td>
                         <td><span class="badge-status processed">Active</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight:600;">PhilHealth</td>
                         <td><span class="dept-tag">Health Insurance</span></td>
-                        <td class="deduction">₱850</td>
-                        <td style="font-weight:600;color:#5a5888;">₱10,200</td>
+                        <td class="deduction">₱{{ number_format($employee->philHealthContribution(), 2) }}</td>
+                        <td style="font-weight:600;color:#5a5888;">₱{{ number_format(($employee->philHealthContribution() * 12), 2) }}</td>
                         <td><span class="badge-status processed">Active</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight:600;">Pag-IBIG</td>
                         <td><span class="dept-tag">Housing Fund</span></td>
-                        <td class="deduction">₱100</td>
-                        <td style="font-weight:600;color:#5a5888;">₱1,200</td>
+                        <td class="deduction">₱{{ number_format($employee->pagIbigContribution(), 2) }}</td>
+                        <td style="font-weight:600;color:#5a5888;">₱{{ number_format(($employee->pagIbigContribution() * 12), 2) }}</td>
                         <td><span class="badge-status processed">Active</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight:600;">Withholding Tax</td>
                         <td><span class="dept-tag">Government Tax</span></td>
-                        <td class="deduction">₱2,772</td>
-                        <td style="font-weight:600;color:#5a5888;">₱33,264</td>
+                        <td class="deduction">₱{{ number_format($employee->withholdingTax(), 2) }}</td>
+                        <td style="font-weight:600;color:#5a5888;">₱{{ number_format(($employee->withholdingTax() * 12), 2) }}</td>
                         <td><span class="badge-status processed">Active</span></td>
                     </tr>
                 </tbody>

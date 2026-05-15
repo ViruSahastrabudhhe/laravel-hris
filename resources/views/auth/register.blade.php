@@ -57,7 +57,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}" class="auth-form">
+            <form method="POST" action="{{ route('register') }}" class="auth-form" style="display: none;">
                 @csrf
 
                 <div class="auth-field">
@@ -120,7 +120,14 @@
                 </button>
             </form>
 
-            <div class="auth-card-footer">
+            <div class="auth-field">
+                <p class="auth-switch">
+                    Please contact HR to register your account.
+                    <a href="{{ route('login') }}" class="auth-switch-btn">Sign in</a>
+                </p>
+            </div>
+
+            <div class="auth-card-footer" style="display: none;">
                 <p class="auth-switch">
                     Already have an account?
                     <a href="{{ route('login') }}" class="auth-switch-btn">Sign in</a>

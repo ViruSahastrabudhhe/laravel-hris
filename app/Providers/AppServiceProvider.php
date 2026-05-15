@@ -47,6 +47,9 @@ class AppServiceProvider extends ServiceProvider
                 str_contains($route, 'home') => __('common.app_dashboard'),
                 str_contains($route, 'verification') => __('common.app_verify'),
                 str_contains($route, 'login') => __('common.app_login'),
+                str_contains($route, 'performance') => __('Performance Management'),
+                str_contains($route, 'recruitment') => __('Recruitment'),
+                str_contains($route, 'reports') => __('Reports'),
                 str_contains($route, 'register') => __('common.app_register'),
                 str_contains($route, 'password') => __('common.app_password'),
                 str_contains($route, 'verify') => __('common.app_verify'),
@@ -76,6 +79,8 @@ class AppServiceProvider extends ServiceProvider
             $route = Route::currentRouteName();
             $header = match(true) {
                 str_contains($route, 'employee_compensations') => __('employee_deduction.title'),
+                str_contains($route, 'performance') => __('Performance Management'),
+                str_contains($route, 'recruitment') => __('Recruitment'),
                 str_contains($route, 'leave_requests') => __('common.app_leave'),
                 str_contains($route, 'qr') => __('qr_code.title'),
                 str_contains($route, 'department') => __('department.title'),

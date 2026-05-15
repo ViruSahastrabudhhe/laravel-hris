@@ -134,6 +134,7 @@ class EmployeeController extends Controller
 
                 $employee = Employee::createQuietly([
                     'first_name'      => $record['first_name'],
+                    'middle_name'     => $record['middle_name'],
                     'last_name'       => $record['last_name'],
                     'gender'          => $record['gender'],
                     'email'           => $record['email'],
