@@ -13,11 +13,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Attendance extends Model
+class Attendance extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\AttendanceFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $table = 'attendances';
 

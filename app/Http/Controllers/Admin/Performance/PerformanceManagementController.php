@@ -82,11 +82,10 @@ class PerformanceManagementController extends Controller
         return redirect()->back()->with('success', 'IPCR forms successfully created for all employees.');
     }
 
-    public function updateIpcr(UpdateIPCREntryRequest $request, IPCREntry $entry) {
+    public function updateIpcr(UpdateIPCREntryRequest $request) {
         $data = $request->validated();
 
         foreach ($data['entries'] as $id => $data) {
-
             $average = ($data['quality_rating'] + $data['efficiency_rating'] + $data['timeliness_rating']) / 3;
             $entry = IPCREntry::find($id);
 
@@ -118,7 +117,9 @@ class PerformanceManagementController extends Controller
 
     public function activateCycle(PerformanceCycle $cycle) {
         $cycles = PerformanceCycle::all();
-        $cycles->update(['is_active' => false]);
+        foreach ($cycles as $cycle) {
+            $cycle->update(['is_active' => false]);
+        }
 
         $cycle->update(['is_active' => true]);
 

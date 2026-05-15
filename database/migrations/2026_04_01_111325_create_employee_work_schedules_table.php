@@ -13,17 +13,11 @@ return new class extends Migration
     {
         Schema::create('employee_work_schedules', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('work_schedule_id');
+            $table->foreignId('employee_id')
+                    ->references('id')->on('employees');
+            $table->foreignId('work_schedule_id')
+                    ->references('id')->on('work_schedules');
             $table->timestamps();
-            $table->foreign('employee_id')
-                    ->references('id')->on('employees')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->foreign('work_schedule_id')
-                    ->references('id')->on('work_schedules')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
         });
     }
 

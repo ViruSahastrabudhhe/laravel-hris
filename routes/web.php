@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Chatbot\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Http\Request;
@@ -21,6 +20,8 @@ use App\Http\Controllers\Admin\QrCode\QrCodeController;
 use App\Http\Controllers\Admin\Training\TrainingController;
 use App\Http\Controllers\Admin\Api\QrScannerController;
 use App\Http\Controllers\Admin\Report\ReportController;
+use App\Http\Controllers\Admin\Audit\AuditController;
+use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Admin\Recruitment\RecruitmentController;
 use App\Http\Controllers\Admin\Performance\PerformanceManagementController;
 use App\Http\Controllers\Employee\Training\EmployeeTrainingController;
@@ -64,26 +65,19 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::put('attendances/{attendanceId}/restore', [AttendanceController::class, 'restore'])->name('attendances.restore');
     Route::resource('attendances', AttendanceController::class);
     Route::resource('work_schedules', WorkScheduleController::class);
-    Route::prefix('payroll')->group(function() {
-        Route::get('/', [PayrollRecordController::class, 'index'])->name('payroll.index');
-        Route::get('/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
-        Route::post('/store/record', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
-        Route::post('/store/period', [PayrollRecordController::class, 'storePeriod'])->name('payroll.storePeriod');
-        Route::post('/bulk-store', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');
-        Route::put('/activate/{period}', [PayrollRecordController::class, 'activatePeriod'])->name('payroll.activatePeriod');
-        Route::put('/deactivate/{period}', [PayrollRecordController::class, 'deactivatePeriod'])->name('payroll.deactivatePeriod');
-        Route::get('/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');
-        Route::get('/export-payslip/{employee}', [PayrollRecordController::class, 'exportPayslip'])->name('payroll.exportPayslip');
-        Route::delete('/delete/{period}', [PayrollRecordController::class, 'destroyPeriod'])->name('payroll.destroyPeriod');
-    });
     Route::resource('compensations', CompensationController::class);
     Route::resource('employee_compensations', EmployeeCompensationController::class);
     Route::resource('leave_types', LeaveTypeController::class);
-    Route::put('leave_requests/{leave_request}/approve', [LeaveRequestController::class, 'approve'])->name('leave_requests.approve');
-    Route::put('leave_requests/{leave_request}/deny', [LeaveRequestController::class, 'deny'])->name('leave_requests.deny');
-    Route::get('leave_requests/archive', [LeaveRequestController::class, 'archive'])->name('leave_requests.archive');
-    Route::put('leave_requests/{id}/restore', [LeaveRequestController::class, 'restore'])->name('leave_requests.restore');
-    Route::resource('leave_requests', LeaveRequestController::class);
+    Route::prefix('leave_requests')->group(function() {
+       Route::get('/', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
+       Route::post('/store', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+       Route::put('/update/{leave_request}', [LeaveRequestController::class, 'update'])->name('leave_requests.update');
+       Route::delete('/delete/{leave_request}', [LeaveRequestController::class, 'destroy'])->name('leave_requests.destroy');
+       Route::get('/archives', [LeaveRequestController::class, 'archive'])->name('leave_requests.archive');
+       Route::put('/restore/{leave_request}', [LeaveRequestController::class, 'restore'])->name('leave_requests.restore');
+       Route::put('/approve/{leave_request}', [LeaveRequestController::class, 'approve'])->name('leave_requests.approve');
+       Route::put('/deny/{leave_request}', [LeaveRequestController::class, 'deny'])->name('leave_requests.deny');
+    });
     Route::get('trainings/{training}/participants', [TrainingController::class, 'participants'])->name('trainings.participants');
     Route::patch('trainings/{employeeTraining}/approve', [TrainingController::class, 'approveParticipant'])->name('trainings.approve');
     Route::patch('trainings/{employeeTraining}/decline', [TrainingController::class, 'declineParticipant'])->name('trainings.decline');
@@ -96,7 +90,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
         Route::post('/store/ipcr_form', [PerformanceManagementController::class, 'storeIpcr'])->name('performance_management.storeIPCRForm');
         Route::post('/bulk-store/ipcr_form', [PerformanceManagementController::class, 'bulkStoreIpcr'])->name('performance_management.bulkStoreIPCRForm');
         Route::post('/submit/{form}', [PerformanceManagementController::class, 'submit']);
-        Route::put('/entries/update/{entry}', [PerformanceManagementController::class, 'updateIpcr'])->name('performance_management.updateIPCRForm');
+        Route::put('/entries/update', [PerformanceManagementController::class, 'updateIpcr'])->name('performance_management.updateIPCRForm');
         Route::put('/compute/{form}', [PerformanceManagementController::class, 'computeFinalRating'])->name('performance_management.computeFinalRating');
         Route::put('/activate/{cycle}', [PerformanceManagementController::class, 'activateCycle'])->name('performance_management.activateCycle');
         Route::put('/deactivate/{cycle}', [PerformanceManagementController::class, 'deactivateCycle'])->name('performance_management.deactivateCycle');
@@ -104,6 +98,19 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
         Route::delete('/delete/{form}', [PerformanceManagementController::class, 'destroy'])->name('performance_management.destroy');
         Route::delete('/delete/{cycle}', [PerformanceManagementController::class, 'destroyCycle'])->name('performance_management.destroyCycle');
     });
+    Route::prefix('payroll')->group(function() {
+        Route::get('/', [PayrollRecordController::class, 'index'])->name('payroll.index');
+        Route::get('/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
+        Route::post('/store/record', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
+        Route::post('/store/period', [PayrollRecordController::class, 'storePeriod'])->name('payroll.storePeriod');
+        Route::post('/bulk-store', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');
+        Route::put('/activate/{period}', [PayrollRecordController::class, 'activatePeriod'])->name('payroll.activatePeriod');
+        Route::put('/deactivate/{period}', [PayrollRecordController::class, 'deactivatePeriod'])->name('payroll.deactivatePeriod');
+        Route::get('/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');
+        Route::get('/export-payslip/{employee}', [PayrollRecordController::class, 'exportPayslip'])->name('payroll.exportPayslip');
+        Route::delete('/delete/{period}', [PayrollRecordController::class, 'destroyPeriod'])->name('payroll.destroyPeriod');
+    });
+    Route::resource('audits', AuditController::class);
 
     Route::get('qr-code', [QrCodeController::class, 'index'])->name('qr-code.index');
     Route::get('qr-code/create', [QrCodeController::class, 'create'])->name('qr-code.create');

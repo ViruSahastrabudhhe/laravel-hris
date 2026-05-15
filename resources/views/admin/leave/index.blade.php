@@ -1,53 +1,6 @@
 @extends('layouts.admin')
 @php $hideChat = true; @endphp
 
-@php
-    use App\Enums\LeaveStatus;
-
-    $totalLeaves = $leaveRequests->count();
-    $totalApproved = $leaveRequests->where('leave_status', \App\Enums\LeaveStatus::Approved->value)->count();
-    $totalPending = $leaveRequests->where('leave_status', \App\Enums\LeaveStatus::Pending->value)->count();
-    $totalLeaveDays = 0;
-
-    foreach ($leaveRequests as $leave) {
-        $totalLeaveDays += $leave->leave_duration;
-    }
-
-    $leaveTypes = \App\Models\LeaveType::all();
-    $totalLeaveTypes = $leaveTypes->count();
-    $activeLeaveTypes = $leaveTypes->where('is_active', true)->count();
-    $inactiveLeaveTypes = $totalLeaveTypes - $activeLeaveTypes;
-    $totalLeaveTypeDays = $leaveTypes->sum('days_of_leave');
-
-    $holidays = \App\Models\Holiday::all();
-    $totalHolidays = $holidays->count();
-    $totalHolidayDays = $holidays->sum('holiday_duration');
-    $averageHolidayDuration = $totalHolidays ? round($totalHolidayDays / $totalHolidays, 1) : 0;
-
-    $totalEarnings = 0;
-    $totalDeductions = 0;
-    $totalBenefitsCount = $employees->sum(function ($employee) {
-        return $employee->employeeCompensation->count();
-    });
-
-    foreach ($employees as $employee) {
-
-        $totalEarnings += $employee->employeeCompensation
-            ->filter(fn ($comp) =>
-                optional($comp->compensation)->type === 'Earnings'
-            )
-            ->sum('amount');
-
-        $totalDeductions += $employee->employeeCompensation
-            ->filter(fn ($comp) =>
-                optional($comp->compensation)->type === 'Deductions'
-            )
-            ->sum('amount');
-    }
-
-    $allCompensations = \App\Models\Compensation::all();
-@endphp
-
 @section('page-content')
 
 <div class="welcome-banner">
@@ -75,7 +28,7 @@
                 <svg width="17" height="17" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalLeaves }}</p>
+        <p class="stat-value">{{ $leaveStats['total_leaves'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">All time</p>
@@ -88,7 +41,7 @@
                 <svg width="17" height="17" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalApproved }}</p>
+        <p class="stat-value">{{ $leaveStats['total_approved'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">This period</p>
@@ -101,7 +54,7 @@
                 <svg width="17" height="17" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalPending }}</p>
+        <p class="stat-value">{{ $leaveStats['total_pending'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
             <p class="stat-sub">Needs action</p>
@@ -114,7 +67,7 @@
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalLeaveDays }}</p>
+        <p class="stat-value">{{ $leaveStats['total_leave_days'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
             <p class="stat-sub">Across all employees</p>
@@ -130,7 +83,7 @@
                 <svg width="17" height="17" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalBenefitsCount }}</p>
+        <p class="stat-value">{{ $compensationStats['total_benefits'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">Configured benefits</p>
@@ -143,7 +96,7 @@
                 <svg width="17" height="17" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $activeLeaveTypes }}</p>
+        <p class="stat-value">0</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">Currently active</p>
@@ -156,7 +109,7 @@
                 <svg width="17" height="17" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
             </div>
         </div>
-        <p class="stat-value">₱{{ $totalEarnings }}</p>
+        <p class="stat-value">₱{{ number_format($compensationStats['total_earnings'], 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
             <p class="stat-sub">Total earnings</p>
@@ -169,7 +122,7 @@
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
         </div>
-        <p class="stat-value">₱{{ $totalDeductions }}</p>
+        <p class="stat-value">₱{{ number_format($compensationStats['total_deductions'], 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
             <p class="stat-sub">Total deductions</p>
@@ -204,7 +157,7 @@
             <div class="table-actions" style="gap: 10px;">
                 <select class="filter-select" id="dept-filter">
                     <option value="">All Departments</option>
-                    @foreach(\App\Models\Department::all() as $dept)
+                    @foreach(App\Models\Department::all() as $dept)
                         <option value="{{ $dept->name }}">{{ $dept->name }}</option>
                     @endforeach
                 </select>
@@ -896,8 +849,7 @@
             .html('<option value="">Select benefit type</option>')
             .prop('disabled', true);
 
-        const allCompensations = @json($allCompensations);
-        console.log(@json($allCompensations));
+        const allCompensations = @json($compensations);
 
         $(document).on('change', '#benefit-category', function () {
             const category = $(this).val();

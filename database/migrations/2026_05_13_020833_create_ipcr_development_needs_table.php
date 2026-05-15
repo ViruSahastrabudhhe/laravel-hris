@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('ipcr_form_id')
-                ->constrained('ipcr_forms')
-                ->onDelete('cascade');
+                ->constrained('ipcr_forms');
 
             $table->text('development_needs');
 

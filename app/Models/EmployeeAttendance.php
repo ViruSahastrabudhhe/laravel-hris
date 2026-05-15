@@ -11,10 +11,11 @@ use \Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Employee;
 use App\Models\Attendance;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class EmployeeAttendance extends Model
+class EmployeeAttendance extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $table = 'employee_attendances';
 

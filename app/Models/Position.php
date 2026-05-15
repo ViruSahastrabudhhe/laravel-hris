@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Database\Factories\Administration\PositionFactory;
+use OwenIt\Auditing\Contracts\Auditable;
 
 #[UseFactory(PositionFactory::class)]
-class Position extends Model
+class Position extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\PositionFactory> */
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $table = 'positions';
 

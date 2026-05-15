@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use App\Enums\CompensationType;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Compensation extends Model
+class Compensation extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\CompensationFactory> */
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $table = "compensations";
 

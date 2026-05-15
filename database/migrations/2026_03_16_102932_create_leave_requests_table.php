@@ -14,25 +14,21 @@ return new class extends Migration
     {
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('leave_type_id');
+            $table->foreignId('employee_id')
+                ->references('id')->on('employees');
+            $table->foreignId('user_id')
+                ->references('id')->on('users');
+            $table->foreignId('leave_type_id')
+                ->references('id')->on('leave_types');
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('leave_duration')->nullable();
             $table->text('leave_reason');
             $table->enum('leave_status', LeaveStatus::cases());
             $table->text('decline_reason')->nullable();
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('employee_id')
-                ->references('id')->on('employees')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            $table->index(['employee_id', 'leave_type_id', 'created_at']);
         });
     }
 

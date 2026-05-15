@@ -21,26 +21,16 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->date('date_of_birth');
             $table->string('phone_number');
+            $table->foreignId('position_id')
+                ->references('id')->on('positions');
+            $table->foreignId('department_id')
+                ->references('id')->on('departments');
+            $table->foreignId('user_id')
+                ->references('id')->on('users');
             $table->enum('employment_type', EmploymentType::cases());
             $table->boolean('is_active');
-            $table->unsignedBigInteger('position_id');
-            $table->unsignedBigInteger('department_id');
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('position_id')
-                    ->references('id')->on('positions')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->foreign('department_id')
-                    ->references('id')->on('departments')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-            $table->foreign('user_id')
-                    ->references('id')->on('users')
-                    ->onUpdate('cascade')
-                    ->onDelete('cascade');
-
         });
     }
 

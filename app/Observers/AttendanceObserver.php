@@ -7,6 +7,8 @@ use App\Enums\AttendanceStatus;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
 use App\Models\EmployeeLeaveBalance;
+use App\Models\PayrollItem;
+use App\Models\PayrollRecord;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -233,6 +235,29 @@ class AttendanceObserver
         } elseif ($attendance->attendance_status==AttendanceStatus::Absent->value) {
             $vacationLeave->amount -= 1;
             $vacationLeave->save();
+        }
+    }
+
+    private function addToLateAbsentDeductions(Attendance $attendance) {
+        $payrollRecord = $attendance->employee->payrollRecords()
+            ->whereMonth('month', now()->month)
+            ->whereYear('year', now()->year)
+            ->first();
+
+        if (!$payrollRecord) {
+            return;
+        }
+
+        $payrollItems = $payrollRecord->items
+            ->where('name', 'Absent/Late');
+
+        foreach ($payrollItems as $item) {
+            $item->amount += $attendance->late_deduction ?? 0;
+
+            // If you track absences too
+            $item->amount += $attendance->absent_deduction ?? 0;
+
+            $item->save();
         }
     }
 }

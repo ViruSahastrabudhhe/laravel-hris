@@ -14,15 +14,13 @@ return new class extends Migration
     {
         Schema::create('salaries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('employee_id')
+                ->references('id')->on('employees');
             $table->float('amount');
             $table->integer('salary_grade');
             $table->integer('step');
             $table->enum('salary_type', SalaryType::cases())->default(SalaryType::Hourly->value);
-            $table->unsignedBigInteger('employee_id');
             $table->timestamps();
-            $table->foreign('employee_id')
-                ->references('id')->on('employees')
-                ->onDelete('cascade');
         });
     }
 

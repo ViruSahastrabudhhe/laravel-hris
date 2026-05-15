@@ -14,6 +14,9 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('employee_id')
+                ->references('id')->on('employees')
+                ->onDelete('cascade');
             $table->time('time_in')->nullable();
             $table->time('time_out')->nullable();
             $table->time('break_start')->nullable();
@@ -27,9 +30,6 @@ return new class extends Migration
             $table->integer('number_of_scans')->default(0);
             $table->timestamps();
             $table->softDeletes();
-            $table->foreignId('employee_id')
-                    ->references('id')->on('employees')
-                    ->onDelete('cascade');
         });
     }
 

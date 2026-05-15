@@ -23,6 +23,7 @@ return new class extends Migration
                 ->default('Draft');
             $table->decimal('final_rating', 5, 2)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

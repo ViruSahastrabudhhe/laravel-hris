@@ -51,21 +51,22 @@
             <select class="filter-select" id="pay-period-filter"
                 onclick="filterPayroll(this)"
             >
-                <option value="1st-half">1st Half (1–15)</option>
-                <option value="2nd-half">2nd Half (16–end)</option>
-            </select>
-            <select class="filter-select" id="month-filter">
-                @foreach(range(1,12) as $m)
-                    <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
-                        {{ Carbon::create()->month($m)->format('F') }}
-                    </option>
+                @foreach ($periods as $period)
+                <option value="{{ $period->id }}">{{ $period->name }}</option>
                 @endforeach
             </select>
-            <select class="filter-select" id="year-filter">
-                @foreach(range(now()->year - 2, now()->year) as $y)
-                    <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                @endforeach
-            </select>
+{{--            <select class="filter-select" id="month-filter">--}}
+{{--                @foreach(range(1,12) as $m)--}}
+{{--                    <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>--}}
+{{--                        {{ Carbon::create()->month($m)->format('F') }}--}}
+{{--                    </option>--}}
+{{--                @endforeach--}}
+{{--            </select>--}}
+{{--            <select class="filter-select" id="year-filter">--}}
+{{--                @foreach(range(now()->year - 2, now()->year) as $y)--}}
+{{--                    <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>--}}
+{{--                @endforeach--}}
+{{--            </select>--}}
         </div>
         <div class="recruit-search-wrap">
             <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -165,7 +166,7 @@
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Create Records
                 </button>
-                <button class="modal-btn-primary" onclick="openPayrollRunModal()">
+                <button class="modal-btn-primary" onclick="openPayrollRunModal()" hidden>
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Run Payroll
                 </button>
@@ -243,7 +244,7 @@
                                 <button type="button" class="btn-view" onclick="openModal('payslipModal-{{ $record->employee->id }}')">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>
-                                <button type="button" class="btn-edit" {{ $record === null ? '' : 'hidden' }}
+                                <button type="button" class="btn-edit" hidden
                                 onclick="openSinglePayrollModal({{ Js::from([
                                             'id' => $record->employee->id,
                                             'name' => $record->employee->first_name . ' ' . $record->employee->last_name,
@@ -780,13 +781,6 @@
         }
 
         function openSinglePayrollModal(data) {
-            const startDate = document.getElementById('start-date').value;
-            const endDate   = document.getElementById('end-date').value;
-            const month     = startDate ? new Date(startDate).getMonth() + 1 : document.getElementById('month-filter').value;
-            const year      = startDate ? new Date(startDate).getFullYear() : document.getElementById('year-filter').value;
-            const startText = startDate ? new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-            const endText   = endDate ? new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-
             document.getElementById('single-payroll-modal-title').textContent = `Process ${startText}${endText ? ' — ' + endText : ''} Payroll?`;
             document.getElementById('single-payroll-name').textContent        = data.name;
             document.getElementById('single-payroll-dept').textContent        = data.department;

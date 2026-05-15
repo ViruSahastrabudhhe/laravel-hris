@@ -58,7 +58,7 @@ class PayrollRecordController extends Controller
         $employee = Employee::find($data['employee_id']);
 
         $record = PayrollRecord::updateOrCreate(
-            ['employee_id' => $data['employee_id'], 'month' => $data['month'], 'year' => $data['year']],
+            ['employee_id' => $data['employee_id'], 'month' => $month, 'year' => $year],
             [
                 'pay_period_id' => $data['pay_period_id'],
                 'total_earnings' => $data['total_earnings'],
@@ -72,7 +72,7 @@ class PayrollRecordController extends Controller
 
         $items = [
             ['name' => 'Basic Pay',    'type' => 'Earning',   'amount' => $employee->salary->amount ?? 0],
-            ['name' => 'Overtime Pay', 'type' => 'Earning',   'amount' => $employee->overtimePay($data['month'], $data['year'])],
+            ['name' => 'Overtime Pay', 'type' => 'Earning',   'amount' => $employee->overtimePay($month, $year)],
             ['name' => 'Absent/Late',  'type' => 'Earning', 'amount' => $employee->absentDeductions($month, $year)],
         ];
 
@@ -92,7 +92,9 @@ class PayrollRecordController extends Controller
     public function storePeriod(StorePayPeriodRequest $request) {
         $data = $request->validated();
 
-        PayPeriod::create($data);
+        PayPeriod::create([
+            ''
+        ]);
 
         return redirect()->route('payroll.index')->with('success', 'Period successfully created');
     }
@@ -149,7 +151,9 @@ class PayrollRecordController extends Controller
 
     public function activatePeriod(PayPeriod $period) {
         $periods = PayPeriod::all();
-        $periods->update(['is_active' => false]);
+        foreach ($periods as $period) {
+            $period->update(['is_active' => false]);
+        }
 
         $period->update(['is_active' => true]);
 

@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('ipcr_form_id')
-                ->constrained('ipcr_forms')
-                ->onDelete('cascade');
+                ->constrained('ipcr_forms');
 
             // IPCREntry CORE FIELDS
             $table->text('kra'); // Key Result Area

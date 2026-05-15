@@ -24,11 +24,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
+use OwenIt\Auditing\Contracts\Auditable;
 
 #[ScopedBy([EmployeeScope::class])]
-class Employee extends Model
+class Employee extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,\OwenIt\Auditing\Auditable;
 
     protected $table = 'employees';
 
@@ -44,7 +45,6 @@ class Employee extends Model
     public function employeeAttendance() { return $this->hasMany(EmployeeAttendance::class); }
     public function attendance() { return $this->hasMany(Attendance::class); }
     public function attendanceScanLog() { return $this->hasMany(AttendanceScanLog::class); }
-    public function attendanceSession() { return $this->hasMany(AttendanceSession::class); }
     public function employeeCompensation() { return $this->hasMany(EmployeeCompensation::class); }
     public function employeeTraining() { return $this->hasMany(EmployeeTraining::class); }
     public function address() { return $this->hasOne(Address::class); }

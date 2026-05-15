@@ -14,25 +14,17 @@ return new class extends Migration
     {
         Schema::create('employee_trainings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id');
-            $table->unsignedBigInteger('training_id');
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('employee_id')
+                ->references('id')->on('employees');
+            $table->foreignId('training_id')
+                ->references('id')->on('trainings');
+            $table->foreignId('user_id')
+                ->references('id')->on('users');
             $table->enum('status', EmployeeTrainingStatus::cases())->default(EmployeeTrainingStatus::Enrolled->value);
             $table->date('completion_date')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
-            $table->foreign('employee_id')
-                ->references('id')->on('employees')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->foreign('training_id')
-                ->references('id')->on('trainings')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            $table->softDeletes();
         });
     }
 

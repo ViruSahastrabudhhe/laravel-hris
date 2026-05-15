@@ -3,13 +3,18 @@
 namespace App\Models;
 
 use App\Models\Employees;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Employee;
 use App\Models\PayrollItem;
 use App\Enums\CompensationType;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class PayrollRecord extends Model
+class PayrollRecord extends Model implements Auditable
 {
+    use SoftDeletes, \OwenIt\Auditing\Auditable;
+
     protected $fillable = [
         'employee_id',
         'pay_period_id',

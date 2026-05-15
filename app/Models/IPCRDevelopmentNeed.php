@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class IPCRDevelopmentNeed extends Model
+class IPCRDevelopmentNeed extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'ipcr_development_needs';
 
     protected $fillable = [

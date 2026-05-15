@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Leave;
 
 use App\Http\Requests\Leave\StoreLeaveRequest;
 use App\Http\Requests\Leave\UpdateLeaveRequest;
+use App\Models\Compensation;
 use App\Models\LeaveRequest;
 use App\Models\Employee;
 use App\Models\LeaveType;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
 use App\Http\Requests\Leave\UpdateEmployeeLeaveRequest;
 use App\Http\Requests\Leave\DenyLeaveRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class LeaveRequestController extends Controller
@@ -23,20 +25,49 @@ class LeaveRequestController extends Controller
      */
     public function index()
     {
-        $leaveRequests = LeaveRequest::with(['employee.department', 'leaveType'])->paginate(25);
-        $employees = Employee::with(['department', 'employeeCompensation', 'employeeCompensation.compensation', 'employeeLeaveBalance'])->paginate(25);
-        $leaveTypes = LeaveType::paginate(25);
+        $leaveRequests = LeaveRequest::with(['employee:id,first_name,last_name', 'leaveType:id,name'])
+            ->latest()
+            ->paginate(25);
+
         $leaveStatuses = LeaveStatus::cases();
-        $holidays = Holiday::paginate(25);
-        $benefits = EmployeeCompensation::get();
+        $leaveTypes = LeaveType::paginate(25);
+
+        $leaveStats = Cache::remember('leave_stats', 300, fn() => [
+            'total_leaves'     => LeaveRequest::count(),
+            'total_approved'   => LeaveRequest::where('leave_status', LeaveStatus::Approved->value)->count(),
+            'total_pending'    => LeaveRequest::where('leave_status', LeaveStatus::Pending->value)->count(),
+            'total_leave_days' => LeaveRequest::sum('leave_duration'),
+        ]);
+
+        $leaveTypeStats = Cache::remember('leave_type_stats', 300, fn() => [
+            'total'      => LeaveType::count(),
+            'active'     => LeaveType::where('is_active', true)->count(),
+            'inactive'   => LeaveType::where('is_active', false)->count(),
+            'total_days' => LeaveType::sum('days_of_leave'),
+        ]);
+
+        $compensationStats = Cache::remember('compensation_stats', 300, fn() => [
+            'total_benefits'   => EmployeeCompensation::count(),
+            'total_earnings'   => EmployeeCompensation::whereHas('compensation', fn($q) =>
+            $q->where('type', 'Earnings')
+            )->sum('amount'),
+            'total_deductions' => EmployeeCompensation::whereHas('compensation', fn($q) =>
+            $q->where('type', 'Deductions')
+            )->sum('amount'),
+        ]);
+
+        $employees = Employee::get();
+        $compensations = Compensation::all();
 
         return view('admin.leave.index', compact(
-            'employees',
             'leaveRequests',
-            'leaveTypes',
-            'holidays',
             'leaveStatuses',
-            'benefits'
+            'leaveTypes',
+            'leaveStats',
+            'leaveTypeStats',
+            'compensationStats',
+            'employees',
+            'compensations',
         ));
     }
 

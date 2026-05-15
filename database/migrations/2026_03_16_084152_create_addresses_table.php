@@ -18,12 +18,9 @@ return new class extends Migration
             $table->string('address');
             $table->string('city');
             $table->string('province');
-            $table->unsignedBigInteger('employee_id')->nullable();
             $table->timestamps();
-            $table->foreign('employee_id')
-                ->references('id')->on('employees')
-                ->onUpdate('set null')
-                ->onDelete('set null');
+            $table->foreignId('employee_id')
+                ->references('id')->on('employees');
         });
     }
 

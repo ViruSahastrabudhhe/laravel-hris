@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('year');
             $table->boolean('is_complete')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use App\Enums\TrainingStatus;
 use App\Models\EmployeeTraining;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Training extends Model
+class Training extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\TrainingFactory> */
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $table = 'trainings';
 

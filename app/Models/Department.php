@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Department extends Model
+class Department extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\DepartmentFactory> */
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $table = 'departments';
 

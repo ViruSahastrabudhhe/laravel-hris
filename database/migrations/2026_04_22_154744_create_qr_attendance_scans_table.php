@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('qr_code_hash')->unique();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

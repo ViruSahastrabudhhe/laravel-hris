@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class LeaveRequest extends Model
+class LeaveRequest extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\EmployeeLeaveFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \OwenIt\Auditing\Auditable;
 
     protected $table = 'leave_requests';
 
@@ -27,6 +29,12 @@ class LeaveRequest extends Model
         'decline_reason',
         'user_id',
     ];
+
+    protected static function booted()
+    {
+        static::saved(fn() => Cache::forget('leave_stats'));
+        static::deleted(fn() => Cache::forget('leave_stats'));
+    }
 
     public function employee() {
         return $this->belongsTo(Employee::class);
