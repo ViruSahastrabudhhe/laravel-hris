@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 
 return new class extends Migration
 {
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->double('rate')->nullable();
-            $table->enum('type', CompensationType::cases());
+            $table->enum('category', CompensationCategory::cases());
             $table->boolean('is_mandatory')->default(false);
             $table->text('description')->nullable();
             $table->timestamps();

@@ -4,26 +4,6 @@
     $hideChat = true;
     use Carbon\Carbon;
 
-    $grossPayroll = 0;
-    $totalNetPay = 0;
-    $totalDeductions = 0;
-    $pendingPayroll = 0;
-    foreach ($employees as $employee) {
-        $grossPayroll += $employee->grossPay();
-        $totalNetPay += $employee->netPay();
-        $totalDeductions += $employee->totalDeductions();
-
-        $currentRecord = $employee->payrollRecords
-            ->where('month', now()->month)
-            ->where('year', now()->year)
-            ->first();
-
-        if ($currentRecord && $currentRecord->status === 'Draft') {
-            $pendingPayroll++;
-        }
-    }
-
-    $totalPersonnel = $employees->count();
     $payDate = now()->format('M d, Y');
     $defaultStartDate = Carbon::now()->copy()->startOfMonth()->format('Y-m-d');
     $defaultEndDate = Carbon::now()->copy()->endOfMonth()->format('Y-m-d');
@@ -84,7 +64,7 @@
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0b044d" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>
             </div>
         </div>
-        <p class="stat-value">₱{{ number_format($grossPayroll, 2) }}</p>
+        <p class="stat-value">₱{{ number_format($payrollStats['gross_pay'], 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">For {{ config('app.carbon_month') }}</p>
@@ -98,7 +78,7 @@
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             </div>
         </div>
-        <p class="stat-value">₱{{ number_format($totalNetPay, 2) }}</p>
+        <p class="stat-value">₱{{ number_format($payrollStats['net_pay'], 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#15803d"></span>
             <p class="stat-sub">After compensations</p>
@@ -112,7 +92,7 @@
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8e1e18" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
         </div>
-        <p class="stat-value">₱{{ number_format($totalDeductions, 2) }}</p>
+        <p class="stat-value">₱{{ number_format($payrollStats['total_deductions'], 2) }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
             <p class="stat-sub">Mandatory, Optional</p>
@@ -126,10 +106,10 @@
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
         </div>
-        <p class="stat-value stat-value-large">{{ $pendingPayroll }}</p>
+        <p class="stat-value stat-value-large">{{ $payrollStats['pending_records'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#f59e0b"></span>
-            <p class="stat-sub">{{ $totalPersonnel }} processed</p>
+            <p class="stat-sub">{{ $payrollStats['total_personnel'] }} processed</p>
         </div>
     </div>
 </div>
@@ -154,7 +134,7 @@
                     @endforeach
                 </select>
                 <select class="filter-select" id="status-filter">
-                    <option value="All">All Status</option>
+                    <option value="">All Status</option>
                     <option value="Processed">Processed</option>
                     <option value="Draft">Draft</option>
                 </select>
@@ -176,17 +156,17 @@
         <div class="payroll-summary-bar" hidden>
             <div class="psummary-item">
                 <span>Gross Total</span>
-                <strong class="gross-total">₱{{ number_format($grossPayroll, 2) }}</strong>
+                <strong class="gross-total">₱{{ number_format($payrollStats['gross_pay'], 2) }}</strong>
             </div>
             <div class="psummary-divider"></div>
             <div class="psummary-item">
                 <span>Total Deductions</span>
-                <strong class="deduction">₱{{ number_format($totalDeductions, 2) }}</strong>
+                <strong class="deduction">₱{{ number_format($payrollStats['total_deductions'], 2) }}</strong>
             </div>
             <div class="psummary-divider"></div>
             <div class="psummary-item">
                 <span>Total Net Pay</span>
-                <strong class="net-pay">₱{{ number_format($totalNetPay, 2) }}</strong>
+                <strong class="net-pay">₱{{ number_format($payrollStats['net_pay'], 2) }}</strong>
             </div>
             <div class="psummary-divider"></div>
             <div class="psummary-item">
@@ -196,7 +176,7 @@
             <div class="psummary-divider"></div>
             <div class="psummary-item">
                 <span>Records</span>
-                <strong>{{ $totalPersonnel }}</strong>
+                <strong>{{ $payrollStats['total_personnel'] }}</strong>
             </div>
         </div>
 
@@ -326,7 +306,7 @@
                 <p class="table-sub">{{ config('app.name') }} · Pay Periods</p>
             </div>
             <div class="table-actions">
-                <select class="filter-select" id="status-filter">
+                <select class="filter-select" id="periods-status-filter">
                     <option value="">All Status</option>
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -385,30 +365,26 @@
                                             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                                         </button>
                                     </form>
-                                @else
-                                    <form action="{{ route('payroll.deactivatePeriod', $period->id) }}"
-                                          method="POST" style="display:inline">
+
+                                    <form action="{{ route('payroll.destroyPeriod', $period->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Delete this period?')"
+                                        style="display:inline">
                                         @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="btn-danger" title="Toggle Active">
-                                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-danger">
+                                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
                                         </button>
                                     </form>
+                                @else
+                                    <div>
+                                        <span>-</span>
+                                    </div>
                                 @endif
-                                <form action="{{ route('payroll.destroyPeriod', $period->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Delete this period?')"
-                                      style="display:inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-danger">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                                            <polyline points="3 6 5 6 21 6"/>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                        </svg>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>
@@ -437,8 +413,8 @@
                 <div class="modal-confirm-info">
                     <input type="hidden" name="month" id="payroll-run-month">
                     <input type="hidden" name="year" id="payroll-run-year">
-                    <div class="modal-row"><span>Total Personnel</span><strong>{{ $totalPersonnel }}</strong></div>
-                    <div class="modal-row"><span>Gross Payroll</span><strong>₱{{ number_format($grossPayroll, 2) }}</strong></div>
+                    <div class="modal-row"><span>Total Personnel</span><strong>{{ $payrollStats['total_personnel'] }}</strong></div>
+                    <div class="modal-row"><span>Gross Payroll</span><strong>₱{{ number_format($payrollStats['gross_pay'], 2) }}</strong></div>
                     <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
                 </div>
                 <p class="modal-alert">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
@@ -451,7 +427,7 @@
     </div>
 </div>
 
-{{-- Single Payroll Modal --}}
+{{-- Process Single Payroll Modal --}}
 <div class="modal-overlay" id="single-payroll-modal" style="display:none">
     <div class="modal-box modal-sm" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -507,9 +483,13 @@
         <form action="{{ route('payroll.bulkStoreRecord') }}" method="POST">
             @csrf
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
-                @if($periods->isEmpty() || $periods->where('is_active', true)->isEmpty())
+                @if($periods->where('is_active', false)->isEmpty())
                     <div style="text-align:center;padding:32px 0">
                         <p style="font-size:13px;color:#6b6a8a;margin:0">No pay periods found. Create one first.</p>
+                    </div>
+                @elseif($periods->where('is_active', true)->isEmpty())
+                    <div style="text-align:center;padding:32px 0">
+                        <p style="font-size:13px;color:#6b6a8a;margin:0">Activate a pay period first.</p>
                     </div>
                 @else
                     <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
@@ -526,7 +506,7 @@
                     <div class="form-field">
                         <label>Pay Period <span style="color:#dc2626">*</span></label>
                         <select name="pay_period_id" required>
-                            @foreach($periods as $period)
+                            @foreach($periods->where('is_active', true) as $period)
                                 <option value="{{ $period->id }}">{{ $period->name }}</option>
                             @endforeach
                         </select>
@@ -566,26 +546,50 @@
         <form action="{{ route('payroll.storePeriod') }}" method="post">
             @csrf
             <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
-                <div class="form-field">
-                    <label>Period Name <span style="color:#dc2626">*</span></label>
-                    <input type="text" name="name" placeholder="e.g. May 2026 1-15" required>
+                <div style="background:#f7f6ff;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+                    <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#0b044d,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div>
+                        <p style="font-size:13px;font-weight:700;color:#0b044d;margin:0">Current Month</p>
+                        <p style="font-size:11px;color:#9999bb;margin:2px 0 0">Pay periods will be created for the selected month and year.</p>
+                    </div>
+                </div>
+                <div class="auth-row-2">
+                    <div class="form-field">
+                        <label>Month <span style="color:#dc2626">*</span></label>
+                        <select name="month" id="payPeriodMonth">
+                            @foreach(range(1, 12) as $month)
+                                <option value="{{ $month }}" @selected($month == now()->month)>
+                                    {{ Carbon::createFromDate(null, $month, 1)->format('F') }} 
+                                </option>                            
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Year <span style="color:#dc2626">*</span></label>
+                        <select name="year" id="payPeriodYear">
+                            @foreach(range(date('Y'), date('Y') + 10) as $year)
+                                <option value="{{ $year }}" {{ $year === now()->year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 <div class="form-field">
-                    <label>Start Date <span style="color:#dc2626">*</span></label>
-                    <input type="date" name="start_date" required>
-                </div>
-                <div class="form-field">
-                    <label>End Date <span style="color:#dc2626">*</span></label>
-                    <input type="date" name="end_date" required>
+                    <label>Active Cutoff <span style="color:#dc2626">*</span></label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <input type="radio" name="is_active" value="firstHalf" style="width:auto" required>
+                        <span>{{ now()->startOfMonth()->format('d') }} - {{ now()->day(15)->format('d') }}</span>
+                    </label>
                 </div>
                 <div class="form-field">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                        <input type="checkbox" name="is_active" value="1" checked style="width:auto">
-                        <span>Set as Active Period</span>
+                        <input type="radio" name="is_active" value="secondHalf" style="width:auto" required>
+                        <span>{{ now()->day(16)->format('d') }} - End</span>
                     </label>
                 </div>
                 <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-top:4px">
-                    ⚠️ Setting this as active will overwrite the current active period.
+                    ⚠️ Only set one as active. Setting one as active will overwrite the current active period.
                 </div>
             </div>
             <div class="modal-footer">
@@ -606,7 +610,7 @@
         let periodsTable;
 
         if ($('#records-table').length) {
-            performanceTable = $('#records-table').DataTable({
+            recordsTable = $('#records-table').DataTable({
                 columnDefs: [{ orderable: false, targets: [4] }],
                 pageLength: 25,
                 language: {
@@ -618,7 +622,7 @@
         }
 
         if ($('#periods-table').length) {
-            cyclesTable = $('#periods-table').DataTable({
+            periodsTable = $('#periods-table').DataTable({
                 columnDefs: [{ orderable: false, targets: [3] }],
                 pageLength: 25,
                 language: {
@@ -643,7 +647,21 @@
             if (!recordsTable) return;
 
             const val = this.value ? '^' + this.value + '$' : '';
-            recordsTable.column(3).search(val, true, false).draw();
+            recordsTable.column(5).search(val, true, false).draw();
+        });
+
+        $('#dept-filter').on('change', function() {
+            if (!recordsTable) return;
+
+            const val = this.value ? '^' + this.value + '$' : '';
+            recordsTable.column(1).search(val, true, false).draw();
+        });
+
+        $('#periods-status-filter').on('change', function() {
+            if (!periodsTable) return;
+
+            const val = this.value ? '^' + this.value + '$' : '';
+            periodsTable.column(4).search(val, true, false).draw();
         });
 
         $(function () {
@@ -652,14 +670,6 @@
                 pageLength: 25,
                 language: { search: 'Search:', lengthMenu: 'Show _MENU_ entries', emptyTable: 'No payroll records found', },
                 dom: 'rtip',
-            });
-
-            $('#payroll-search').on('keyup', function() {
-                payroll_table.search(this.value).draw();
-            });
-
-            $('#dept-filter').on('change', function() {
-                payroll_table.column(1).search(this.value).draw();
             });
 
             const colors = ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'];

@@ -13,10 +13,12 @@ use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\Salary;
 use App\Models\Position;
+use App\Models\PayPeriod;
 use App\Observers\AttendanceObserver;
 use App\Observers\EmployeeObserver;
 use App\Observers\LeaveRequestObserver;
 use App\Observers\SalaryObserver;
+use App\Observers\PayPeriodObserver;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         LeaveRequest::observe(LeaveRequestObserver::class);
         Salary::observe(SalaryObserver::class);
         PerformanceCycle::observe(PerformanceCycleObserver::class);
+        PayPeriod::observe(PayPeriodObserver::class);
 
         // page title
         View::composer('layouts.app', function ($view) {

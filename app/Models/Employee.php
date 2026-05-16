@@ -14,7 +14,7 @@ use App\Models\EmployeeWorkSchedule;
 use App\Models\AttendanceSession;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use App\Enums\AttendanceStatus;
 use App\Models\Scopes\EmployeeScope;
 use Illuminate\Support\Facades\DB;
@@ -110,7 +110,7 @@ class Employee extends Model implements Auditable
     public function allowances(): float {
         $earnings = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
             ->where('employee_compensations.employee_id', $this->id)
-            ->where('compensations.type', CompensationType::Earning->value)
+            ->where('compensations.type', CompensationCategory::Earning->value)
             ->get();
         return round($earnings->sum('amount'), 2);
     }

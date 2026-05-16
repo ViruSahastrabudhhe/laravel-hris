@@ -103,7 +103,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
         Route::get('/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
         Route::post('/store/record', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
         Route::post('/store/period', [PayrollRecordController::class, 'storePeriod'])->name('payroll.storePeriod');
-        Route::post('/bulk-store', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');
+        Route::post('/bulk-store/record', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');
+        Route::post('/quick-store/period', [PayrollRecordController::class, 'quickStorePeriod'])->name('payroll.quickStorePeriod');
         Route::put('/activate/{period}', [PayrollRecordController::class, 'activatePeriod'])->name('payroll.activatePeriod');
         Route::put('/deactivate/{period}', [PayrollRecordController::class, 'deactivatePeriod'])->name('payroll.deactivatePeriod');
         Route::get('/export-payroll', [PayrollRecordController::class, 'exportPayroll'])->name('payroll.exportPayroll');

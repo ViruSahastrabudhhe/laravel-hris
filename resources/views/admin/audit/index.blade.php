@@ -54,11 +54,13 @@
                             <td><span>{{ $audit->event }} {{ $audit->auditable_type }}</span></td>
                             <td>
                                 <div>
+                                    <span>Old values: </span>
                                     @foreach($audit->old_values as $index => $old)
-                                        <span>{{ $old[$index] }}</span>
+                                        <span>{{ is_array($old) ? print($old) : $old }}</span>
                                     @endforeach
                                 </div>
                                 <div>
+                                    <span>New values: </span>
                                     @foreach($audit->new_values as $index => $new)
                                         <span>{{ $index }} {{ $new }}</span>
                                     @endforeach

@@ -1,8 +1,11 @@
 @extends('layouts.admin')
-@php $hideChat = true; @endphp
+
+@php 
+    use App\Enums\LeaveStatus;
+    $hideChat = true; 
+@endphp
 
 @section('page-content')
-
 <div class="welcome-banner">
     <div class="banner-left">
         <div class="banner-icon">
@@ -20,6 +23,7 @@
         </div>
     </div>
 </div>
+
 <div id="stats-leaves" class="stats-grid stats-grid-4">
     <div class="stat-card">
         <div class="stat-top">
@@ -205,7 +209,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="dept-tag">{{ $leave->employee->department->name }}</span></td>
+                        <td><span class="dept-tag">{{ $leave->employee->department->name ?? '' }}</span></td>
                         <td>{{ $leave->leaveType->leave_type }}</td>
                         <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}</span></td>
                         <td><span style="font-size:12.5px;color:#5a5888">{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}</span></td>
@@ -298,11 +302,11 @@
                 @foreach($employees as $employee)
                     @php
                         $earnings = $employee->employeeCompensation->filter(function($c) {
-                            return $c->compensation && $c->compensation->type === \App\Enums\CompensationType::Earning->value;
+                            return $c->compensation && $c->compensation->category === \App\Enums\CompensationCategory::Earning->value;
                         })->sum('amount');
 
                         $deductions = $employee->employeeCompensation->filter(function($c) {
-                            return $c->compensation && $c->compensation->type === \App\Enums\CompensationType::Deduction->value;
+                            return $c->compensation && $c->compensation->category === \App\Enums\CompensationCategory::Deduction->value;
                         })->sum('amount');
 
                         $sickLeave = $employee->employeeLeaveBalance->where('type', 'Sick')->first()->amount ?? 0;
@@ -343,12 +347,12 @@
                                     data-compensations='@json($employee->employeeCompensation)'
                                     data-earnings_list='@json(
                                         $employee->employeeCompensation
-                                            ->where("type", "Earning")
+                                            ->where("category", "Earning")
                                             ->values()
                                     )'
                                     data-deductions_list='@json(
                                         $employee->employeeCompensation
-                                            ->where("type", "Deduction")
+                                            ->where("category", "Deduction")
                                             ->values()
                                     )'
                                     onclick="openBenefitViewModal(this)"
@@ -589,11 +593,20 @@
                         <option value="">Select benefit type</option>
                     </select>
                 </div>
-                <div class="form-field">
-                    <label>Amount (₱) <span style="color:#dc2626">*</span></label>
-                    <input type="number" name="amount" step="0.01" placeholder="0.00" required style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;">
+                <div class="auth-row-2">
+                    <div class="form-field">
+                        <label>Amount (₱) <span style="color:#dc2626">*</span></label>
+                        <input type="number" name="amount" step="0.01" placeholder="0.00" required style="padding:10px 13px;border:1.5px solid #e0dff5;border-radius:9px;font-size:13.5px;color:#1a1a3a;background:#fafafe;outline:none;width:100%;box-sizing:border-box;font-family:'Poppins',sans-serif;">
+                    </div>
+                    <div class="form-field">
+                        <label>Pay On <span style="color:#dc2626">*</span></label>
+                        <select name="pay_period_id" id="benefitPayPeriodID" required>
+                            @foreach($periods as $period)
+                                <option value="{{ $period->id }}">{{ $period->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeBenefitCreateModal()">Cancel</button>
@@ -736,7 +749,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
@@ -826,6 +838,27 @@
         document.getElementById('deny-form').reset();
     }
 
+    function quickCreatePayPeriods() {
+        fetch('/admin/payroll/quick-store/period', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+        })
+        .then(async response => {
+            const text = await response.text();
+            if (!response.ok) {
+                console.error(`Server Error (${response.status}):`, text);
+                throw new Error('Server returned an error status');
+            }
+            return JSON.parse(text);
+        })
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    }
+
     function openLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'flex'; }
     function closeLeaveCreateModal() { document.getElementById('leave-create-modal').style.display = 'none'; }
 
@@ -847,15 +880,14 @@
         $('#benefit-category').val('');
         $('#benefit-type')
             .html('<option value="">Select benefit type</option>')
-            .prop('disabled', true);
+            .prop('disabled', true)
+            .prop('title', 'Please select a category first.');
 
         const allCompensations = @json($compensations);
 
         $(document).on('change', '#benefit-category', function () {
             const category = $(this).val();
             const $typeSelect = $('#benefit-type');
-
-            console.log('Selected category:', category); // DEBUG
 
             $typeSelect.html('<option value="">Select benefit type</option>');
 
@@ -864,7 +896,7 @@
                 return;
             }
 
-            const filtered = allCompensations.filter(comp => comp.type === category);
+            const filtered = allCompensations.filter(comp => comp.category === category);
 
             filtered.forEach(comp => {
                 $typeSelect.append(
@@ -876,6 +908,7 @@
         });
         document.getElementById('benefit-create-modal').style.display = 'flex';
     }
+
     function closeBenefitCreateModal() {
         document.getElementById('benefit-create-modal').style.display = 'none';
     }
@@ -889,14 +922,14 @@
         const deductions = Number(button.dataset.deductions) || 0;
         const sickLeave = button.dataset.sickLeave;
         const vacationLeave = button.dataset.vacationLeave;
-        const compensations = JSON.parse(button.dataset.compensations || '[]');
+        const employeeCompensations = JSON.parse(button.dataset.compensations || '[]');
 
-        const earningsList = compensations.filter(item =>
-            item.compensation?.type === 'Earning'
+        const earningsList = employeeCompensations.filter(item =>
+            item.compensation?.category === 'Earning'
         );
 
-        const deductionsList = compensations.filter(item =>
-            item.compensation?.type === 'Deduction'
+        const deductionsList = employeeCompensations.filter(item =>
+            item.compensation?.category === 'Deduction'
         );
 
         document.getElementById('benefit-view-modal-avatar').innerText = initials;
@@ -916,11 +949,15 @@
 
         earningsList.forEach(item => {
             const name = item.compensation?.name ?? 'Unknown';
+            const period = item.pay_period?.name;
             const amount = item.amount ?? 0;
 
             earningsOl.innerHTML += `
                 <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f7f6ff">
-                    <span style="font-size:12.5px;color:#5a5888">${name}</span>
+                    <span style="font-size:1rem;color:#5a5888">${name}
+                    <br>
+                        <span style="font-size:12.5px;">Due ${period}</span>
+                    </span>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <strong style="font-size:13px;color:#0b044d">
                             ₱${Number(amount).toLocaleString(undefined, {minimumFractionDigits:2})}
@@ -941,6 +978,7 @@
 
         deductionsList.forEach(item => {
             const name = item.compensation?.name ?? 'Unknown';
+            const period = item.payPeriod?.name;
             const amount = item.amount ?? 0;
 
             deductionsOl.innerHTML += `

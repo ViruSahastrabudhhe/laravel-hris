@@ -6,6 +6,7 @@ use App\Models\EmployeeCompensation;
 use App\Models\Employee;
 use App\Models\Compensation;
 use App\Models\Salary;
+use App\Enums\CompensationCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Compensation\StoreEmployeeCompensationRequest;
 use App\Http\Requests\Compensation\UpdateEmployeeCompensationRequest;
@@ -17,12 +18,15 @@ class EmployeeCompensationController extends Controller
      */
     public function index()
     {
-        $employees = Employee::paginate(25);
+        $employees = Employee::get();
         $salaries = Salary::whereHas('employee', fn($q) => $q->where('user_id', auth()->id()))
             ->with('employee.position')
             ->paginate(15);
 
-        return view('employee.employee_compensations.index', compact('employees', 'salaries'));
+        return view('employee.employee_compensations.index', compact(
+            'employees', 
+            'salaries', 
+        ));
     }
 
     /**
@@ -59,7 +63,7 @@ class EmployeeCompensationController extends Controller
 
         EmployeeCompensation::updateOrCreate(
             ['compensation_id' => $data['compensation_id'], 'employee_id' => $data['employee_id']],
-            ['amount' => $data['amount'], 'user_id' => $data['user_id']]
+            ['amount' => $data['amount'], 'pay_period_id' => $data['pay_period_id']]
         );
 
         return redirect()->route('leave_requests.index')->with('success', __('deduction.success_creating'));

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Compensation extends Model implements Auditable
@@ -17,9 +17,9 @@ class Compensation extends Model implements Auditable
     protected $table = "compensations";
 
     protected $fillable = [
-        'name',
+        'category',
         'rate',
-        'type',
+        'name',
         'description',
     ];
 

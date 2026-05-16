@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Compensation;
 
 use App\Models\Compensation;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Compensation\StoreCompensationRequest;
 use App\Http\Requests\Compensation\UpdateCompensationRequest;
@@ -23,7 +23,7 @@ class CompensationController extends Controller
      */
     public function create()
     {
-        $deductionType = CompensationType::cases();
+        $deductionType = CompensationCategory::cases();
         return view('deduction.create', ['deductionType' => $deductionType]);
     }
 
@@ -52,7 +52,7 @@ class CompensationController extends Controller
      */
     public function edit(Compensation $compensation)
     {
-        $deductionType = CompensationType::cases();
+        $deductionType = CompensationCategory::cases();
         return view('deduction.edit', ['deduction' => $compensation, 'deductionType' => $deductionType]);
     }
 

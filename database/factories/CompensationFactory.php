@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Compensation>
@@ -18,8 +18,8 @@ class CompensationFactory extends Factory
     public function definition(): array
     {
         return [
+            'category' => CompensationCategory::Deduction->value,
             'name' => 'GSIS Contribution',
-            'type' => CompensationType::Deduction->value,
             'is_mandatory' => true,
             'description' => '',
         ];

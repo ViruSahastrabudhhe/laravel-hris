@@ -90,15 +90,12 @@
 
 <script>
 const BOT_AVATAR_HTML = '<img src="{{ asset('images/municipal-of-pagsanjan-logo.jpg') }}" alt="Logo" onerror="this.style.display=\'none\'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-
 @if($isLanding)
 {{-- ── LANDING: citizen charter chatbot ── --}}
 const CHAT_API = 'http://127.0.0.1:5000/chat';
-
 function getTimestamp() {
     return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
-
 function toggleChat() {
     const win = document.getElementById('chatbot-window');
     const badge = document.getElementById('chat-fab-badge');
@@ -106,19 +103,16 @@ function toggleChat() {
     win.style.display = isOpen ? 'none' : 'flex';
     badge.style.display = isOpen ? 'block' : 'none';
 }
-
 function addMessage(text, isUser, followUps = [], fullResponse = null) {
     const container = document.getElementById('chatbot-messages');
     const wrapper = document.createElement('div');
     wrapper.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
-
     if (!isUser) {
         const avatar = document.createElement('div');
         avatar.className = 'chat-msg-avatar';
         avatar.innerHTML = BOT_AVATAR_HTML;
         wrapper.appendChild(avatar);
     }
-
     const bubble = document.createElement('div');
     bubble.className = 'chat-msg-bubble';
     let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
@@ -129,7 +123,6 @@ function addMessage(text, isUser, followUps = [], fullResponse = null) {
     bubble.appendChild(ts);
     wrapper.appendChild(bubble);
     container.appendChild(wrapper);
-
     if (!isUser && fullResponse && fullResponse !== text) {
         const toggleWrap = document.createElement('div');
         toggleWrap.className = 'chat-toggle-wrap';
@@ -152,7 +145,6 @@ function addMessage(text, isUser, followUps = [], fullResponse = null) {
         toggleWrap.appendChild(toggleBtn);
         container.appendChild(toggleWrap);
     }
-
     if (!isUser && followUps.length > 0) {
         const fuWrap = document.createElement('div');
         fuWrap.className = 'chat-followups';
@@ -169,10 +161,8 @@ function addMessage(text, isUser, followUps = [], fullResponse = null) {
         });
         container.appendChild(fuWrap);
     }
-
     container.scrollTop = container.scrollHeight;
 }
-
 function showTyping() {
     const container = document.getElementById('chatbot-messages');
     const wrapper = document.createElement('div');
@@ -182,24 +172,20 @@ function showTyping() {
     container.appendChild(wrapper);
     container.scrollTop = container.scrollHeight;
 }
-
 function removeTyping() {
     const el = document.getElementById('chat-typing');
     if (el) el.remove();
 }
-
 function clearChat() {
     if (!confirm('Clear the conversation?')) return;
     const container = document.getElementById('chatbot-messages');
     container.innerHTML = '';
     addMessage("Hello! I'm the Pagsanjan LGU Assistant. I can help you with information about municipal services, requirements, fees, and procedures. How can I assist you today?", false);
 }
-
 function quickAsk(question) {
     document.getElementById('chat-input').value = question;
     sendMessage();
 }
-
 async function sendMessage() {
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
@@ -223,22 +209,18 @@ async function sendMessage() {
         addMessage('Sorry, I could not connect to the assistant server. Please make sure the chatbot service is running.', false);
     }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     addMessage("Hello! I'm the Pagsanjan LGU Assistant. I can help you with information about municipal services, requirements, fees, and procedures. How can I assist you today?", false);
 });
-
 window.addEventListener('scroll', function() {
     const fab = document.getElementById('chat-fab');
     const scrollY = window.scrollY + window.innerHeight;
     const docH = document.documentElement.scrollHeight;
     fab.classList.toggle('chat-fab-light', scrollY > docH - 400);
 }, { passive: true });
-
 @else
 {{-- ── ADMIN: HRIS chatbot ── --}}
 const STORAGE_KEY = 'admin_chat_history';
-
 function loadChatHistory() {
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     const container = document.getElementById('chatbot-messages');
@@ -249,7 +231,6 @@ function loadChatHistory() {
         history.forEach(msg => addAdminMessage(msg.text, msg.isUser, false));
     }
 }
-
 function saveChatHistory() {
     const messages = [];
     document.querySelectorAll('.chat-msg').forEach(msg => {
@@ -264,11 +245,9 @@ function saveChatHistory() {
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
 }
-
 function getAdminTimestamp() {
     return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
-
 function toggleAdminChat() {
     const win = document.getElementById('chatbot-window');
     const badge = document.getElementById('chat-fab-badge');
@@ -280,25 +259,21 @@ function toggleAdminChat() {
         setTimeout(() => container.scrollTop = container.scrollHeight, 50);
     }
 }
-
 function addAdminMessage(text, isUser, save = true, followUps = [], fullResponse = null) {
     const container = document.getElementById('chatbot-messages');
     const wrapper = document.createElement('div');
     wrapper.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
-
     if (!isUser) {
         const avatar = document.createElement('div');
         avatar.className = 'chat-msg-avatar';
         avatar.innerHTML = BOT_AVATAR_HTML;
         wrapper.appendChild(avatar);
     }
-
     const bubble = document.createElement('div');
     bubble.className = 'chat-msg-bubble';
     const ts = document.createElement('span');
     ts.className = 'chat-ts';
     ts.textContent = getAdminTimestamp();
-
     let html;
     if (isUser) {
         html = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
@@ -307,12 +282,10 @@ function addAdminMessage(text, isUser, save = true, followUps = [], fullResponse
             ? text
             : escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     }
-
     bubble.innerHTML = html;
     bubble.appendChild(ts);
     wrapper.appendChild(bubble);
     container.appendChild(wrapper);
-
     if (!isUser && fullResponse && fullResponse !== text) {
         const toggleWrap = document.createElement('div');
         toggleWrap.className = 'chat-toggle-wrap';
@@ -335,7 +308,6 @@ function addAdminMessage(text, isUser, save = true, followUps = [], fullResponse
         toggleWrap.appendChild(toggleBtn);
         container.appendChild(toggleWrap);
     }
-
     if (!isUser && followUps.length > 0) {
         const fuWrap = document.createElement('div');
         fuWrap.className = 'chat-followups';
@@ -352,11 +324,9 @@ function addAdminMessage(text, isUser, save = true, followUps = [], fullResponse
         });
         container.appendChild(fuWrap);
     }
-
     container.scrollTop = container.scrollHeight;
     if (save) saveChatHistory();
 }
-
 function showAdminTyping() {
     const container = document.getElementById('chatbot-messages');
     const wrapper = document.createElement('div');
@@ -366,29 +336,24 @@ function showAdminTyping() {
     container.appendChild(wrapper);
     container.scrollTop = container.scrollHeight;
 }
-
 function removeAdminTyping() {
     const el = document.getElementById('chat-typing');
     if (el) el.remove();
 }
-
 function clearAdminChat() {
     if (!confirm('Clear the conversation?')) return;
     localStorage.removeItem(STORAGE_KEY);
     loadChatHistory();
 }
-
 function quickAskAdmin(question) {
     document.getElementById('chat-input').value = question;
     sendAdminMessage();
 }
-
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
-
 function sendAdminMessage() {
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
@@ -420,7 +385,6 @@ function sendAdminMessage() {
         console.error('Error:', error);
     });
 }
-
 document.addEventListener('DOMContentLoaded', loadChatHistory);
 @endif
 </script>

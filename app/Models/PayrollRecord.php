@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Employee;
 use App\Models\PayrollItem;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -42,12 +42,12 @@ class PayrollRecord extends Model implements Auditable
 
     public function earnings()
     {
-        return $this->items()->where('type', CompensationType::Earning->value);
+        return $this->items()->where('type', CompensationCategory::Earning->value);
     }
 
     public function deductions()
     {
-        return $this->items()->where('type', CompensationType::Deduction->value);
+        return $this->items()->where('type', CompensationCategory::Deduction->value);
     }
 
     public function isProcessed() {

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Employee;
 use App\Models\Compensation;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +24,7 @@ class EmployeeCompensation extends Model implements Auditable
     protected $fillable = [
         'employee_id',
         'compensation_id',
+        'pay_period_id',
         'amount',
     ];
 
@@ -39,5 +40,9 @@ class EmployeeCompensation extends Model implements Auditable
 
     public function compensation() {
         return $this->belongsTo(Compensation::class);
+    }
+
+    public function payPeriod() {
+        return $this->belongsTo(PayPeriod::class);
     }
 }

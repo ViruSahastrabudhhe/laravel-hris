@@ -10,7 +10,7 @@ use App\Models\EmployeeCompensation;
 use App\Models\Compensation;
 use App\Models\Position;
 use App\Enums\EmploymentType;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 use App\Enums\PositionStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -166,7 +166,7 @@ class EmployeeObserver
     }
 
     // private function deleteEmployeeDeductions(Employee $employee) {
-    //     EmployeeCompensation::where('employee_id', $employee->id)->where('deduction_type', CompensationType::Optional->value)->delete();
+    //     EmployeeCompensation::where('employee_id', $employee->id)->where('deduction_type', CompensationCategory::Optional->value)->delete();
     // }
 
     private function updatePositionStatus(Employee $employee) {

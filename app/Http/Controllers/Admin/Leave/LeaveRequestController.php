@@ -8,9 +8,11 @@ use App\Models\Compensation;
 use App\Models\LeaveRequest;
 use App\Models\Employee;
 use App\Models\LeaveType;
+use App\Models\PayPeriod;
 use App\Models\Holiday;
 use App\Models\EmployeeCompensation;
 use App\Enums\LeaveStatus;
+use App\Enums\CompensationCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Leave\StoreEmployeeLeaveRequest;
 use App\Http\Requests\Leave\UpdateEmployeeLeaveRequest;
@@ -25,7 +27,11 @@ class LeaveRequestController extends Controller
      */
     public function index()
     {
-        $leaveRequests = LeaveRequest::with(['employee:id,first_name,last_name', 'leaveType:id,name'])
+        $leaveRequests = LeaveRequest::with(
+            [
+                'employee:id,first_name,last_name', 
+                'leaveType:id,name', 
+            ])
             ->latest()
             ->paginate(25);
 
@@ -49,15 +55,18 @@ class LeaveRequestController extends Controller
         $compensationStats = Cache::remember('compensation_stats', 300, fn() => [
             'total_benefits'   => EmployeeCompensation::count(),
             'total_earnings'   => EmployeeCompensation::whereHas('compensation', fn($q) =>
-            $q->where('type', 'Earnings')
+            $q->where('category', CompensationCategory::Earning->value)
             )->sum('amount'),
             'total_deductions' => EmployeeCompensation::whereHas('compensation', fn($q) =>
-            $q->where('type', 'Deductions')
+            $q->where('category', CompensationCategory::Deduction->value)
             )->sum('amount'),
         ]);
 
-        $employees = Employee::get();
+        $employees = Employee::with(['employeeCompensation.payPeriod'])->get();
         $compensations = Compensation::all();
+        $periods = PayPeriod::where('month', now()->month)
+            ->where('year', now()->year)
+            ->get();
 
         return view('admin.leave.index', compact(
             'leaveRequests',
@@ -68,6 +77,7 @@ class LeaveRequestController extends Controller
             'compensationStats',
             'employees',
             'compensations',
+            'periods',
         ));
     }
 

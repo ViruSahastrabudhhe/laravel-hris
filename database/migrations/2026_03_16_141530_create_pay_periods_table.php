@@ -17,9 +17,12 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->date('pay_date')->nullable();
-            $table->enum('status', ['draft', 'open', 'locked', 'processed'])->default('draft');
-            $table->boolean('is_active')->default(true);
+            $table->unsignedSmallInteger('month');
+            $table->unsignedSmallInteger('year');
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
+            $table->softDeletes();
+            $table->unique(['start_date', 'end_date', 'month', 'year']);
         });
     }
 

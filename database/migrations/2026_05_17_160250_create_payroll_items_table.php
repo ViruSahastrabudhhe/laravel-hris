@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Enums\CompensationType;
+use App\Enums\CompensationCategory;
 
 return new class extends Migration
 {
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('payroll_record_id')->references('id')->on('payroll_records')->cascadeOnDelete();
             $table->string('name');
-            $table->enum('type', CompensationType::cases());
+            $table->enum('type', CompensationCategory::cases());
             $table->decimal('amount', 10, 2);
             $table->timestamps();
         });

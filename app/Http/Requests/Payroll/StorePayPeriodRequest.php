@@ -23,10 +23,9 @@ class StorePayPeriodRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'is_active' => 'required|boolean',
+            'month' => 'required',
+            'year' => 'required',
+            'is_active' => 'required|in:firstHalf,secondHalf',
         ];
     }
 }

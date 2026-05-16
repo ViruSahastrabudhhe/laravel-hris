@@ -24,8 +24,8 @@ class StoreEmployeeCompensationRequest extends FormRequest
         return [
             'employee_id' => 'required',
             'compensation_id' => 'required',
+            'pay_period_id' => 'required',
             'amount' => 'required|numeric',
-            'user_id' => 'required',
         ];
     }
 }
