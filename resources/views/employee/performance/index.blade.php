@@ -90,18 +90,16 @@
         <table class="payroll-table" id="eval-table">
             <thead>
                 <tr>
-                    <th>Evaluation ID</th>
-                    <th>Period</th>
-                    <th>Evaluator</th>
-                    <th>Completed Date</th>
-                    <th>Rating</th>
+                    <th>Form ID</th>
+                    <th>Employee</th>
+                    <th>Performance Cycle</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="eval-table-body">
                 <tr>
-                    <td colspan="7" style="text-align:center;padding:40px;color:#9999bb;font-size:13px">
+                    <td colspan="5" style="text-align:center;padding:40px;color:#9999bb;font-size:13px">
                         No performance evaluations found.
                     </td>
                 </tr>
@@ -152,6 +150,7 @@
         const rows = document.querySelectorAll('#eval-table-body tr');
         let count = 0;
         rows.forEach(row => {
+            if (row.cells.length < 2) return;
             const show = row.textContent.toLowerCase().includes(q);
             row.style.display = show ? '' : 'none';
             if (show) count++;

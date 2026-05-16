@@ -114,30 +114,41 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Day</th>
                     <th>Time In</th>
                     <th>Time Out</th>
-                    <th>OT Hours</th>
+                    <th>Break Start</th>
+                    <th>Break End</th>
+                    <th>Overtime In</th>
+                    <th>Overtime Out</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($attendances as $a)
+                @php
+                    $fmt = fn($t) => $t ? \Carbon\Carbon::parse($t)->format('h:i A') : '—';
+                @endphp
                 <tr>
                     <td style="font-weight:600;color:#0b044d;font-size:13px">
-                        {{ \Carbon\Carbon::parse($a->date)->format('M d') }}
-                    </td>
-                    <td style="font-size:12.5px;color:#6b6a8a">
-                        {{ \Carbon\Carbon::parse($a->date)->format('D') }}
+                        {{ \Carbon\Carbon::parse($a->date)->format('F d, Y') }}
                     </td>
                     <td style="font-size:13px;color:{{ $a->time_in ? '#0b044d' : '#9999bb' }}">
-                        {{ $a->time_in ? \Carbon\Carbon::parse($a->time_in)->format('h:i A') : '—' }}
+                        {{ $fmt($a->time_in) }}
                     </td>
                     <td style="font-size:13px;color:{{ $a->time_out ? '#0b044d' : '#9999bb' }}">
-                        {{ $a->time_out ? \Carbon\Carbon::parse($a->time_out)->format('h:i A') : '—' }}
+                        {{ $fmt($a->time_out) }}
                     </td>
-                    <td style="font-size:13px;color:{{ $a->overtime_minutes > 0 ? '#0b044d' : '#9999bb' }};font-weight:{{ $a->overtime_minutes > 0 ? '600' : '400' }}">
-                        {{ $a->overtime_minutes > 0 ? '+' . round($a->overtime_minutes / 60, 1) . 'h' : '—' }}
+                    <td style="font-size:13px;color:{{ $a->break_start ? '#0b044d' : '#9999bb' }}">
+                        {{ $fmt($a->break_start) }}
+                    </td>
+                    <td style="font-size:13px;color:{{ $a->break_end ? '#0b044d' : '#9999bb' }}">
+                        {{ $fmt($a->break_end) }}
+                    </td>
+                    <td style="font-size:13px;color:{{ $a->overtime_in ? '#0b044d' : '#9999bb' }}">
+                        {{ $fmt($a->overtime_in) }}
+                    </td>
+                    <td style="font-size:13px;color:{{ $a->overtime_out ? '#0b044d' : '#9999bb' }}">
+                        {{ $fmt($a->overtime_out) }}
                     </td>
                     <td>
                         @if($a->attendance_status === \App\Enums\AttendanceStatus::Present->value)
@@ -153,7 +164,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align:center;padding:32px;color:#9999bb;font-size:13px">No attendance records found for this month.</td>
+                    <td colspan="8" style="text-align:center;padding:32px;color:#9999bb;font-size:13px">No attendance records found for this month.</td>
                 </tr>
                 @endforelse
             </tbody>
