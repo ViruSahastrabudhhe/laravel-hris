@@ -146,7 +146,9 @@
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Create Records
                 </button>
-                <button class="modal-btn-primary" onclick="openPayrollRunModal()" hidden>
+                <button class="modal-btn-primary" 
+                    onclick="openProcessPayroll(this)"
+                >
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Run Payroll
                 </button>
@@ -396,14 +398,14 @@
 </div>
 
 {{-- Run Payroll Modal --}}
-<div class="modal-overlay" id="payroll-run-modal" style="display:none">
+<div class="modal-overlay" id="runPayrollModal" style="display:none">
     <div class="modal-box modal-sm" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <span class="modal-eyebrow">PAYROLL PROCESSING</span>
                 <h3 class="modal-title" id="payroll-modal-title">Process Payroll?</h3>
             </div>
-            <button class="modal-close" onclick="closeModal('payroll-run-modal')">
+            <button class="modal-close" onclick="closeModal('runPayrollModal')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -420,7 +422,7 @@
                 <p class="modal-alert">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn-ghost" onclick="closeModal('payroll-run-modal')">Cancel</button>
+                <button type="button" class="modal-btn-ghost" onclick="closeModal('runPayrollModal')">Cancel</button>
                 <button type="submit" class="modal-btn-primary">Confirm & Process</button>
             </div>
         </form>
@@ -606,6 +608,18 @@
 
 @push('scripts')
     <script>
+        function openProcessPayroll(button) {
+            const data = button.dataset;
+
+            const periods = @json($periods);
+
+            console.log(periods);
+
+            document.getElementById('runPayrollModal').style.display = 'flex';
+        } 
+    </script>
+
+    <script>
         let recordsTable;
         let periodsTable;
 
@@ -749,7 +763,7 @@
             //         $('#end-date').val(end);
             //     }
             //
-            //     fetchPayroll();
+            //     fetchPayroll();000
             // });
 
             window.openPayrollRunModal = function() {
@@ -771,7 +785,7 @@
 
                 $('#payroll-modal-title').text(titleText);
 
-                openModal('payroll-run-modal');
+                openModal('runPayrollModal');
             };
         });
     </script>

@@ -65,8 +65,7 @@ class PayrollRecordController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
@@ -293,14 +292,12 @@ class PayrollRecordController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $employeeID)
-    {
+    public function show(int $employeeID) {
         $employee = Employee::findOrFail($employeeID);
         return view('admin.payroll.payslip', ['employee' => $employee]);
     }
 
-    public function exportPayslip(int $employeeID)
-    {
+    public function exportPayslip(int $employeeID) {
         $employee = Employee::findOrFail($employeeID);
 
         $attendances = Attendance::where('employee_id', $employee->id)
@@ -324,8 +321,7 @@ class PayrollRecordController extends Controller
         return $pdf->download('payslip-' . $employee->first_name . '-' . $employee->last_name . '-' . config('app.carbon_month') . '.pdf');
     }
 
-    public function exportPayroll()
-    {
+    public function exportPayroll() {
         $employees = Employee::paginate(25);
         $filename = 'payroll-' . config('app.carbon_month') . '.csv';
 
@@ -377,8 +373,7 @@ class PayrollRecordController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function filter(Request $request)
-    {
+    public function filter(Request $request) {
         $month = $request->integer('month', now()->month);
         $year  = $request->integer('year', now()->year);
 
@@ -453,6 +448,28 @@ class PayrollRecordController extends Controller
     public function edit(PayrollRecord $payroll)
     {
         //
+    }
+
+    public function processRecord(PayrollRecord $payroll) {
+        $payroll->update(['status' => 'Processed']);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll record successfully processed.');
+    }
+
+    public function bulkProcessRecord(Request $request) {
+        $data = $request->validate([
+            'month' => 'required|integer|min:1|max:12',
+            'year'  => 'required|integer',
+        ]);
+        
+        $month = $request->integer('month', $data['month']);
+        $year  = $request->integer('year', $data['year']);
+
+        PayrollRecord::where('month', $month)
+            ->where('year', $year)
+            ->update(['status' => 'Processed']);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll records successfully processed.');
     }
 
     /**
