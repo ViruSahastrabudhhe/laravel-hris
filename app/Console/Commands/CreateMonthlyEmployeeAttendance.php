@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Employee;
+use App\Models\EmployeeAttendance;
 use Illuminate\Console\Command;
 
 class CreateMonthlyEmployeeAttendance extends Command
@@ -29,11 +30,14 @@ class CreateMonthlyEmployeeAttendance extends Command
         $employees = Employee::all();
 
         foreach ($employees as $employee) {
-            $employee->employeeAttendance()->create([
-                'employee_id' => $employee->id,
-                'month' => now()->month,
-                'year' => now()->year,
-            ]);
+            EmployeeAttendance::firstOrCreate(
+                ['employee_id' => $employee->id, 'month' => now()->month, 'year' => now()->year],
+                [
+                    'employee_id' => $employee->id,
+                    'month' => now()->month,
+                    'year' => now()->year,
+                ]
+            );
         }
     }
 }

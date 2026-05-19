@@ -112,7 +112,7 @@
             </div>
             <div class="report-metric">
                 <span class="metric-label">Deductions</span>
-                <span class="metric-value">₱{{ number_format($totalDeductions, 2) }}</span>
+                <span class="metric-value">₱0</span>
             </div>
             <div class="report-metric">
                 <span class="metric-label">Net Pay</span>

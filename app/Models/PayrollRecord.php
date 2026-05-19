@@ -18,12 +18,15 @@ class PayrollRecord extends Model implements Auditable
     protected $fillable = [
         'employee_id',
         'pay_period_id',
+        'monthly_rate_of_pay',
+        'amount_accrued_for_period',
         'total_earnings',
         'total_deductions',
-        'net_pay',
+        'amount_paid',
         'status',
         'month',
-        'year'
+        'year',
+        'pay_date',
     ];
 
     public function employee()
@@ -42,12 +45,12 @@ class PayrollRecord extends Model implements Auditable
 
     public function earnings()
     {
-        return $this->items()->where('type', CompensationCategory::Earning->value);
+        return $this->items()->where('payroll_record_id', $this->id)->where('category', CompensationCategory::Earning->value);
     }
 
     public function deductions()
     {
-        return $this->items()->where('type', CompensationCategory::Deduction->value);
+        return $this->items()->where('payroll_record_id', $this->id)->where('category', CompensationCategory::Deduction->value);
     }
 
     public function isProcessed() {

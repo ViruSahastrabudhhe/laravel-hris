@@ -3,6 +3,7 @@
 @php
     $hideChat = true;
     use Carbon\Carbon;
+    use App\Enums\CompensationCategory;
 
     $payDate = now()->format('M d, Y');
     $defaultStartDate = Carbon::now()->copy()->startOfMonth()->format('Y-m-d');
@@ -28,13 +29,6 @@
             Filter
         </button>
         <div>
-            <select class="filter-select" id="pay-period-filter"
-                onclick="filterPayroll(this)"
-            >
-                @foreach ($periods as $period)
-                <option value="{{ $period->id }}">{{ $period->name }}</option>
-                @endforeach
-            </select>
 {{--            <select class="filter-select" id="month-filter">--}}
 {{--                @foreach(range(1,12) as $m)--}}
 {{--                    <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>--}}
@@ -127,10 +121,15 @@
                 <p class="table-sub">Monthly payroll breakdown for all employees</p>
             </div>
             <div class="table-actions">
-                <select class="filter-select" id="dept-filter">
-                    <option value="">All Departments</option>
-                    @foreach($departments as $dept)
-                        <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                <select class="filter-select" id="pay-period-filter">
+                    @foreach ($periods as $period)
+                        <option value="{{ $period->id }}" @selected($period->is_active)>{{ $period->name }}</option>
+                    @endforeach
+                </select>
+                <select class="filter-select" id="position-filter">
+                    <option value="">All Positions</option>
+                    @foreach($positions as $pos)
+                        <option value="{{ $pos->title }}">{{ $pos->title }}</option>
                     @endforeach
                 </select>
                 <select class="filter-select" id="status-filter">
@@ -146,9 +145,7 @@
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Create Records
                 </button>
-                <button class="modal-btn-primary" 
-                    onclick="openProcessPayroll(this)"
-                >
+                <button class="modal-btn-primary" onclick="openProcessPayroll()">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Run Payroll
                 </button>
@@ -187,10 +184,13 @@
                 <thead>
                 <tr>
                     <th>Employee</th>
-                    <th>Department</th>
-                    <th>Gross Pay</th>
+                    <th>Designation</th>
+                    <th>Pay Period</th>
+                    <th>Monthly Pay</th>
+                    <th>Amount for Period</th>
+                    <th>Earnings</th>
                     <th>Deductions</th>
-                    <th>Net Pay</th>
+                    <th>Amount Paid</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -212,15 +212,14 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="dept-tag">{{ $record->employee->department->name }}</span></td>
-                        <td><span class="pay-cell">₱{{ number_format($record->employee->grossPay(), 2) }}</span></td>
-                        <td>
-                            <span class="deduction">₱{{ number_format($record->employee->totalDeductions(), 2) }}</span>
-                        </td>
-                        <td><span class="net-pay">₱{{ number_format($record->employee->netPay(), 2) }}</span></td>
-                        <td>
-                            <span class="badge-status {{ strtolower($status) === 'processed' ? 'processed' : 'pending' }}">{{ $status }}</span>
-                        </td>
+                        <td><span class="position-cell">{{ $record->employee->position->title }}</span></td>
+                        <td><span class="position-cell">{{ $record->payPeriod->name }}</span></td>
+                        <td><span class="pay-cell">₱{{ number_format($record->monthly_rate_of_pay, 2) }}</span></td>
+                        <td><span class="pay-cell">₱{{ number_format($record->amount_accrued_for_period, 2) }}</span></td>
+                        <td><span style="color: #15803d;">₱{{ number_format($record->total_earnings, 2) }}</span></td>
+                        <td><span class="deduction">₱{{ number_format($record->total_deductions, 2) }}</span></td>
+                        <td><span class="net-pay">₱{{ number_format($record->amount_paid, 2) }}</span></td>
+                        <td><span class="badge-status {{ strtolower($status) === 'processed' ? 'processed' : 'pending' }}">{{ $status }}</span></td>
                         <td>
                             <div class="row-actions">
                                 <button type="button" class="btn-view" onclick="openModal('payslipModal-{{ $record->employee->id }}')">
@@ -231,10 +230,10 @@
                                             'id' => $record->employee->id,
                                             'name' => $record->employee->first_name . ' ' . $record->employee->last_name,
                                             'department' => $record->employee->department->name,
-                                            'grossPay' => number_format($record->employee->grossPay(), 2, '.', ''),
-                                            'totalDeductions' => number_format($record->employee->totalDeductions(), 2, '.', ''),
-                                            'netPay' => number_format($record->employee->netPay(), 2, '.', ''),
-                                        ]) }})" title="Run Payroll">
+                                            'grossPay' => 0,
+                                            'totalDeductions' => number_format($record->total_deductions, 2, '.', ''),
+                                            'netPay' => 0,
+                                ]) }})" title="Run Payroll">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                         <polygon points="5 3 19 12 5 21 5 3"/>
                                     </svg>
@@ -257,6 +256,10 @@
                                 </button>
                             </div>
                             <div class="modal-body">
+                                @php
+                                    $earnings = $record->earnings()->get();
+                                    $deductions = $record->deductions()->get();
+                                @endphp
                                 <div class="modal-emp-row">
                                     <div class="emp-avatar" style="background:{{ ['#0b044d','#8e1e18','#15803d','#a16207','#7c3aed'][($record->employee->id % 5)] }};width:48px;height:48px;border-radius:12px;font-size:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">
                                         {{ strtoupper(substr($record->employee->first_name,0,1).substr($record->employee->last_name,0,1)) }}
@@ -267,25 +270,22 @@
                                     </div>
                                 </div>
                                 <div class="modal-section-label">EARNINGS</div>
-                                <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($record->employee->salary->amount ?? 0, 2) }}</strong></div>
-                                <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($record->employee->overtimePay(), 2) }}</strong></div>
-                                <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($record->employee->grossPay(), 2) }}</strong></div>
+                                @foreach($earnings as $earn)
+                                    <div class="modal-row"><span>{{ $earn->name }}</span><strong>₱{{ number_format($earn->amount, 2) }}</strong></div>
+                                @endforeach
+                                <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($record->total_earnings, 2) }}</strong></div>
+
                                 <div class="modal-section-label">DEDUCTIONS</div>
-                                <div class="modal-row"><span>GSIS</span><span class="modal-deduct">₱{{ number_format($record->employee->gsisContribution(), 2) }}</span></div>
-                                <div class="modal-row"><span>PhilHealth</span><span class="modal-deduct">₱{{ number_format($record->employee->philHealthContribution(), 2) }}</span></div>
-                                <div class="modal-row"><span>Pag-Ibig</span><span class="modal-deduct">₱{{ number_format($record->employee->pagIbigContribution(), 2) }}</span></div>
-                                <div class="modal-row"><span>Withholding Tax</span><span class="modal-deduct">₱{{ number_format($record->employee->withholdingTax(), 2) }}</span></div>
-                                <div class="modal-row"><span>Optional Deductions</span><span class="modal-deduct">₱{{ number_format($record->employee->optionalDeductions(), 2) }}</span></div>
-                                <div class="modal-row"><span>Absent/Late</span><span class="modal-deduct">₱{{ number_format($record->employee->absentDeductions(), 2) }}</span></div>
-                                <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱{{ number_format($record->employee->totalDeductions(), 2) }}</span></div>
-                                <div class="modal-net-row">
-                                    <span>NET PAY</span>
-                                    <strong>₱{{ number_format($record->employee->netPay(), 2) }}</strong>
-                                </div>
+                                @foreach($deductions as $deduct)
+                                    <div class="modal-row"><span>{{ $deduct->name }}</span><span class="modal-deduct">₱{{ number_format($deduct->amount, 2) }}</span></div>
+                                @endforeach
+                                <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱{{ number_format($record->total_deductions, 2) }}</span></div>
+
+                                <div class="modal-net-row"><span>NET PAY</span><strong>₱{{ number_format($record->amount_paid, 2) }}</strong></div>
                             </div>
                             <div class="modal-footer">
                                 <button class="modal-btn-ghost" onclick="closeModal('payslipModal-{{ $record->employee->id }}')">Close</button>
-                                <a href="{{ route('payroll.exportPayslip', $record->employee->id) }}" class="modal-btn-primary">
+                                <a href="{{ route('payroll.exportPayslip', $record->pay_period_id) }}" class="modal-btn-primary">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     Download PDF
                                 </a>
@@ -409,21 +409,47 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <form action="{{ route('payroll.bulkStoreRecord') }}" method="POST">
+        <form action="{{ route('payroll.bulkProcessRecord') }}" method="POST">
             @csrf
+            @method('PUT')
             <div class="modal-body">
-                <div class="modal-confirm-info">
-                    <input type="hidden" name="month" id="payroll-run-month">
-                    <input type="hidden" name="year" id="payroll-run-year">
-                    <div class="modal-row"><span>Total Personnel</span><strong>{{ $payrollStats['total_personnel'] }}</strong></div>
-                    <div class="modal-row"><span>Gross Payroll</span><strong>₱{{ number_format($payrollStats['gross_pay'], 2) }}</strong></div>
-                    <div class="modal-row"><span>Pay Date</span><strong>{{ now()->format(config('app.day_month')) }}</strong></div>
-                </div>
-                <p class="modal-alert">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
+                @if($records->isEmpty())
+                    <div style="text-align:center;padding:32px 0">
+                        <p style="font-size:13px;color:#6b6a8a;margin:0">No payroll records found. Create records first.</p>
+                    </div>
+                @else
+                    <div class="modal-confirm-info">
+                        <input type="hidden" name="month" id="payroll-run-month">
+                        <input type="hidden" name="year" id="payroll-run-year">
+                        <div class="modal-row"><span>Pay Period</span><strong>
+                                <select name="pay_period_id" id="runPayrollPeriod">
+                                    @foreach($periods as $period)
+                                        <option value="{{ $period->id }}" @selected($period->is_active)>{{ $period->name }}</option>
+                                    @endforeach
+                                </select>
+                            </strong>
+                        </div>
+                        <div class="modal-row"><span id="runPayrollTotalPersonnel">Total Personnel</span><strong id="valTotalPersonnel">0</strong></div>
+                        <div class="modal-row"><span id="runPayrollTotalMonthly">Total Monthly Pay</span><strong id="valTotalMonthly">₱0.00</strong></div>
+                        <div class="modal-row"><span id="runPayrollTotalGross">Total Gross Pay</span><strong id="valTotalGross">₱0.00</strong></div>
+                        <div class="modal-row"><span id="runPayrollTotalDeductions">Total Deductions</span><strong id="valTotalDeductions">₱0.00</strong></div>
+                        <div class="modal-row"><span id="runPayrollTotalPaidCash">Total Paid in Cash</span><strong id="valTotalPaidCash">₱0.00</strong></div>
+                        <div class="modal-row"><span>Pay Date</span><strong><input type="date" name="pay_date" id="runPayrollPayDate" value="{{ now()->toDateString() }}" required></strong></div>
+                        <input type="hidden" name="month" id="runPayrollMonthVal">
+                        <input type="hidden" name="year" id="runPayrollYearVal">
+                    </div>
+                    <p class="modal-alert">⚠ This will finalize payroll for all listed employees. Ensure all DTR and leave records are updated before proceeding.</p>
+                @endif
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-btn-ghost" onclick="closeModal('runPayrollModal')">Cancel</button>
-                <button type="submit" class="modal-btn-primary">Confirm & Process</button>
+                @if($records->isEmpty())
+                    <button type="button" class="modal-btn-primary" onclick="closeModal('runPayrollModal'); openBulkCreateRecord()">
+                        Create Records First
+                    </button>
+                @else
+                    <button type="submit" class="modal-btn-primary">Confirm & Process</button>
+                @endif
             </div>
         </form>
     </div>
@@ -563,8 +589,8 @@
                         <select name="month" id="payPeriodMonth">
                             @foreach(range(1, 12) as $month)
                                 <option value="{{ $month }}" @selected($month == now()->month)>
-                                    {{ Carbon::createFromDate(null, $month, 1)->format('F') }} 
-                                </option>                            
+                                    {{ Carbon::createFromDate(null, $month, 1)->format('F') }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -608,18 +634,82 @@
 
 @push('scripts')
     <script>
-        function openProcessPayroll(button) {
-            const data = button.dataset;
-
-            const periods = @json($periods);
-
-            console.log(periods);
-
+        function openCreatePayPeriod() {
+            document.getElementById('createPayPeriodModal').style.display = 'flex';
+        }
+        function openBulkCreateRecord() {
+            document.getElementById('bulkCreateRecordModal').style.display = 'flex';
+        }
+        function openProcessPayroll() {
             document.getElementById('runPayrollModal').style.display = 'flex';
-        } 
+
+            const periodSelect = document.getElementById('runPayrollPeriod');
+
+            // Remove old listener to avoid duplicates on re-open
+            periodSelect.replaceWith(periodSelect.cloneNode(true));
+            const freshSelect = document.getElementById('runPayrollPeriod');
+
+            // Fetch summary for the default selected period
+            if (freshSelect.value) {
+                fetchPayrollSummary(freshSelect.value);
+            }
+
+            // Listen for period changes
+            freshSelect.addEventListener('change', function () {
+                fetchPayrollSummary(this.value);
+            });
+
+            // Parse pay date
+            const payDate = document.getElementById('runPayrollPayDate').value;
+            if (payDate) {
+                const dateObj = new Date(payDate);
+                document.getElementById('runPayrollMonthVal').value = dateObj.getMonth() + 1;
+                document.getElementById('runPayrollYearVal').value  = dateObj.getFullYear();
+            }
+        }
+        function openSinglePayrollModal(data) {
+            document.getElementById('single-payroll-modal-title').textContent = `Process ${startText}${endText ? ' — ' + endText : ''} Payroll?`;
+            document.getElementById('single-payroll-name').textContent        = data.name;
+            document.getElementById('single-payroll-dept').textContent        = data.department;
+            document.getElementById('single-payroll-gross').textContent       = formatPeso(data.grossPay);
+            document.getElementById('single-payroll-deductions').textContent  = formatPeso(data.totalDeductions);
+            document.getElementById('single-payroll-net').textContent         = formatPeso(data.netPay);
+
+            var url = "{{ route('payroll.storeRecord') }}";
+            document.getElementById('single-payroll-form').action            = url;
+            document.getElementById('single-payroll-month').value            = month;
+            document.getElementById('single-payroll-year').value             = year;
+            document.getElementById('single-payroll-employee-id').value      = data.id;
+            document.getElementById('single-payroll-total-earnings').value   = data.grossPay;
+            document.getElementById('single-payroll-total-deductions').value = data.totalDeductions;
+            document.getElementById('single-payroll-net-pay').value          = data.netPay;
+
+            openModal('single-payroll-modal');
+        }
+
+        function formatPeso(value) {
+            return '₱' + parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
     </script>
 
     <script>
+        function fetchPayrollSummary(payPeriodId) {
+            fetch(`/admin/payroll/${payPeriodId}/summary`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('valTotalPersonnel').textContent  = data.total_personnel;
+                    document.getElementById('valTotalMonthly').textContent    = '₱' + fmt(data.total_monthly);
+                    document.getElementById('valTotalGross').textContent      = '₱' + fmt(data.total_gross);
+                    document.getElementById('valTotalDeductions').textContent     = '₱' + fmt(data.total_deductions);
+                    document.getElementById('valTotalPaidCash').textContent   = '₱' + fmt(data.total_amount_paid);
+                })
+                .catch(err => console.error('Failed to fetch payroll summary:', err));
+        }
+
+        function fmt(value) {
+            return Number(value).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         let recordsTable;
         let periodsTable;
 
@@ -664,7 +754,7 @@
             recordsTable.column(5).search(val, true, false).draw();
         });
 
-        $('#dept-filter').on('change', function() {
+        $('#position-filter').on('change', function() {
             if (!recordsTable) return;
 
             const val = this.value ? '^' + this.value + '$' : '';
@@ -726,7 +816,7 @@
                 });
             }
 
-            function filterPayroll() {
+            function payPeriodFilter() {
                 const month = document.getElementById('global-month-filter').val();
                 const year = document.getElementById('year-month-filter').val();
                 const period = document.getElementById('pay-period-filter').val();
@@ -765,63 +855,6 @@
             //
             //     fetchPayroll();000
             // });
-
-            window.openPayrollRunModal = function() {
-                const startDate = $('#start-date').val();
-                const endDate = $('#end-date').val();
-                const month = startDate ? new Date(startDate).getMonth() + 1 : parseInt($('#month-filter').val());
-                const year = startDate ? new Date(startDate).getFullYear() : parseInt($('#year-filter').val());
-                const starts = startDate ? new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
-                const ends = endDate ? new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
-
-                $('#payroll-run-month').val(month);
-                $('#payroll-run-year').val(year);
-
-                let titleText = startDate ? `Process ${starts}` : 'Process Payroll';
-                if (ends) {
-                    titleText += ` — ${ends}`;
-                }
-                titleText += ' Payroll?';
-
-                $('#payroll-modal-title').text(titleText);
-
-                openModal('runPayrollModal');
-            };
         });
-    </script>
-
-    <script>
-        function openCreatePayPeriod() {
-            document.getElementById('createPayPeriodModal').style.display = 'flex';
-        }
-        function openBulkCreateRecord() {
-            document.getElementById('bulkCreateRecordModal').style.display = 'flex';
-        }
-    </script>
-
-    <script>
-        function formatPeso(value) {
-            return '₱' + parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function openSinglePayrollModal(data) {
-            document.getElementById('single-payroll-modal-title').textContent = `Process ${startText}${endText ? ' — ' + endText : ''} Payroll?`;
-            document.getElementById('single-payroll-name').textContent        = data.name;
-            document.getElementById('single-payroll-dept').textContent        = data.department;
-            document.getElementById('single-payroll-gross').textContent       = formatPeso(data.grossPay);
-            document.getElementById('single-payroll-deductions').textContent  = formatPeso(data.totalDeductions);
-            document.getElementById('single-payroll-net').textContent         = formatPeso(data.netPay);
-
-            var url = "{{ route('payroll.storeRecord') }}";
-            document.getElementById('single-payroll-form').action            = url;
-            document.getElementById('single-payroll-month').value            = month;
-            document.getElementById('single-payroll-year').value             = year;
-            document.getElementById('single-payroll-employee-id').value      = data.id;
-            document.getElementById('single-payroll-total-earnings').value   = data.grossPay;
-            document.getElementById('single-payroll-total-deductions').value = data.totalDeductions;
-            document.getElementById('single-payroll-net-pay').value          = data.netPay;
-
-            openModal('single-payroll-modal');
-        };
     </script>
 @endpush

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin\Payroll;
 
 use App\Enums\CompensationCategory;
 use App\Http\Requests\Payroll\StorePayPeriodRequest;
-use App\Models\Department;
+use App\Models\EmployeeCompensation;
+use App\Models\PayrollItem;
+use App\Models\Position;
 use App\Models\PayPeriod;
 use App\Models\PayrollRecord;
 use App\Models\Compensation;
@@ -27,11 +29,19 @@ class PayrollRecordController extends Controller
      */
     public function index() {
         $periods = PayPeriod::get();
-        $records = PayrollRecord::with(['items', 'employee.department', 'employee.position', 'employee.salary'])
+        $records = PayrollRecord::with(
+                [
+                    'items',
+                    'employee.department',
+                    'employee.position',
+                    'employee.salary',
+                    'employee.employeeCompensation',
+                    'earnings',
+                ])
             ->where('month', now()->month)
             ->where('year', now()->year)
             ->get();
-        $departments = Department::get();
+        $positions = Position::get();
 
         $payrollStats = [
             'gross_pay'         => $records->where('month', now()->month)
@@ -58,7 +68,7 @@ class PayrollRecordController extends Controller
             'periods',
             'payrollStats',
             'records',
-            'departments',
+            'positions',
         ));
     }
 
@@ -91,8 +101,9 @@ class PayrollRecordController extends Controller
 
         $items = [
             ['name' => 'Basic Pay',    'category' => CompensationCategory::Earning->value,   'amount' => $employee->salary->amount ?? 0],
-            ['name' => 'Overtime Pay', 'category' => CompensationCategory::Earning->value,   'amount' => $employee->overtimePay($month, $year)],
-            ['name' => 'Absent/Late',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->absentDeductions($month, $year)],
+            ['name' => 'Overtime Pay', 'category' => CompensationCategory::Earning->value,   'amount' => 0],
+            ['name' => 'Late Deductions',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->absentDeductions($month, $year)],
+            ['name' => 'Absent Deductions',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->absentDeductions($month, $year)],
         ];
 
         foreach ($employee->employeeCompensation as $item) {
@@ -117,14 +128,14 @@ class PayrollRecordController extends Controller
         $targetDate = Carbon::createFromDate($data['year'], $data['month'], 1);
 
         $firstHalf = PayPeriod::withTrashed()->firstOrNew([
-            'start_date' => $targetDate->copy()->startOfMonth()->toDateString(), 
+            'start_date' => $targetDate->copy()->startOfMonth()->toDateString(),
             'end_date'   => $targetDate->copy()->day(15)->toDateString(),
             'month'      => $data['month'],
             'year'       => $data['year'],
         ]);
 
         $secondHalf = PayPeriod::withTrashed()->firstOrNew([
-            'start_date' => $targetDate->copy()->day(16)->toDateString(), 
+            'start_date' => $targetDate->copy()->day(16)->toDateString(),
             'end_date'   => $targetDate->copy()->endOfMonth()->toDateString(),
             'month'      => $data['month'],
             'year'       => $data['year'],
@@ -150,7 +161,7 @@ class PayrollRecordController extends Controller
             $firstHalf->restore();
             $message = 'Period successfully restored.';
         }
-            
+
         if ($secondHalf->exists && $secondHalf->deleted_at != null) {
             $secondHalf->restore();
             $message = 'Period successfully restored.';
@@ -158,15 +169,15 @@ class PayrollRecordController extends Controller
 
         $firstHalfStartDate = now()->startOfMonth()->format('d');
         $firstHalfEndDate = now()->day(15)->format('d');
-        
+
         $secondHalfStartDate = now()->day(16)->format('d');
         $secondHalfEndDate = now()->endOfMonth()->format('d');
 
-        $firstHalfName = $firstHalfStartDate . '-' 
+        $firstHalfName = $firstHalfStartDate . '-'
                 . $firstHalfEndDate . ' '
                 . Carbon::createFromDate(null, $data['month'], 1)->format('F') . ' '
                 . $data['year'];
-        $secondHalfName = $secondHalfStartDate . '-' 
+        $secondHalfName = $secondHalfStartDate . '-'
                 . $secondHalfEndDate . ' '
                 . Carbon::createFromDate(null, $data['month'], 1)->format('F') . ' '
                 . $data['year'];
@@ -193,6 +204,15 @@ class PayrollRecordController extends Controller
         $data = $request->validated();
         $month = $request->integer('month');
         $year  = $request->integer('year');
+        $payPeriodId = $data['pay_period_id'];
+
+        $hasAttendance = Attendance::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->exists();
+
+        if (!$hasAttendance) {
+            return back()->withErrors('Please import attendance records before generating payroll.');
+        }
 
         $employees = Employee::with([
             'salary',
@@ -204,26 +224,29 @@ class PayrollRecordController extends Controller
             $record = PayrollRecord::updateOrCreate(
                 ['employee_id' => $employee->id, 'month' => $month, 'year' => $year],
                 [
-                    'pay_period_id'    => $data['pay_period_id'],
-                    'status'           => 'Draft',
-                    'total_earnings'   => $employee->grossPay($month, $year),
-                    'total_deductions' => $employee->totalDeductions($month, $year),
-                    'net_pay'          => $employee->netPay($month, $year),
+                    'pay_period_id'             => $payPeriodId,
+                    'monthly_rate_of_pay'       => $employee->basicPay(),
+                    'amount_accrued_for_period' => $employee->amountAccruedForPeriod(),
+                    'total_earnings'            => $employee->payrollTotalEarnings($payPeriodId),
+                    'total_deductions'          => $employee->payrollTotalDeductions($payPeriodId),
+                    'amount_paid'               => $employee->amountPaid($payPeriodId),
+                    'status'                    => 'Draft',
                 ]
             );
 
             $record->items()->delete();
 
             $items = [
-                ['name' => 'Basic Pay',    'category' => CompensationCategory::Earning->value,   'amount' => $employee->salary->amount ?? 0],
-                ['name' => 'Overtime Pay', 'category' => CompensationCategory::Earning->value,   'amount' => $employee->overtimePay($month, $year)],
-                ['name' => 'Absent/Late',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->absentDeductions($month, $year)],
+                ['name' => 'Basic Pay',    'category' => CompensationCategory::Earning->value,   'amount' => $employee->amountAccruedForPeriod()],
+                ['name' => 'Overtime Pay', 'category' => CompensationCategory::Earning->value,   'amount' => $employee->overtimePay($payPeriodId)],
+                ['name' => 'Late Deductions',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->payrollLateDeductions($month, $year)],
+                ['name' => 'Absent Deductions',  'category' => CompensationCategory::Deduction->value, 'amount' => $employee->payrollAbsentDeductions($month, $year)],
             ];
 
             foreach ($employee->employeeCompensation as $item) {
                 $items[] = [
                     'name'   => $item->compensation->name,
-                    'type'   => $item->compensation->type === CompensationCategory::Earning->value ? 'Earning' : 'Deduction',
+                    'category'   => $item->compensation->category === CompensationCategory::Earning->value ? 'Earning' : 'Deduction',
                     'amount' => $item->amount,
                 ];
             }
@@ -231,21 +254,21 @@ class PayrollRecordController extends Controller
             $record->items()->createMany($items);
         }
 
-        return redirect()->route('payroll.index');
+        return redirect()->route('payroll.index')->with('success', 'Successfully created payroll records.');
     }
 
     public function quickStorePeriod(Request $request) {
         $firstHalfStartDate = now()->startOfMonth()->format('d');
         $firstHalfEndDate = now()->day(15)->format('d');
-        
+
         $secondHalfStartDate = now()->day(16)->format('d');
         $secondHalfEndDate = now()->endOfMonth()->format('d');
 
-        $firstHalfName = $firstHalfStartDate . '-' 
+        $firstHalfName = $firstHalfStartDate . '-'
                 . $firstHalfEndDate . ' '
                 . Carbon::createFromDate(null, now()->month, 1)->format('F') . ' '
                 . now()->year;
-        $secondHalfName = $secondHalfStartDate . '-' 
+        $secondHalfName = $secondHalfStartDate . '-'
                 . $secondHalfEndDate . ' '
                 . Carbon::createFromDate(null, now()->month, 1)->format('F') . ' '
                 . now()->year;
@@ -253,7 +276,7 @@ class PayrollRecordController extends Controller
         $targetDate = Carbon::createFromDate(now()->year, now()->month, 1);
 
         $firstHalf = PayPeriod::firstOrNew([
-            'start_date' => $targetDate->copy()->startOfMonth()->toDateString(), 
+            'start_date' => $targetDate->copy()->startOfMonth()->toDateString(),
             'end_date'   => $targetDate->copy()->day(15)->toDateString(),
             'month'      => now()->month,
             'year'       => now()->year,
@@ -262,7 +285,7 @@ class PayrollRecordController extends Controller
         $firstHalf->save();
 
         $secondHalf = PayPeriod::firstOrNew([
-            'start_date' => $targetDate->copy()->day(16)->toDateString(), 
+            'start_date' => $targetDate->copy()->day(16)->toDateString(),
             'end_date'   => $targetDate->copy()->endOfMonth()->toDateString(),
             'month'      => now()->month,
             'year'       => now()->year,
@@ -297,14 +320,16 @@ class PayrollRecordController extends Controller
         return view('admin.payroll.payslip', ['employee' => $employee]);
     }
 
-    public function exportPayslip(int $employeeID) {
-        $employee = Employee::findOrFail($employeeID);
+    public function exportPayslip(int $payPeriodId) {
+        $record = PayrollRecord::with([
+            'earnings',
+            'deductions',
+        ])->where('pay_period_id', $payPeriodId)->first();
 
-        $attendances = Attendance::where('employee_id', $employee->id)
-            ->betweenCurrentMonth()
-            ->whereNull('deleted_at')
-            ->orderBy('date')
-            ->get();
+        if (!$record) return;
+
+        $employee = Employee::findOrFail($record->employee_id);
+        $attendances = $employee->attendance();
 
         $absentLateAttendances = $attendances->whereIn('attendance_status', [
             AttendanceStatus::Absent->value,
@@ -315,14 +340,19 @@ class PayrollRecordController extends Controller
         $absentCount = $attendances->where('attendance_status', AttendanceStatus::Absent->value)->count();
 
         $pdf = Pdf::loadView('admin.payroll.pdf.payslip', compact(
-            'employee', 'attendances', 'absentLateAttendances', 'lateCount', 'absentCount'
+            'employee', 'record', 'attendances', 'absentLateAttendances', 'lateCount', 'absentCount'
         ))->setPaper('a4', 'portrait');
 
         return $pdf->download('payslip-' . $employee->first_name . '-' . $employee->last_name . '-' . config('app.carbon_month') . '.pdf');
     }
 
-    public function exportPayroll() {
-        $employees = Employee::paginate(25);
+    public function exportPayroll()
+    {
+        $payrollRecords = PayrollRecord::with([
+            'employee.position',
+            'items'
+        ])->get();
+
         $filename = 'payroll-' . config('app.carbon_month') . '.csv';
 
         $headers = [
@@ -330,41 +360,85 @@ class PayrollRecordController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function () use ($employees) {
+        $callback = function () use ($payrollRecords) {
+
             $out = fopen('php://output', 'w');
 
+            // HEADER
             fputcsv($out, ['PAYROLL SUMMARY - ' . config('app.carbon_month')]);
             fputcsv($out, ['Generated', now()->format('F d, Y h:i A')]);
             fputcsv($out, []);
 
-            fputcsv($out, ['Employee', 'Department', 'Gross Pay', 'GSIS', 'PhilHealth', 'Pag-Ibig', 'Tax', 'Optional Deductions', 'Absent/Late', 'Net Pay']);
+            // COLUMN HEADERS
+            fputcsv($out, [
+                'Employee',
+                'Designation',
+                'Pay Period',
+                'Monthly Rate',
+                'Accrued Amount',
+                'Total Earnings',
+                'Total Deductions',
+                'Amount Paid',
+                'Status',
+                'Pay Date'
+            ]);
 
-            foreach ($employees as $e) {
+            // PAYROLL RECORDS
+            foreach ($payrollRecords as $record) {
+
                 fputcsv($out, [
-                    $e->first_name . ' ' . $e->last_name,
-                    $e->department->name,
-                    $e->grossPay(),
-                    $e->gsisContribution(),
-                    $e->philHealthContribution(),
-                    $e->pagIbigContribution(),
-                    $e->withholdingTax(),
-                    $e->optionalDeductions(),
-                    $e->absentDeductions(),
-                    $e->netPay(),
+                    $record->employee->first_name . ' ' . $record->employee->last_name,
+                    $record->employee->position->title ?? '',
+                    optional($record->payPeriod)->name,
+                    $record->monthly_rate_of_pay,
+                    $record->amount_accrued_for_period,
+                    $record->total_earnings,
+                    $record->total_deductions,
+                    $record->amount_paid,
+                    $record->status,
+                    optional($record->pay_date)?->format('Y-m-d')
                 ]);
+
+                // PAYROLL ITEMS HEADER
+                fputcsv($out, [
+                    '',
+                    'Payroll Items'
+                ]);
+
+                fputcsv($out, [
+                    '',
+                    'Name',
+                    'Category',
+                    'Amount'
+                ]);
+
+                // PAYROLL ITEMS
+                foreach ($record->items as $item) {
+
+                    fputcsv($out, [
+                        '',
+                        $item->name,
+                        $item->category,
+                        $item->amount
+                    ]);
+                }
+
+                // SPACE AFTER EACH RECORD
+                fputcsv($out, []);
             }
 
-            fputcsv($out, []);
+            // TOTALS
             fputcsv($out, [
-                'TOTALS', '',
-                $employees->sum(fn($e) => $e->grossPay()),
-                $employees->sum(fn($e) => $e->gsisContribution()),
-                $employees->sum(fn($e) => $e->philHealthContribution()),
-                $employees->sum(fn($e) => $e->pagIbigContribution()),
-                $employees->sum(fn($e) => $e->withholdingTax()),
-                $employees->sum(fn($e) => $e->optionalDeductions()),
-                $employees->sum(fn($e) => $e->absentDeductions()),
-                $employees->sum(fn($e) => $e->netPay()),
+                'TOTALS',
+                '',
+                '',
+                $payrollRecords->sum('monthly_rate_of_pay'),
+                $payrollRecords->sum('amount_accrued_for_period'),
+                $payrollRecords->sum('total_earnings'),
+                $payrollRecords->sum('total_deductions'),
+                $payrollRecords->sum('amount_paid'),
+                '',
+                ''
             ]);
 
             fclose($out);
@@ -399,9 +473,9 @@ class PayrollRecordController extends Controller
                     'id'           => $e->id,
                     'name'         => $e->first_name . ' ' . $e->last_name,
                     'department'   => $e->department->name,
-                    'gross_pay'    => number_format($e->grossPay(), 2),
+                    'gross_pay'    => 0,
                     'compensations'=> number_format($e->totalDeductions(), 2),
-                    'net_pay'      => number_format($e->netPay(), 2),
+                    'net_pay'      => 0,
                 ]),
             ]);
         }
@@ -458,16 +532,24 @@ class PayrollRecordController extends Controller
 
     public function bulkProcessRecord(Request $request) {
         $data = $request->validate([
-            'month' => 'required|integer|min:1|max:12',
-            'year'  => 'required|integer',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer',
+            'pay_date' => 'required|date',
+            'pay_period_id' => 'required|integer|exists:payroll_periods,id',
         ]);
-        
-        $month = $request->integer('month', $data['month']);
-        $year  = $request->integer('year', $data['year']);
 
-        PayrollRecord::where('month', $month)
+        $month = $data['month'];
+        $year  = $data['year'];
+        $payPeriod = $data['pay_period_id'];
+
+        PayrollRecord::where('status', 'Draft')
+            ->where('month', $month)
             ->where('year', $year)
-            ->update(['status' => 'Processed']);
+            ->where('pay_period_id', $payPeriod)
+            ->update([
+                'status' => 'Processed',
+                'pay_date' => $data['pay_date'],
+            ]);
 
         return redirect()->route('payroll.index')->with('success', 'Payroll records successfully processed.');
     }
@@ -486,6 +568,27 @@ class PayrollRecordController extends Controller
     public function destroyRecord(PayrollRecord $payroll)
     {
         //
+    }
+
+    public function summary($payPeriodId)
+    {
+        $records = PayrollRecord::with('employee.salary')
+            ->where('pay_period_id', $payPeriodId)
+            ->get();
+
+        $totalPersonnel       = $records->count();
+        $totalMonthly         = $records->sum(fn($r) => $r->employee->amountAccruedForPeriod());
+        $totalDeductions      = $records->sum(fn($r) => $r->deductions()->sum('amount'));
+        $totalGrossPay        = $records->sum(fn($r) => $r->earnings()->sum('amount'));
+        $totalAmountPaid      = $records->sum(fn($r) => $r->amount_paid);
+
+        return response()->json([
+            'total_personnel'   => $totalPersonnel,
+            'total_monthly'     => $totalMonthly,
+            'total_gross'       => $totalGrossPay,
+            'total_deductions'  => $totalDeductions,
+            'total_amount_paid' => $totalAmountPaid,
+        ]);
     }
 
     public function destroyPeriod(PayPeriod $period) {

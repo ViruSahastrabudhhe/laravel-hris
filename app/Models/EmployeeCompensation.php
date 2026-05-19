@@ -45,4 +45,8 @@ class EmployeeCompensation extends Model implements Auditable
     public function payPeriod() {
         return $this->belongsTo(PayPeriod::class);
     }
+
+    public function payrollItem() {
+        return $this->hasMany(PayrollItem::class);
+    }
 }

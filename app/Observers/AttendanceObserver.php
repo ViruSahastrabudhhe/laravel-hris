@@ -2,11 +2,15 @@
 
 namespace App\Observers;
 
+use App\Enums\CompensationCategory;
 use App\Models\Attendance;
 use App\Enums\AttendanceStatus;
+use App\Models\Compensation;
 use App\Models\Employee;
 use App\Models\EmployeeAttendance;
+use App\Models\EmployeeCompensation;
 use App\Models\EmployeeLeaveBalance;
+use App\Models\PayPeriod;
 use App\Models\PayrollItem;
 use App\Models\PayrollRecord;
 use Carbon\Carbon;
@@ -63,6 +67,7 @@ class AttendanceObserver
         $this->determineAttendanceStatus($attendance);
         $this->recalculateEmployeeMonthlySummary($attendance);
         $this->recalculateMonthlyOvertime($attendance);
+        $this->syncPayrollItem($attendance);
     }
 
     private function recalculateEmployeeMonthlySummary(Attendance $attendance): void {
@@ -238,26 +243,72 @@ class AttendanceObserver
         }
     }
 
-    private function addToLateAbsentDeductions(Attendance $attendance) {
-        $payrollRecord = $attendance->employee->payrollRecords()
-            ->whereMonth('month', now()->month)
-            ->whereYear('year', now()->year)
+    private function syncPayrollItem(Attendance $attendance) {
+        $payPeriod = PayPeriod::where('start_date', '<=', $attendance->date)
+            ->where('end_date', '>=', $attendance->date)
             ->first();
 
-        if (!$payrollRecord) {
-            return;
-        }
+        Log::info('Pay period: ' . $payPeriod);
 
-        $payrollItems = $payrollRecord->items
-            ->where('name', 'Absent/Late');
+        if (!$payPeriod) return;
 
-        foreach ($payrollItems as $item) {
-            $item->amount += $attendance->late_deduction ?? 0;
+        $payrollRecord = PayrollRecord::where('employee_id', $attendance->employee_id)
+            ->where('pay_period_id', $payPeriod->id)
+            ->first();
 
-            // If you track absences too
-            $item->amount += $attendance->absent_deduction ?? 0;
+        Log::info('Payroll record: ' . $payrollRecord);
 
-            $item->save();
-        }
+        if (!$payrollRecord) return;
+
+        $lateCount = Attendance::where('employee_id', $attendance->employee_id)
+            ->whereBetween('date', [$payPeriod->start_date, $payPeriod->end_date])
+            ->where('attendance_status', AttendanceStatus::Late)
+            ->count();
+
+        $absentCount = Attendance::where('employee_id', $attendance->employee_id)
+            ->whereBetween('date', [$payPeriod->start_date, $payPeriod->end_date])
+            ->where('attendance_status', AttendanceStatus::Absent)
+            ->count();
+
+        Log::info('Late count: ' . $lateCount . ', Absent count: ' . $absentCount);
+
+        $dailyRate = $attendance->employee->dailyRate();
+
+        PayrollItem::updateOrCreate(
+            ['payroll_record_id' => $payrollRecord->id, 'name' => 'Late Deductions'],
+            ['amount' => $lateCount * ($dailyRate * 0.5)]
+        );
+
+        PayrollItem::updateOrCreate(
+            ['payroll_record_id' => $payrollRecord->id, 'name' => 'Absent Deductions'],
+            ['amount' => $absentCount * $dailyRate]
+        );
+
+        $this->syncPayrollRecord($attendance);
+    }
+
+    public function syncPayrollRecord(Attendance $attendance) {
+        $payPeriod = PayPeriod::where('start_date', '<=', $attendance->date)
+            ->where('end_date', '>=', $attendance->date)
+            ->first();
+
+        if (!$payPeriod) return;
+
+        $payrollRecord = PayrollRecord::where('employee_id', $attendance->employee_id)
+            ->where('pay_period_id', $payPeriod->id)
+            ->first();
+
+        if (!$payrollRecord) return;
+
+        $totals = $payrollRecord->items()
+            ->get()
+            ->groupBy('category')
+            ->map(fn($group) => $group->sum('amount'));
+
+        $payrollRecord->update([
+            'total_deductions' => $totals[CompensationCategory::Deduction->value] ?? 0,
+            'total_earnings'   => $totals[CompensationCategory::Earning->value] ?? 0,
+            'amount_paid'      => ($totals[CompensationCategory::Earning->value] ?? 0) - ($totals[CompensationCategory::Deduction->value] ?? 0),
+        ]);
     }
 }

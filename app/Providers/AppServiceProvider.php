@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\EmployeeCompensation;
 use App\Models\PerformanceCycle;
+use App\Observers\EmployeeCompensationObserver;
 use App\Observers\PerformanceCycleObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades;
@@ -42,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         Salary::observe(SalaryObserver::class);
         PerformanceCycle::observe(PerformanceCycleObserver::class);
         PayPeriod::observe(PayPeriodObserver::class);
+        EmployeeCompensation::observe(EmployeeCompensationObserver::class);
 
         // page title
         View::composer('layouts.app', function ($view) {

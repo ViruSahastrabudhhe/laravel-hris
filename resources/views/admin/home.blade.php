@@ -4,19 +4,16 @@
 @php
     use App\Enums\LeaveStatus;
 
-    $monthlyPayroll = 0;
     $employeesOnLeave = 0;
     $employeesPendingLeave = 0;
     $totalEmployees = isset($employees) ? $employees->count() : 0;
     $presentToday = 0;
-
 
     if (isset($employees)) {
         foreach ($employees as $employee) {
             foreach($employee->attendance as $attendance) {
                 $presentToday = $attendance->presentToday()->count();
             }
-            $monthlyPayroll += method_exists($employee, 'netPay') ? $employee->netPay() : 0;
             $employeesOnLeave += $employee->leaves()->where('leave_status', LeaveStatus::Approved->value)->count();
             $employeesPendingLeave += $employee->leaves()->where('leave_status', LeaveStatus::Pending->value)->count();
         }
@@ -119,7 +116,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="#8e1e18" stroke="none"><text x="3" y="19" font-size="17" font-weight="bold" font-family="Arial, sans-serif">₱</text></svg>
                 </div>
             </div>
-            <p class="stat-value" style="font-size:20px">₱{{ number_format($monthlyPayroll, 2) }}</p>
+            <p class="stat-value" style="font-size:20px">₱{{ number_format($totalNet, 2) }}</p>
             <div class="stat-footer">
                 <span class="stat-dot" style="background:#0b044d"></span>
                 <p class="stat-sub">For {{ config('app.carbon_month', date('F')) }}</p>
@@ -535,7 +532,7 @@
                     scales: {
                         y: {
                             min: 0,
-                            max: 100,
+                            max: @json($employees->count() * 5),
                             beginAtZero: true,
                             ticks: {
                                 precision: 0

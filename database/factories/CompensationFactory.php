@@ -20,7 +20,7 @@ class CompensationFactory extends Factory
         return [
             'category' => CompensationCategory::Deduction->value,
             'name' => 'GSIS Contribution',
-            'is_mandatory' => true,
+            'is_mandatory' => false,
             'description' => '',
         ];
     }

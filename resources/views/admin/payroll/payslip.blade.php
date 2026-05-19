@@ -31,7 +31,7 @@
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0b044d" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>
             </div>
         </div>
-        <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->grossPay(), 2) }}</p>
+        <p class="stat-value" style="font-size:20px">₱0</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#0b044d"></span>
             <p class="stat-sub">{{ config('app.carbon_month') }}</p>
@@ -45,7 +45,7 @@
                 <svg width="17" height="17" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
         </div>
-        <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->netPay(), 2) }}</p>
+        <p class="stat-value" style="font-size:20px">₱0</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">After compensations</p>
@@ -59,7 +59,7 @@
                 <svg width="17" height="17" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
         </div>
-        <p class="stat-value" style="font-size:20px">₱{{ number_format($employee->totalDeductions(), 2) }}</p>
+        <p class="stat-value" style="font-size:20px">₱0</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#8e1e18"></span>
             <p class="stat-sub">GSIS, PhilHealth, Tax</p>
@@ -135,8 +135,8 @@
             <div class="payslip-block">
                 <p class="payslip-block-label">EARNINGS</p>
                 <div class="payslip-detail-row"><span>Basic Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
-                <div class="payslip-detail-row"><span>Overtime Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
-                <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Gross Pay</span><strong style="color:#0b044d">₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
+                <div class="payslip-detail-row"><span>Overtime Pay</span><strong style="color:#0b044d">₱0</strong></div>
+                <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#0b044d">Gross Pay</span><strong style="color:#0b044d">₱0</strong></div>
 
                 <p class="payslip-block-label" style="margin-top:24px">DEDUCTIONS</p>
                 <div class="payslip-detail-row"><span>GSIS</span><span style="color:#8e1e18;font-weight:600;font-size:13px">₱{{ number_format($employee->gsisContribution(), 2) }}</span></div>
@@ -145,11 +145,11 @@
                 <div class="payslip-detail-row"><span>Withholding Tax</span><span style="color:#8e1e18;font-weight:600;font-size:13px">₱{{ number_format($employee->withholdingTax(), 2) }}</span></div>
                 <div class="payslip-detail-row"><span>Optional Deductions</span><span style="color:#8e1e18;font-weight:600;font-size:13px">₱{{ number_format($employee->optionalDeductions(), 2) }}</span></div>
                 <div class="payslip-detail-row"><span>Absent/Late Deductions</span><span style="color:#8e1e18;font-weight:600;font-size:13px">₱{{ number_format($employee->absentDeductions(), 2) }}</span></div>
-                <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#8e1e18">Total Deductions</span><span style="color:#8e1e18;font-weight:700;font-size:13px">₱{{ number_format($employee->totalDeductions(), 2) }}</span></div>
+                <div class="payslip-detail-row" style="border-top:2px solid #e5e4f0;margin-top:8px;padding-top:12px"><span style="font-weight:700;color:#8e1e18">Total Deductions</span><span style="color:#8e1e18;font-weight:700;font-size:13px">₱0</span></div>
 
                 <div style="background:#f0fdf4;border-radius:10px;padding:14px 16px;margin-top:16px;display:flex;justify-content:space-between;align-items:center">
                     <span style="font-size:13px;color:#15803d;font-weight:700">NET PAY</span>
-                    <strong style="font-size:20px;color:#15803d">₱{{ number_format($employee->netPay(), 2) }}</strong>
+                    <strong style="font-size:20px;color:#15803d">₱0</strong>
                 </div>
             </div>
 
@@ -182,8 +182,8 @@
             </div>
             <div class="modal-section-label">EARNINGS</div>
             <div class="modal-row"><span>Basic Pay</span><strong>₱{{ number_format($employee->salary->amount ?? 0, 2) }}</strong></div>
-            <div class="modal-row"><span>Overtime Pay</span><strong>₱{{ number_format($employee->overtimePay(), 2) }}</strong></div>
-            <div class="modal-row total"><span>Gross Pay</span><strong>₱{{ number_format($employee->grossPay(), 2) }}</strong></div>
+            <div class="modal-row"><span>Overtime Pay</span><strong>₱0</strong></div>
+            <div class="modal-row total"><span>Gross Pay</span><strong>₱0</strong></div>
             <div class="modal-section-label" style="margin-top:16px">DEDUCTIONS</div>
             <div class="modal-row"><span>GSIS</span><span class="modal-deduct">₱{{ number_format($employee->gsisContribution(), 2) }}</span></div>
             <div class="modal-row"><span>PhilHealth</span><span class="modal-deduct">₱{{ number_format($employee->philHealthContribution(), 2) }}</span></div>
@@ -191,10 +191,10 @@
             <div class="modal-row"><span>Withholding Tax</span><span class="modal-deduct">₱{{ number_format($employee->withholdingTax(), 2) }}</span></div>
             <div class="modal-row"><span>Optional Deductions</span><span class="modal-deduct">₱{{ number_format($employee->optionalDeductions(), 2) }}</span></div>
             <div class="modal-row"><span>Absent/Late</span><span class="modal-deduct">₱{{ number_format($employee->absentDeductions(), 2) }}</span></div>
-            <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱{{ number_format($employee->totalDeductions(), 2) }}</span></div>
+            <div class="modal-row total"><span>Total Deductions</span><span class="modal-deduct">₱0</span></div>
             <div class="modal-net-row">
                 <span>NET PAY</span>
-                <strong>₱{{ number_format($employee->netPay(), 2) }}</strong>
+                <strong>₱0</strong>
             </div>
         </div>
         <div class="modal-footer">

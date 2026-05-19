@@ -60,10 +60,19 @@
             text-align:center;
         }
 
+        .salary-wrapper{
+            width:100%;
+            margin-top:45px;
+        }
+
+        .salary-wrapper td{
+            width:50%;
+            vertical-align:top;
+        }
+
         .salary-table{
             width:100%;
             border-collapse:collapse;
-            margin-top:45px;
             border:1px solid #000;
         }
 
@@ -78,6 +87,7 @@
         .salary-table td{
             border-left:1px solid #000;
             border-right:1px solid #000;
+            border-bottom:1px solid #000;
             padding:7px 10px;
             font-size:12px;
             vertical-align:top;
@@ -88,8 +98,12 @@
             width:120px;
         }
 
+        .table-gap{
+            width:20px !important;
+        }
+
         .total-row td{
-            padding-top:25px;
+            padding-top:20px;
             font-weight:bold;
         }
 
@@ -220,125 +234,100 @@
     </tr>
 </table>
 
-{{-- EARNINGS & DEDUCTIONS --}}
-<table class="salary-table">
+{{-- EARNINGS & DEDUCTIONS TABLES --}}
+<table class="salary-wrapper">
 
-    <thead>
     <tr>
-        <th>Earnings</th>
-        <th>Amount</th>
-        <th>Deductions</th>
-        <th>Amount</th>
-    </tr>
-    </thead>
 
+        {{-- EARNINGS --}}
+        <td>
+
+            <table class="salary-table">
+
+                <thead>
+                <tr>
+                    <th>Earnings</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                @foreach($record->earnings()->get() as $earn)
+                    <tr>
+                        <td>{{ $earn->name }}</td>
+                        <td>{{ $earn->amount }}</td>
+                    </tr>
+                @endforeach
+                <tr class="total-row">
+                    <td>Total Earnings</td>
+                    <td class="amount">&#8369;{{ $record->earnings()->sum('amount') }}</td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </td>
+
+        {{-- GAP --}}
+        <td class="table-gap"></td>
+
+        {{-- DEDUCTIONS --}}
+        <td>
+
+            <table class="salary-table">
+
+                <thead>
+                <tr>
+                    <th>Deductions</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                @foreach($record->deductions()->get() as $deduct)
+                    <tr>
+                        <td>{{ $deduct->name }}</td>
+                        <td>{{ $deduct->amount }}</td>
+                    </tr>
+                @endforeach
+                <tr class="total-row">
+                    <td>Total Deductions</td>
+                    <td class="amount">&#8369;{{ $record->deductions()->sum('amount') }}</td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </td>
+
+    </tr>
+
+</table>
+
+{{-- NET PAY --}}
+<table class="salary-table" style="margin-top:25px;">
     <tbody>
-
-    <tr>
-        <td>Basic Pay</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->salary->amount ?? 0, 2) }}
-        </td>
-
-        <td>GSIS</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->gsisContribution(), 2) }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Overtime Pay</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->overtimePay(), 2) }}
-        </td>
-
-        <td>PhilHealth</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->philHealthContribution(), 2) }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Meal Allowance</td>
-        <td class="amount">
-            &#8369;0.00
-        </td>
-
-        <td>Pag-Ibig</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->pagIbigContribution(), 2) }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Incentive Pay</td>
-        <td class="amount">
-            &#8369;0.00
-        </td>
-
-        <td>Withholding Tax</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->withholdingTax(), 2) }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>House Rent Allowance</td>
-        <td class="amount">
-            &#8369;0.00
-        </td>
-
-        <td>Optional Deductions</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->optionalDeductions(), 2) }}
-        </td>
-    </tr>
-
-    <tr>
-        <td></td>
-        <td></td>
-
-        <td>Absent/Late Deductions</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->absentDeductions(), 2) }}
-        </td>
-    </tr>
-
-    {{-- TOTALS --}}
-    <tr class="total-row">
-        <td>Total Earnings</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->grossPay(), 2) }}
-        </td>
-
-        <td>Total Deductions</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->totalDeductions(), 2) }}
-        </td>
-    </tr>
-
     <tr class="net-pay-row">
-        <td colspan="2"></td>
-
-        <td>Net Pay</td>
-        <td class="amount">
-            &#8369;{{ number_format($employee->netPay(), 2) }}
+        <td style="font-weight:bold;">Net Pay</td>
+        <td class="amount" style="font-weight:bold;">
+            &#8369;{{ $record->amount_paid }}
         </td>
     </tr>
-
     </tbody>
-
 </table>
 
 {{-- NET PAY TEXT --}}
 <div class="net-pay-section">
 
     <div class="net-pay-amount">
-        &#8369;{{ number_format($employee->netPay(), 2) }}
+        &#8369;{{ $record->amount_paid }}
     </div>
 
     <div class="net-pay-words">
-        {{ amountToWords($employee->netPay()) }}
+        {{ amountToWords($record->amount_paid) }}
     </div>
 
 </div>

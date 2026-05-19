@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('employee_id')
                 ->references('id')->on('employees')
                 ->cascadeOnDelete();
-            $table->decimal('total_present', 10, 2)->default(0);
-            $table->decimal('total_late', 10, 2)->default(0);
-            $table->decimal('total_absent', 10, 2)->default(0);
-            $table->decimal('total_overtime', 10, 2)->default(0);
-            $table->decimal('total_leaves', 10, 2)->default(0);
+            $table->integer('total_present')->default(0);
+            $table->integer('total_late')->default(0);
+            $table->integer('total_absent')->default(0);
+            $table->integer('total_overtime')->default(0);
+            $table->integer('total_leaves')->default(0);
             $table->unsignedTinyInteger('month');
             $table->unsignedSmallInteger('year');
             $table->boolean('is_complete')->default(false);

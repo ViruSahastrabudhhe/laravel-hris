@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin\Attendance;
 
+use App\Enums\CompensationCategory;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
+use App\Models\Compensation;
 use App\Models\Department;
 use App\Models\EmployeeAttendance;
+use App\Models\EmployeeCompensation;
 use App\Models\Position;
 use App\Models\Employee;
 use App\Models\EmployeeLeaveBalance;
@@ -16,6 +19,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Http\Requests\Attendance\StoreAttendanceRequest;
 use App\Http\Requests\Attendance\UpdateAttendanceRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
@@ -76,6 +80,7 @@ class AttendanceController extends Controller
 
                     if ($record) {
                         $record->restore();
+                        $record;
                     } else {
                         Attendance::firstOrCreate(
                             ['employee_id' => $row[7], 'date' => $row[0]],

@@ -3,15 +3,14 @@
 namespace App\Models;
 
 use App\Models\Department;
+use App\Models\EmployeeCompensation;
 use App\Models\Position;
 use App\Models\Attendance;
-use App\Models\EmployeeCompensation;
 use App\Models\EmployeeAttendance;
 use App\Models\EmployeeTraining;
 use App\Models\LeaveRequest;
 use App\Models\EmployeeLeaveBalance;
 use App\Models\EmployeeWorkSchedule;
-use App\Models\AttendanceSession;
 use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Enums\CompensationCategory;
@@ -96,23 +95,77 @@ class Employee extends Model implements Auditable
         return ($amount * 12) / 261;
     }
 
-    public function grossPay(?int $month = null, ?int $year = null) {
-        $basicPay = $this->salary->amount ?? 0;
-        $overtime = $this->overtimePay($month, $year);
-
-        return round($basicPay + $overtime, 2);
+    public function basicPay() {
+        return $this->salary->amount ?? 0;
     }
 
-    public function overtimePay(?int $month = null, ?int $year = null) {
-        return round($this->hourlyRate() * 1.25 * $this->overtimeWorked($month, $year), 2);
+    public function amountAccruedForPeriod() {
+        return ($this->salary->amount/2) ?? 0;
     }
 
-    public function allowances(): float {
+    public function overtimePay(int $payPeriodId): float {
+        $payPeriod = PayPeriod::find($payPeriodId);
+
+        return round(
+            $this->hourlyRate() * 1.25 * $this->overtimeWorked($payPeriod->month, $payPeriod->year),
+            2
+        );
+    }
+
+    public function payrollTotalEarnings(int $payPeriodId): float {
+        $basicPay = $this->amountAccruedForPeriod();
+        $overtime = $this->overtimePay($payPeriodId);
         $earnings = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
             ->where('employee_compensations.employee_id', $this->id)
-            ->where('compensations.type', CompensationCategory::Earning->value)
-            ->get();
-        return round($earnings->sum('amount'), 2);
+            ->where('employee_compensations.pay_period_id', $payPeriodId)
+            ->where('compensations.category', CompensationCategory::Earning->value)
+            ->whereNull('employee_compensations.deleted_at')
+            ->sum('amount');
+
+        return round($basicPay + $overtime + $earnings, 2);
+    }
+
+    public function payrollTotalDeductions(int $payPeriodId): float {
+        $lateDeductions = $this->payrollLateDeductions($payPeriodId);
+        $absentDeductions = $this->payrollAbsentDeductions($payPeriodId);
+        $employeeDeductions = EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+            ->where('employee_compensations.employee_id', $this->id)
+            ->where('employee_compensations.pay_period_id', $payPeriodId)
+            ->where('compensations.category', CompensationCategory::Deduction->value)
+            ->whereNull('employee_compensations.deleted_at')
+            ->sum('amount');
+
+        return round($lateDeductions + $absentDeductions + $employeeDeductions, 2);
+    }
+
+    public function totalEarnings(int $payPeriodId): float {
+        return round(
+            EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+                ->where('employee_compensations.employee_id', $this->id)
+                ->where('employee_compensations.pay_period_id', $payPeriodId)
+                ->where('compensations.category', CompensationCategory::Earning->value)
+                ->sum('employee_compensations.amount'),
+            2
+        );
+    }
+
+    public function totalDeductions(int $payPeriodId): float
+    {
+        return round(
+            EmployeeCompensation::join('compensations', 'employee_compensations.compensation_id', '=', 'compensations.id')
+                ->where('employee_compensations.employee_id', $this->id)
+                ->where('employee_compensations.pay_period_id', $payPeriodId)
+                ->where('compensations.category', CompensationCategory::Deduction->value)
+                ->sum('employee_compensations.amount'),
+            2
+        );
+    }
+
+    public function netPay(int $payPeriodId): float {
+        return round($this->grossPay($payPeriodId) - $this->totalDeductions($payPeriodId), 2);
+    }
+    public function amountPaid(int $payPeriodId): float {
+        return round($this->payrollTotalEarnings($payPeriodId) - $this->payrollTotalDeductions($payPeriodId), 2);
     }
 
     public function daysLate(?int $month = null, ?int $year = null) {
@@ -125,6 +178,17 @@ class Employee extends Model implements Auditable
         return $this->attendanceQuery($month, $year)
             ->where('attendance_status', AttendanceStatus::Absent->value)
             ->count();
+    }
+
+    public function payrollLateDeductions(?int $month = null, ?int $year = null): float {
+        $lates = $this->daysLate($month, $year);
+
+        return round(($lates * ($this->dailyRate() * 0.5)), 2);
+    }
+    public function payrollAbsentDeductions(?int $month = null, ?int $year = null): float {
+        $absences = $this->daysLate($month, $year);
+
+        return round(($absences * $this->dailyRate()), 2);
     }
 
     public function absentDeductions(?int $month = null, ?int $year = null): float {
@@ -171,14 +235,25 @@ class Employee extends Model implements Auditable
             ->where('employee_compensations.employee_id', $this->id)
             ->where('compensations.is_mandatory', false)
             ->get();
+
         return round($optional->sum('amount'), 2);
     }
 
+    private function resolvePayPeriodId(?int $month, ?int $year): int {
+        return PayPeriod::where('month', $month)
+            ->where('year', $year)
+            ->value('id');
+    }
+
     public function netTaxableIncome(?int $month = null, ?int $year = null) {
-        return round($this->grossPay($month, $year) - $this->gsisContribution() - $this->philHealthContribution() - $this->pagIbigContribution(), 2);
+        $payPeriod = $this->resolvePayPeriodId($month, $year);
+        return round($this->payrollTotalEarnings($payPeriod) - $this->gsisContribution() - $this->philHealthContribution() - $this->pagIbigContribution(), 2);
     }
 
     public function withholdingTax(?int $month = null, ?int $year = null) {
+        $month = now()->month;
+        $year = now()->year;
+
         $nti = $this->netTaxableIncome($month, $year);
         if ($nti < 20833) return 0;
         if ($nti <= 33332) return ($nti - 20833) * 0.15;
@@ -186,21 +261,5 @@ class Employee extends Model implements Auditable
         if ($nti <= 166666) return (($nti - 66667) * 0.25) + 8541.80;
         if ($nti <= 666666) return (($nti - 166667) * 0.30) + 33541.80;
         return (($nti - 666667) * 0.35) + 183541.80;
-    }
-
-    public function totalDeductions(?int $month = null, ?int $year = null) {
-        return round(
-            $this->gsisContribution() +
-            $this->philHealthContribution() +
-            $this->pagIbigContribution() +
-            $this->withholdingTax($month, $year) +
-            $this->optionalDeductions() +
-            $this->absentDeductions($month, $year),
-            2
-        );
-    }
-
-    public function netPay(?int $month = null, ?int $year = null) {
-        return round($this->grossPay($month, $year) - $this->totalDeductions($month, $year), 2);
     }
 }

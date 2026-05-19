@@ -1,8 +1,8 @@
 @extends('layouts.admin')
 
-@php 
+@php
     use App\Enums\LeaveStatus;
-    $hideChat = true; 
+    $hideChat = true;
 @endphp
 
 @section('page-content')
@@ -877,34 +877,35 @@
     function closeLeaveEditModal() { document.getElementById('leave-edit-modal').style.display = 'none'; }
 
     function openBenefitCreateModal() {
-        $('#benefit-category').val('');
-        $('#benefit-type')
-            .html('<option value="">Select benefit type</option>')
-            .prop('disabled', true)
-            .prop('title', 'Please select a category first.');
-
         const allCompensations = @json($compensations);
 
-        $(document).on('change', '#benefit-category', function () {
-            const category = $(this).val();
-            const $typeSelect = $('#benefit-type');
+        document.getElementById('benefit-category').value = '';
 
-            $typeSelect.html('<option value="">Select benefit type</option>');
+        const typeSelect = document.getElementById('benefit-type');
+        typeSelect.innerHTML = '<option value="">Select benefit type</option>';
+        typeSelect.disabled = true;
+        typeSelect.title = 'Please select a category first.';
+
+        document.getElementById('benefit-category').addEventListener('change', function () {
+            const category = this.value;
+
+            typeSelect.innerHTML = '<option value="">Select benefit type</option>';
 
             if (!category) {
-                $typeSelect.prop('disabled', true);
+                typeSelect.disabled = true;
                 return;
             }
 
             const filtered = allCompensations.filter(comp => comp.category === category);
 
             filtered.forEach(comp => {
-                $typeSelect.append(
-                    `<option value="${comp.id}">${comp.name}</option>`
-                );
+                const option = document.createElement('option');
+                option.value = comp.id; // ← was wrongly set to stale `id` before
+                option.textContent = comp.name;
+                typeSelect.appendChild(option);
             });
 
-            $typeSelect.prop('disabled', false);
+            typeSelect.disabled = false;
         });
         document.getElementById('benefit-create-modal').style.display = 'flex';
     }
@@ -954,9 +955,9 @@
 
             earningsOl.innerHTML += `
                 <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f7f6ff">
-                    <span style="font-size:1rem;color:#5a5888">${name}
+                    <span style="font-size:12.5px;color:#5a5888">${name}
                     <br>
-                        <span style="font-size:12.5px;">Due ${period}</span>
+                        <span style="font-size:10.5px;">Due ${period}</span>
                     </span>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <strong style="font-size:13px;color:#0b044d">
@@ -978,12 +979,15 @@
 
         deductionsList.forEach(item => {
             const name = item.compensation?.name ?? 'Unknown';
-            const period = item.payPeriod?.name;
+            const period = item.pay_period?.name;
             const amount = item.amount ?? 0;
 
             deductionsOl.innerHTML += `
                 <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f7f6ff">
-                    <span style="font-size:12.5px;color:#5a5888">${name}</span>
+                    <span style="font-size:12.5px;color:#5a5888">${name}
+                    <br>
+                        <span style="font-size:10.5px;">Due ${period}</span>
+                    </span>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <strong style="font-size:13px;color:#8e1e18">
                             ₱${Number(amount).toLocaleString(undefined, {minimumFractionDigits:2})}

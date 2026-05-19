@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\PayrollRecord;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
@@ -42,16 +43,7 @@ class HomeController extends Controller
                 ->get();
 
             $departments = Department::withCount('employees')->get();
-
-            $totalGross = 0;
-            $totalDeductions = 0;
-            $totalNet = 0;
-
-            foreach ($employees as $employee) {
-                $totalGross += $employee->grossPay();
-                $totalDeductions += $employee->totalDeductions();
-                $totalNet += $employee->netPay();
-            }
+            $records = PayrollRecord::where('month', now()->month)->where('year', now()->year)->get();
 
             $attendanceStats = Department::withCount(['employees as attendance_count' => function ($query) use ($month, $year) {
                 $query->whereHas('attendance', function ($q) use ($month, $year) {
@@ -61,6 +53,9 @@ class HomeController extends Controller
             }])->get();
 
             $attendanceData = $attendanceStats->pluck('attendance_count');
+            $totalGross = $records->sum('total_earnings');
+            $totalDeductions = $records->sum('total_deductions');
+            $totalNet = $records->sum('amount_paid');
 
             return view('admin.home', compact(
                 'employees',
@@ -76,7 +71,7 @@ class HomeController extends Controller
         if (auth()->user()->hasRole('employee')) {
             $user = auth()->user();
             $employee = Employee::where('user_id', $user->id)->first();
-            
+
             if (!$employee) {
                 return view('employee.home', [
                     'latestPayslip'  => null,
@@ -107,7 +102,7 @@ class HomeController extends Controller
                 $sickLeave     = $leaveBalances->where('type', 'sick')->first()->amount ?? 0;
                 $totalLeaveCredits = $vacationLeave + $sickLeave;
             }
-            
+
             $currentMonth = now()->month;
             $currentYear = now()->year;
             $daysWorked = $employee->daysWorked($currentMonth, $currentYear);

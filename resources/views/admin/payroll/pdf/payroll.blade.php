@@ -105,14 +105,14 @@
                     <div class="emp-id">EMP-{{ str_pad($employee->id, 3, '0', STR_PAD_LEFT) }}</div>
                 </td>
                 <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
-                <td class="right pay">&#8369;{{ number_format($employee->grossPay(), 2) }}</td>
+                <td class="right pay">&#8369;0</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->gsisContribution(), 2) }}</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->philHealthContribution(), 2) }}</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->pagIbigContribution(), 2) }}</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->withholdingTax(), 2) }}</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->optionalDeductions(), 2) }}</td>
                 <td class="right deduct">&#8369;{{ number_format($employee->absentDeductions(), 2) }}</td>
-                <td class="right net">&#8369;{{ number_format($employee->netPay(), 2) }}</td>
+                <td class="right net">&#8369;0</td>
             </tr>
             @endforeach
         </tbody>

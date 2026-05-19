@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin\Compensation;
 use App\Models\EmployeeCompensation;
 use App\Models\Employee;
 use App\Models\Compensation;
+use App\Models\PayrollItem;
+use App\Models\PayrollRecord;
 use App\Models\Salary;
 use App\Enums\CompensationCategory;
 use App\Http\Controllers\Controller;
@@ -24,8 +26,8 @@ class EmployeeCompensationController extends Controller
             ->paginate(15);
 
         return view('employee.employee_compensations.index', compact(
-            'employees', 
-            'salaries', 
+            'employees',
+            'salaries',
         ));
     }
 
@@ -47,18 +49,23 @@ class EmployeeCompensationController extends Controller
     {
         $data = $request->validated();
 
-        $employee = Employee::with('salary')->findOrFail($data['employee_id']);
-        $salary = $employee->salary->amount ?? 0;
+        $compensation = Compensation::findOrFail($data['compensation_id']);
 
-        // Sum existing compensations excluding the one being updated (same compensation_id)
-        $existingTotal = EmployeeCompensation::where('employee_id', $data['employee_id'])
-            ->where('compensation_id', '!=', $data['compensation_id'])
-            ->sum('amount');
+        if ($compensation->category === 'deduction') {
+            $employee = Employee::with('salary')->findOrFail($data['employee_id']);
+            $salary = $employee->salary->amount ?? 0;
 
-        if (($salary - ($existingTotal + $data['amount'])) < 0) {
-            return back()->withInput()->withErrors([
-                'amount' => "This deduction would reduce the employee's salary to a negative amount. Loan rejected."
-            ]);
+            // Sum existing deductions, excluding the one being updated
+            $existingDeductions = EmployeeCompensation::where('employee_id', $data['employee_id'])
+                ->where('compensation_id', '!=', $data['compensation_id'])
+                ->whereHas('compensation', fn($q) => $q->where('category', 'deduction'))
+                ->sum('amount');
+
+            if (($salary - ($existingDeductions + $data['amount'])) < 0) {
+                return back()->withInput()->withErrors([
+                    'amount' => "This deduction would reduce the employee's salary to a negative amount. Loan rejected."
+                ]);
+            }
         }
 
         EmployeeCompensation::updateOrCreate(
@@ -66,7 +73,7 @@ class EmployeeCompensationController extends Controller
             ['amount' => $data['amount'], 'pay_period_id' => $data['pay_period_id']]
         );
 
-        return redirect()->route('leave_requests.index')->with('success', __('deduction.success_creating'));
+        return redirect()->route('leave_requests.index')->with('success', 'Successfully created new compensation!');
     }
 
     /**
@@ -99,7 +106,7 @@ class EmployeeCompensationController extends Controller
         $existingTotal = EmployeeCompensation::where('employee_id', $employeeCompensation->employee_id)
             ->where('id', '!=', $employeeCompensation->id)
             ->sum('amount');
- 
+
         if (($salary - ($existingTotal + $data['amount'])) < 0) {
             return back()->withInput()->withErrors([
                 'amount' => "This amount would reduce the employee's salary to a negative value."

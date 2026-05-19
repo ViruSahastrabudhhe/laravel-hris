@@ -101,6 +101,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(fu
     Route::prefix('payroll')->group(function() {
         Route::get('/', [PayrollRecordController::class, 'index'])->name('payroll.index');
         Route::get('/filter', [PayrollRecordController::class, 'filter'])->name('payroll.filter');
+        Route::get('/{period}/summary', [PayrollRecordController::class, 'summary'])->name('payroll.summary');
         Route::post('/create/record', [PayrollRecordController::class, 'storeRecord'])->name('payroll.storeRecord');
         Route::post('/create/period', [PayrollRecordController::class, 'storePeriod'])->name('payroll.storePeriod');
         Route::post('/bulk-create/record', [PayrollRecordController::class, 'bulkStoreRecord'])->name('payroll.bulkStoreRecord');

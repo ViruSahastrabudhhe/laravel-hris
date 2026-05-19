@@ -35,7 +35,7 @@ class ReportController extends Controller
         $payrollRecords   = PayrollRecord::where('month', $month)->where('year', $year)->get();
         $totalGross       = $payrollRecords->sum('total_earnings');
         $totalDeductions  = $payrollRecords->sum('total_deductions');
-        $totalNetPay      = $payrollRecords->sum('net_pay');
+        $totalNetPay      = $payrollRecords->sum('amount_paid');
         $processedPayroll = $payrollRecords->where('status', 'Processed')->count();
 
         // ── Leave ───────────────────────────────────────────────────

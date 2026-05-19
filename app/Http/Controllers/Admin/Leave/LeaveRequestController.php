@@ -29,8 +29,8 @@ class LeaveRequestController extends Controller
     {
         $leaveRequests = LeaveRequest::with(
             [
-                'employee:id,first_name,last_name', 
-                'leaveType:id,name', 
+                'employee:id,first_name,last_name',
+                'leaveType:id,name',
             ])
             ->latest()
             ->paginate(25);
@@ -63,7 +63,7 @@ class LeaveRequestController extends Controller
         ]);
 
         $employees = Employee::with(['employeeCompensation.payPeriod'])->get();
-        $compensations = Compensation::all();
+        $compensations = Compensation::all(['id', 'name', 'category']);
         $periods = PayPeriod::where('month', now()->month)
             ->where('year', now()->year)
             ->get();

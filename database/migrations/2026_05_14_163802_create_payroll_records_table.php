@@ -17,10 +17,13 @@ return new class extends Migration
                 ->references('id')->on('employees');
             $table->foreignId('pay_period_id')
                 ->references('id')->on('pay_periods');
+            $table->decimal('monthly_rate_of_pay', 10, 2)->default(0);
+            $table->decimal('amount_accrued_for_period', 10, 2)->default(0);
             $table->decimal('total_earnings', 10, 2)->default(0);
             $table->decimal('total_deductions', 10, 2)->default(0);
-            $table->decimal('net_pay', 10, 2)->default(0);
+            $table->decimal('amount_paid', 10, 2)->default(0);
             $table->enum('status', ['Processed', 'Draft'])->default('Draft');
+            $table->date('pay_date')->nullable();
             $table->unsignedTinyInteger('month');
             $table->unsignedSmallInteger('year');
             $table->timestamps();

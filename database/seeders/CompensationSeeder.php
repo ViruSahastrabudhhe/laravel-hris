@@ -16,7 +16,7 @@ class CompensationSeeder extends Seeder
     public function run(): void
     {
         Compensation::factory()
-            ->count(20)
+            ->count(21)
             ->state(new Sequence(
                 ['name' => 'GSIS Contribution', 'rate' => 0.09, 'category' => CompensationCategory::Deduction->value, 'is_mandatory' => true, 'description' => 'If regular, 5% deduction on salary'],
                 ['name' => 'PhilHealth Personal Share Contribution', 'rate' => 0.025, 'category' => CompensationCategory::Deduction->value, 'is_mandatory' => true, 'description' => 'If regular, 2.5% deduction on salary'],
