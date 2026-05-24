@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use App\Enums\EmploymentType;
 use App\Enums\CompensationCategory;
 use App\Enums\AttendanceStatus;
-use App\Models\Scopes\EmployeeScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +24,6 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
 use OwenIt\Auditing\Contracts\Auditable;
 
-#[ScopedBy([EmployeeScope::class])]
 class Employee extends Model implements Auditable
 {
     use HasFactory, SoftDeletes,\OwenIt\Auditing\Auditable;
@@ -36,6 +34,12 @@ class Employee extends Model implements Auditable
         'first_name', 'middle_name', 'last_name', 'gender', 'email', 'date_of_birth',
         'phone_number', 'employment_type', 'is_active',
         'position_id', 'department_id', 'user_id',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'employment_type' => EmploymentType::class,
+        'is_active' => 'boolean',
     ];
 
     public function department() { return $this->hasOne(Department::class, 'id', 'department_id'); }
@@ -49,6 +53,8 @@ class Employee extends Model implements Auditable
     public function address() { return $this->hasOne(Address::class); }
     public function leaves() { return $this->hasMany(LeaveRequest::class); }
     public function employeeLeaveBalance() { return $this->hasMany(EmployeeLeaveBalance::class); }
+    public function employeeSickLeave() { return $this->employeeLeaveBalance()->where('type', 'Sick')->first(); }
+    public function employeeVacationLeave() { return $this->employeeLeaveBalance()->where('type', 'Sick')->first(); }
     public function employeeWorkSchedule() { return $this->hasOne(EmployeeWorkSchedule::class); }
     public function qrAttendanceScans() { return $this->hasMany(QrAttendanceScan::class); }
     public function payrollRecords() { return $this->hasMany(PayrollRecord::class); }
@@ -56,6 +62,11 @@ class Employee extends Model implements Auditable
 
     public function isJobOrder() {
         return $this->employment_type == EmploymentType::JobOrder->value;
+    }
+    #[Scope]
+    protected function active(Builder $query): void
+    {
+        $query->where('is_active', true);
     }
 
     private function attendanceQuery(?int $month = null, ?int $year = null) {

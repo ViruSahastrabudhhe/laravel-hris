@@ -56,7 +56,7 @@
 
             <p style="font-size:10px;font-weight:700;color:#9999bb;letter-spacing:1.5px;margin:18px 0 10px">ADDRESS</p>
             <div style="font-size:13px;color:#5a5888;line-height:1.7">
-                {{ $address->address }}, {{ $address->city }}, {{ $address->province }}, {{ $address->country }} {{ $address->zip_code }}
+                {{ $employee->address->address }}, {{ $employee->address->city }}, {{ $employee->address->province }}, {{ $employee->address->country }} {{ $employee->address->zip_code }}
             </div>
         </div>
 
@@ -134,8 +134,8 @@
                 ['Department', $employee->department->name],
                 ['Employment Type', $employee->employment_type],
                 ['Work Schedule', $employee->employeeWorkSchedule->workSchedule->name],
-                ['Sick Leave Credits', $sickLeave. ' days'],
-                ['Vacation Leave Credits', $vacationLeave. ' days'],
+                ['Sick Leave Credits', $employee->employeeSickLeave(). ' days'],
+                ['Vacation Leave Credits',  $employee->employeeVacationLeave(). ' days'],
             ] as [$label, $value])
             <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f7f6ff;font-size:13px">
                 <span style="color:#9999bb">{{ $label }}</span>

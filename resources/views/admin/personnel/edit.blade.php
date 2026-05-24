@@ -49,7 +49,7 @@
                 </div>
                 <div class="auth-field">
                     <label>Date of Birth <span style="color:#dc2626">*</span></label>
-                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $employee->date_of_birth) }}" required>
+                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $employee->date_of_birth->format('Y-m-d')) }}" required>
                 </div>
             </div>
 

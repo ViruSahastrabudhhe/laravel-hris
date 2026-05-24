@@ -266,7 +266,7 @@
                                     </div>
                                     <div>
                                         <p class="modal-emp-id">EMP-{{ str_pad($record->employee->id, 3, '0', STR_PAD_LEFT) }}</p>
-                                        <span class="badge-status processed">{{ ucfirst($record->employee->employment_type) }}</span>
+                                        <span class="badge-status processed">{{ ucfirst($record->employee->employment_type->value) }}</span>
                                     </div>
                                 </div>
                                 <div class="modal-section-label">EARNINGS</div>

@@ -1,34 +1,6 @@
 @extends('layouts.admin')
 @php $hideChat = true; @endphp
 
-@php
-    $totalEmployees = 0;
-    $activeEmployees = 0;
-    $inactiveEmployees = 0;
-    $regularEmployees = 0;
-
-    foreach ($employees as $employee) {
-        if ($employee->is_active) {
-            $activeEmployees++;
-        } else {
-            $inactiveEmployees++;
-        }
-        if ($employee->employment_type === \App\Enums\EmploymentType::Regular->value) {
-            $regularEmployees++;
-        }
-        $totalEmployees++;
-    }
-
-    $totalDepartments = $departments->count();
-    $activeDepartments = $departments->where('is_active', true)->count();
-    $inactiveDepartments = $departments->where('is_active', false)->count();
-    $totalEmployeesInDepts = $employees->count();
-
-    $totalPositions = $positions->count();
-    $filledPositions = $employees->pluck('position_id')->filter()->unique()->count();
-    $vacantPositions = max(0, $totalPositions - $filledPositions);
-@endphp
-
 @section('page-content')
     <div class="welcome-banner">
         <div class="banner-left">
@@ -56,7 +28,7 @@
                 <svg width="18" height="18" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalEmployees }}</p>
+        <p class="stat-value">{{ $employeeStats['total_employees'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">Active employees</p>
@@ -69,7 +41,7 @@
                 <svg width="18" height="18" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $activeEmployees }}</h2>
+        <h2 class="stat-value">{{ $employeeStats['total_active'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#15803d"></span>
             <p class="stat-sub">Currently active</p>
@@ -82,7 +54,7 @@
                 <svg width="18" height="18" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $inactiveEmployees }}</h2>
+        <h2 class="stat-value">{{ $employeeStats['total_inactive'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#8e1e18"></span>
             <p class="stat-sub">Deactivated accounts</p>
@@ -95,7 +67,7 @@
                 <svg width="18" height="18" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $regularEmployees }}</h2>
+        <h2 class="stat-value">{{ $employeeStats['total_regular'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#d9bb00"></span>
             <p class="stat-sub">Regular employees</p>
@@ -111,7 +83,7 @@
                 <svg width="18" height="18" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalDepartments }}</p>
+        <p class="stat-value">{{ $departmentStats['total_departments'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">Department records</p>
@@ -124,7 +96,7 @@
                 <svg width="18" height="18" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $activeDepartments }}</h2>
+        <h2 class="stat-value">{{ $departmentStats['total_active'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#15803d"></span>
             <p class="stat-sub">Open departments</p>
@@ -137,7 +109,7 @@
                 <svg width="18" height="18" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $inactiveDepartments }}</h2>
+        <h2 class="stat-value">{{ $departmentStats['total_inactive'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#8e1e18"></span>
             <p class="stat-sub">Paused departments</p>
@@ -150,7 +122,7 @@
                 <svg width="18" height="18" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $totalEmployeesInDepts }}</h2>
+        <h2 class="stat-value">{{ $employeeStats['total_employees'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#d9bb00"></span>
             <p class="stat-sub">Assigned employees</p>
@@ -166,7 +138,7 @@
                 <svg width="18" height="18" fill="none" stroke="#0b044d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </div>
         </div>
-        <p class="stat-value">{{ $totalPositions }}</p>
+        <p class="stat-value">{{ $positionStats['total_positions'] }}</p>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#22c55e"></span>
             <p class="stat-sub">Available roles</p>
@@ -179,7 +151,7 @@
                 <svg width="18" height="18" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $filledPositions }}</h2>
+        <h2 class="stat-value">{{ $positionStats['total_filled'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#15803d"></span>
             <p class="stat-sub">Assigned roles</p>
@@ -192,7 +164,7 @@
                 <svg width="18" height="18" fill="none" stroke="#8e1e18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $vacantPositions }}</h2>
+        <h2 class="stat-value">{{ $positionStats['total_vacant'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#8e1e18"></span>
             <p class="stat-sub">Open positions</p>
@@ -205,7 +177,7 @@
                 <svg width="18" height="18" fill="none" stroke="#d9bb00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
         </div>
-        <h2 class="stat-value">{{ $totalEmployees }}</h2>
+        <h2 class="stat-value">{{ $employeeStats['total_employees'] }}</h2>
         <div class="stat-footer">
             <span class="stat-dot" style="background:#d9bb00"></span>
             <p class="stat-sub">Employees assigned</p>
@@ -286,7 +258,7 @@
                         <td><span class="position-cell">{{ $employee->position->title }}</span></td>
                         <td><span class="dept-tag">{{ $employee->department->name }}</span></td>
                         <td>
-                            <span class="dept-tag" style="background:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular->value ? '#bbf7d0' : '#fde68a' }}">
+                            <span class="dept-tag" style="background:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular ? '#e8f9ef' : '#fefce8' }};color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular ? '#15803d' : '#a16207' }};border-color:{{ $employee->employment_type === \App\Enums\EmploymentType::Regular ? '#bbf7d0' : '#fde68a' }}">
                                 {{ $employee->employment_type }}
                             </span>
                         </td>
@@ -306,6 +278,9 @@
                                 <button type="button" onclick="openEditEmpModal({{ $employee->id }},'{{ addslashes($employee->first_name) }}','{{ addslashes($employee->last_name) }}','{{ addslashes($employee->middle_name) }}','{{ $employee->gender }}','{{ $employee->date_of_birth }}','{{ addslashes($employee->email) }}','{{ addslashes($employee->phone_number) }}','{{ addslashes($employee->address->address ?? '') }}','{{ addslashes($employee->address->city ?? '') }}','{{ addslashes($employee->address->province ?? '') }}','{{ addslashes($employee->address->country ?? '') }}','{{ $employee->address->zip_code ?? '' }}','{{ $employee->position_id }}','{{ $employee->department_id }}','{{ $employee->employment_type }}','{{ $employee->employeeWorkSchedule->workSchedule->id ?? '' }}','{{ $employee->is_active }}','{{ $employee->salary->salary_grade ?? '' }}','{{ $employee->salary->step ?? '' }}','{{ $employee->salary->salary_type->value ?? '' }}','{{ $employee->salary->amount ?? '' }}')" class="btn-edit">
                                     <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
+{{--                                <a href="{{ route('employees.edit', $employee) }}" class="btn-edit">--}}
+{{--                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>--}}
+{{--                                </a>--}}
                                 <form action="{{ route('employees.destroy', $employee) }}" method='post' style="display:inline" onsubmit="return confirm('Archive this employee?')">
                                     @csrf
                                     @method('DELETE')
@@ -736,9 +711,6 @@
         <form id="eemp-form" method="POST">
             @csrf
             @method('PUT')
-            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-            <input type="hidden" name="address[user_id]" value="{{ auth()->user()->id }}">
-
             <div class="pmodal-body" style="padding:20px 24px">
 
                 {{-- Step 0: Biographical --}}
@@ -1168,6 +1140,23 @@
 
 @push('scripts')
 <script>
+    async function fetchEmployees() {
+        const url = `{{ route('employees.getEmployees') }}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            const result = await response.json();
+            console.log(result);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+</script>
+
+<script>
     function switchView(viewId, btn) {
         if (btn.classList.contains('active')) return;
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
@@ -1333,7 +1322,11 @@ function openEditEmpModal(id, firstName, lastName, middleName, gender, dob, emai
     document.getElementById('eemp-first_name').value = firstName;
     document.getElementById('eemp-last_name').value  = lastName;
     document.getElementById('eemp-middle_name').value  = middleName;
-    document.getElementById('eemp-dob').value         = dob;
+    const dateObj = new Date(dob);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    document.getElementById('eemp-dob').value = `${yyyy}-${mm}-${dd}`;
     document.getElementById('eemp-email').value       = email;
     document.getElementById('eemp-phone').value       = phone;
     setSelect('eemp-gender', gender);

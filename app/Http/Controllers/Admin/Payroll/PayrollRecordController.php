@@ -324,12 +324,17 @@ class PayrollRecordController extends Controller
         $record = PayrollRecord::with([
             'earnings',
             'deductions',
+            'payPeriod',
+            'employee',
+            'employee.attendance',
+            'employee.department',
+            'employee.position',
         ])->where('pay_period_id', $payPeriodId)->first();
 
         if (!$record) return;
 
-        $employee = Employee::findOrFail($record->employee_id);
-        $attendances = $employee->attendance();
+        $employee = $record->employee;
+        $attendances = $employee->attendance;
 
         $absentLateAttendances = $attendances->whereIn('attendance_status', [
             AttendanceStatus::Absent->value,

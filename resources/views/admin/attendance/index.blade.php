@@ -191,8 +191,8 @@
 </div>
 
 <div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1.5px solid #eceaf8; padding-bottom: 0;">
-    <button class="tab-btn active" onclick="switchView('attendances', this)">Attendances</button>
-    <button class="tab-btn" onclick="switchView('scan-history', this)">Scan History</button>
+    <button class="tab-btn active" onclick="switchView('attendances', this)">Attendance Summary</button>
+    <button class="tab-btn" onclick="switchView('scan-history', this)">Logs</button>
     <button class="tab-btn" onclick="switchView('qr-codes', this)">QR Codes</button>
 </div>
 
@@ -290,7 +290,7 @@
     <div class="table-section">
         <div class="table-header">
             <div>
-                <p class="table-title">Scan History</p>
+                <p class="table-title">Attendance Logs</p>
                 <p class="table-sub">View employee attendances thru QR Code scans</p>
             </div>
             <div class="table-actions">
@@ -613,52 +613,81 @@
     </div>
 </div>
 
-{{-- View DTR Modal --}}
-<div class="modal-overlay" id="view-attendance-modal" style="display: none;">
-    <div class="modal-box">
-        <div class="modal-header">
+<!-- View Attendance Modal -->
+<div class="modal-overlay" id="viewAttendanceModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="modal-box" style="background: #fff; border-radius: 16px; width: 95%; max-width: 1100px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+
+        <!-- Modal Header -->
+        <div class="modal-header" style="padding: 20px 24px; border-bottom: 1px solid #f1f0fa; display: flex; justify-content: space-between; align-items: flex-start; background: #fff;">
             <div>
-                <span class="modal-eyebrow" id="modal-period">DTR · </span>
-                <h3 class="modal-title" id="modal-name">Employee Name</h3>
-                <p class="modal-sub" id="modal-position">Position · Department</p>
+                <span class="modal-eyebrow" id="modal-period" style="font-size: 11px; font-weight: 700; color: #9999bb; letter-spacing: 1px;">DTR · </span>
+                <h3 class="modal-title" id="modal-name" style="font-size: 20px; color: #0b044d; margin: 4px 0 2px; font-weight: 700;">Employee Name</h3>
+                <p class="modal-sub" id="modal-position" style="font-size: 13px; color: #73719c; margin: 0;">Position · Department</p>
             </div>
-            <button class="modal-close" onclick="closeModal('view-attendance-modal')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="modal-close" onclick="closeModal('viewAttendanceModal')" style="background: none; border: none; color: #9999bb; cursor: pointer; padding: 4px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
-        <div class="modal-body">
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 16px; background: #f7f6ff; border-radius: 12px;">
-                <div class="emp-avatar" id="modal-avatar" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; background: #0b044d;">
-                    MS
+
+        <!-- Modal Body -->
+        <div class="modal-body" style="padding: 20px 24px; overflow-y: auto; flex-grow: 1;">
+
+            <!-- Horizontal Summary Bar (Transformed Style Placement) -->
+            <div class="payroll-summary-bar" style="display: flex; align-items: center; background: #f7f6ff; padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; gap: 20px; flex-wrap: wrap;">
+                <div class="psummary-item" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 11px; color: #73719c; font-weight: 600; text-transform: uppercase;">Days Present</span>
+                    <strong class="gross-total" id="modal-bar-present" style="font-size: 15px; color: #15803d;">0 days</strong>
                 </div>
-                <div>
-                    <p id="modal-emp-id" style="font-size: 11px; color: #9999bb; margin: 0 0 4px;">PGS-0000</p>
-                    <span class="badge-status" id="modal-status-badge">Complete</span>
+                <div class="psummary-divider" style="width: 1px; height: 28px; background: #e1e0f0;"></div>
+
+                <div class="psummary-item" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 11px; color: #73719c; font-weight: 600; text-transform: uppercase;">Days Absent</span>
+                    <strong class="deduction" id="modal-bar-absent" style="font-size: 15px; color: #8e1e18;">0 days</strong>
+                </div>
+                <div class="psummary-divider" style="width: 1px; height: 28px; background: #e1e0f0;"></div>
+
+                <div class="psummary-item" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 11px; color: #73719c; font-weight: 600; text-transform: uppercase;">Late Arrivals</span>
+                    <strong class="net-pay" id="modal-bar-late" style="font-size: 15px; color: #a16207;">0 times</strong>
+                </div>
+                <div class="psummary-divider" style="width: 1px; height: 28px; background: #e1e0f0;"></div>
+
+                <div class="psummary-item" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 11px; color: #73719c; font-weight: 600; text-transform: uppercase;">Total Overtime</span>
+                    <strong id="modal-bar-overtime" style="font-size: 15px; color: #0b044d;">0.00 hrs</strong>
+                </div>
+                <div class="psummary-divider" style="width: 1px; height: 28px; background: #e1e0f0;"></div>
+
+                <div class="psummary-item" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 11px; color: #73719c; font-weight: 600; text-transform: uppercase;">Total Logs</span>
+                    <strong id="modal-bar-logs" style="font-size: 15px; color: #2e2c54;">0 records</strong>
                 </div>
             </div>
 
-            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin-bottom: 12px;">ATTENDANCE SUMMARY</p>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Working Days</span><strong style="font-size:13px;color:#0b044d" id="modal-working-days">22 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Present</span><strong style="font-size:13px;color:#15803d" id="modal-present">22 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Days Absent</span><strong style="font-size:13px;color:#8e1e18" id="modal-absent">0 days</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Late Arrivals</span><strong style="font-size:13px;color:#a16207" id="modal-late">1 times</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Leave Days</span><strong style="font-size:13px;color:#a16207" id="modal-leaves">1 times</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Half Days</span><strong style="font-size:13px;color:#a16207" id="modal-halfday">0 days</strong></div>
-
-            <p style="font-size: 10.5px; font-weight: 700; color: #9999bb; letter-spacing: 1px; margin: 16px 0 12px;">OVERTIME</p>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f7f6ff"><span style="font-size:12.5px;color:#5a5888">Total OT Hours</span><strong style="font-size:13px;color:#0b044d" id="modal-overtime">3.5 hrs</strong></div>
-
-            <div style="margin-top: 16px; padding: 12px; background: #f7f6ff; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; font-weight: 700; color: #9999bb; letter-spacing: 1px;">ATTENDANCE RATE</span>
-                <strong style="font-size: 18px; color: #15803d;" id="modal-rate">100%</strong>
-            </div>
+            <!-- Attendance Records Table Layout -->
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                <tr style="border-bottom: 2px solid #f1f0fa; color: #73719c; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <th style="padding: 12px 8px;">Employee</th>
+                    <th style="padding: 12px 8px;">Date</th>
+                    <th style="padding: 12px 8px;">Time In</th>
+                    <th style="padding: 12px 8px;">Time Out</th>
+                    <th style="padding: 12px 8px; text-align: center;">Break</th>
+                    <th style="padding: 12px 8px; text-align: center;">Overtime</th>
+                    <th style="padding: 12px 8px; text-align: center;">Total Hours</th>
+                    <th style="padding: 12px 8px;">Status</th>
+                    <th style="padding: 12px 8px; text-align: right;">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="modal-table-body" style="font-size: 13px; color: #2e2c54;">
+                <!-- Rows dynamically generated by JavaScript -->
+                </tbody>
+            </table>
         </div>
-        <div class="modal-footer">
-            <button class="modal-btn-ghost" onclick="closeModal('view-attendance-modal')">Close</button>
-            <button class="modal-btn-primary">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download DTR
-            </button>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #f1f0fa; background: #fafafa; display: flex; justify-content: flex-end;">
+            <button type="button" class="modal-btn-ghost" onclick="closeModal('viewAttendanceModal')">Close Panel</button>
         </div>
     </div>
 </div>
@@ -1185,46 +1214,79 @@
     function openViewDTRModal(button) {
         const data = button.dataset;
 
-        const month = document.getElementById('global-month-filter').value;
-        const year = document.getElementById('global-year-filter').value;
-
-        const initials = (data.first_name[0] + data.last_name[0]).toUpperCase();
-        const colors = ['#0b044d', '#8e1e18', '#15803d', '#a16207', '#7c3aed'];
-        const color = colors[data.id % 5];
+        const month = document.getElementById('global-month-filter')?.value || '';
+        const year = document.getElementById('global-year-filter')?.value || '';
 
         const present = Number(data.present) || 0;
-        const late = Number(data.late) || 0;
         const absent = Number(data.absent) || 0;
+        const late = Number(data.late) || 0;
         const overtime = Number(data.overtime) || 0;
-        const leaves = Number(data.leaves) || 0;
+        const fullName = `${data.first_name} ${data.last_name}`;
 
-        document.getElementById('modal-avatar').innerText = initials;
-        document.getElementById('modal-avatar').style.background = color;
-        document.getElementById('modal-emp-id').innerText = 'EMP-' + String(data.id).padStart(3, '0');
-
-        const badge = document.getElementById('modal-status-badge');
-        const isComplete = data.is_complete === "1";
-
-        badge.innerText = isComplete ? 'Complete' : 'Incomplete';
-        badge.className = isComplete ? 'badge-status processed' : 'badge-status pending';
-
-        document.getElementById('modal-name').textContent = `${data.first_name} ${data.last_name}`;
+        // 1. Populate Target Text Headers
+        document.getElementById('modal-name').textContent = fullName;
         document.getElementById('modal-position').textContent = `${data.position} · ${data.department}`;
         document.getElementById('modal-period').textContent = `DTR · ${month} ${year}`;
-        document.getElementById('modal-present').textContent = `${present} ${present === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-absent').textContent = `${absent} ${absent === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-late').textContent = `${late} ${late === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-leaves').textContent = `${leaves} ${leaves === 1 ? 'day' : 'days'}`;
-        document.getElementById('modal-overtime').textContent = `${(overtime / 60).toFixed(2)} hrs`;
 
-        const rate = (present / 22) * 100;
-        const rateColor = rate === 100 ? '#15803d' : rate === 0 ? '#8e1e18' : '#a16207';
+        // 2. Map Dynamic Values Into Your New Summary Structure Elements
+        document.getElementById('modal-bar-present').textContent = `${present} ${present === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-bar-absent').textContent = `${absent} ${absent === 1 ? 'day' : 'days'}`;
+        document.getElementById('modal-bar-late').textContent = `${late} ${late === 1 ? 'time' : 'times'}`;
+        document.getElementById('modal-bar-overtime').textContent = `${(overtime / 60).toFixed(2)} hrs`;
 
-        document.getElementById('modal-rate').innerText = rate.toFixed(0) + '%';
-        document.getElementById('modal-rate').style.color = rateColor;
+        // 3. Clear and Render Content Rows Inside the Table
+        const tbody = document.getElementById('modal-table-body');
+        tbody.innerHTML = '';
 
-        document.getElementById('view-attendance-modal').style.display = 'flex';
+        const logs = JSON.parse(data.logs || '[]');
+        document.getElementById('modal-bar-logs').textContent = `${logs.length} ${logs.length === 1 ? 'record' : 'records'}`;
+
+        if (logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 24px; color: #9999bb;">No attendance logs found for this period.</td></tr>`;
+        } else {
+            logs.forEach(log => {
+                let statusStyle = 'background: #f3f4f6; color: #1f2937;';
+                if (log.status === 'Present') statusStyle = 'background: #e6f4ea; color: #137333;';
+                if (log.status === 'Absent') statusStyle = 'background: #fef2f2; color: #8e1e18;';
+                if (log.status === 'Late') statusStyle = 'background: #fff7ed; color: #a16207;';
+
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #f7f6ff';
+
+                row.innerHTML = `
+                <td style="padding: 12px 8px; font-weight: 600; color: #0b044d;">${fullName}</td>
+                <td style="padding: 12px 8px;">${log.date || 'N/A'}</td>
+                <td style="padding: 12px 8px; font-family: monospace;">${log.clock_in || '--:--'}</td>
+                <td style="padding: 12px 8px; font-family: monospace;">${log.clock_out || '--:--'}</td>
+                <td style="padding: 12px 8px; text-align: center;">${log.break_minutes ? log.break_minutes + 'm' : '0m'}</td>
+                <td style="padding: 12px 8px; text-align: center; color: #4b5563;">${log.overtime_minutes ? (log.overtime_minutes / 60).toFixed(2) : '0.00'}h</td>
+                <td style="padding: 12px 8px; text-align: center; font-weight: 600;">${log.total_hours ? log.total_hours + 'h' : '0h'}</td>
+                <td style="padding: 12px 8px;">
+                    <span style="padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; ${statusStyle}">
+                        ${log.status || 'Unknown'}
+                    </span>
+                </td>
+                <td style="padding: 12px 8px; text-align: right;">
+                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                        <!-- Edit Button Action -->
+                        <button type="button" onclick="editAttendanceLog(${log.id})" title="Edit Log" style="padding: 6px; background: #f7f6ff; border: none; border-radius: 6px; color: #0b044d; cursor: pointer; display: inline-flex; align-items: center;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <!-- Delete Button Action -->
+                        <button type="button" onclick="deleteAttendanceLog(${log.id})" title="Delete Log" style="padding: 6px; background: #fef2f2; border: none; border-radius: 6px; color: #8e1e18; cursor: pointer; display: inline-flex; align-items: center;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 4. Reveal Modal Window
+        document.getElementById('viewAttendanceModal').style.display = 'flex';
     }
+
     function openEditDTRModal(data) {
         var url = "{{ route('attendances.update', ':id') }}".replace(':id', data.attendance_id);
         document.getElementById('edit-dtr-form').action = url;

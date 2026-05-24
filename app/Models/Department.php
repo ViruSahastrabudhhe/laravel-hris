@@ -25,6 +25,10 @@ class Department extends Model implements Auditable
         'description',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function employees()
     {
         return $this->hasMany(Employee::class);

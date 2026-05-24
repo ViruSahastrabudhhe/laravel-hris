@@ -14,11 +14,11 @@ class Salary extends Model
     use HasFactory;
 
     protected $fillable = [
+        'employee_id',
         'amount',
         'salary_grade',
         'step',
         'salary_type',
-        'employee_id',
     ];
 
     protected $casts = [

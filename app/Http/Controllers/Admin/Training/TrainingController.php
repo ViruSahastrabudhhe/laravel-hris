@@ -10,10 +10,17 @@ use App\Http\Requests\Training\StoreTrainingRequest;
 use App\Http\Requests\Training\UpdateTrainingRequest;
 use App\Models\EmployeeTraining;
 use App\Enums\EmployeeTrainingStatus;
+use App\Services\Training\TrainingService;
 use Illuminate\Http\Request;
 
 class TrainingController extends Controller
 {
+    protected TrainingService $trainingService;
+
+    public function __construct(TrainingService $trainingService) {
+        $this->trainingService = $trainingService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -104,7 +111,7 @@ class TrainingController extends Controller
         $data = $request->validated();
 
         $training->update($data);
-        
+
         if ($training->status === TrainingStatus::Ongoing->value) {
             $employeeTraining = EmployeeTraining::where('training_id', $training->id)->get();
             foreach ($employeeTraining as $et) {

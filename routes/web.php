@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\Attendance\AttendanceController;
 use App\Http\Controllers\Admin\Payroll\PayrollRecordController;
 use App\Http\Controllers\Admin\Compensation\EmployeeCompensationController;
 use App\Http\Controllers\Admin\Leave\LeaveRequestController;
-use App\Http\Controllers\Admin\Leave\EmployeeLeaveBalanceController;
 use App\Http\Controllers\Admin\Leave\LeaveTypeController;
 use App\Http\Controllers\Admin\Salary\SalaryController;
 use App\Http\Controllers\Admin\QrCode\QrCodeController;
@@ -45,13 +44,21 @@ Route::view('/landing', 'landing')->name('landing');
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified', 'active'])->name('home');
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function() {
-    Route::get('employees/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
-    Route::get('employees/check-email', [EmployeeController::class, 'checkEmail'])->name('employees.checkEmail');
-    Route::post('employees/bulk-store', [EmployeeController::class, 'bulkStore'])->name('employees.bulkStore');
-    Route::put('employees/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
-    Route::put('employees/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
-    Route::put('employees/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
-    Route::resource('employees', EmployeeController::class);
+    Route::prefix('employees')->group(function() {
+        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::get('/employees', [EmployeeController::class, 'getEmployees'])->name('employees.getEmployees');
+        Route::get('/archives', [EmployeeController::class, 'archive'])->name('employees.archive');
+        Route::get('/check-email', [EmployeeController::class, 'checkEmail'])->name('employees.checkEmail');
+        Route::get('/{employee}/show', [EmployeeController::class, 'show'])->name('employees.show');
+        Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+        Route::post('/create', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::post('/bulk-store', [EmployeeController::class, 'bulkStore'])->name('employees.bulkStore');
+        Route::put('/{employee}/update', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::put('/{employeeId}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
+        Route::put('/{employeeId}/activate', [EmployeeController::class, 'activate'])->name('employees.activate');
+        Route::put('/{employeeId}/deactivate', [EmployeeController::class, 'deactivate'])->name('employees.deactivate');
+        Route::delete('/{employee}/delete', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    });
     Route::resource('positions', PositionController::class);
     Route::resource('salaries', SalaryController::class);
     Route::resource('departments', DepartmentController::class);

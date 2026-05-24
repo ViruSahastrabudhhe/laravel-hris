@@ -1,9 +1,0 @@
-first_name,last_name,email,password,gender,date_of_birth,phone_number,employment_type,is_active,position_id,department_id,salary_type,amount,salary_grade,step,country,zip_code,city,address,province,work_schedule_id
-Michael,Johnson,michael.j@example.com,password123,Male,1988-11-20,0917123456,Regular,1,1,1,Monthly,6500,2,2,Philippines,1226,Makati,789 Pine St,Metro Manila,1
-Emily,Davis,emily.d@example.com,password123,Female,1992-03-10,0918987654,Job Order,1,1,1,Hourly,20,1,1,Philippines,1100,Quezon City,321 Elm St,Metro Manila,1
-David,Wilson,david.w@example.com,password123,Male,1985-07-22,0922333444,Regular,1,1,1,Monthly,8000,3,1,Philippines,1630,Taguig,654 Maple Dr,Metro Manila,1
-Sarah,Brown,sarah.b@example.com,password123,Female,1998-09-05,0933444555,Job Order,1,1,1,Hourly,30,2,1,Philippines,6000,Cebu City,987 Cedar Ln,Cebu,1
-James,Taylor,james.t@example.com,password123,Male,1991-12-12,0944555666,Regular,1,1,1,Monthly,5500,1,3,Philippines,8000,Davao City,147 Birch St,Davao del Sur,1
-Jessica,Anderson,jessica.a@example.com,password123,Female,1989-04-18,0955666777,Regular,1,1,1,Monthly,7200,2,3,Philippines,1004,Manila,258 Spruce Way,Metro Manila,1
-Robert,Thomas,robert.t@example.com,password123,Male,1994-08-30,0966777888,Job Order,1,1,1,Hourly,22,1,2,Philippines,1200,Makati,369 Walnut Ave,Metro Manila,1
-Lisa,Jackson,lisa.j@example.com,password123,Female,1996-02-14,0977888999,Regular,1,1,1,Monthly,4800,1,1,Philippines,1105,Quezon City,753 Chestnut Blvd,Metro Manila,1

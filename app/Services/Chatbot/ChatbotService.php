@@ -4,7 +4,6 @@ namespace App\Services\Chatbot;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
 class ChatbotService
 {
     protected $chatbotUrl;

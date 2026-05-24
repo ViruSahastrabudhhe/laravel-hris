@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreignId('department_id')
                 ->references('id')->on('departments');
             $table->foreignId('user_id')
-                ->references('id')->on('users');
+                ->references('id')->on('users')->nullable();
             $table->enum('employment_type', EmploymentType::cases());
             $table->boolean('is_active');
             $table->timestamps();
